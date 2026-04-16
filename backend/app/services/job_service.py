@@ -1,4 +1,4 @@
-"""提供任务创建、轮询、取消与重试服务，落地 PipelineJob 状态机。"""
+"""提供任务创建、轮询、取消、重试与产物读取服务。"""
 
 from __future__ import annotations
 
@@ -7,7 +7,7 @@ import uuid
 from datetime import UTC, datetime
 from typing import Any
 
-from app.domain.enums import JobStatus, JobType, Stage
+from app.domain.enums import JobStatus, JobType, OutputType, Stage
 from app.domain.models import Author, AuthorDocument, PipelineJob
 from app.infra.db import session_scope
 from app.services import pipeline_service
@@ -28,14 +28,32 @@ def _job_start_stage(job_type: str) -> Stage:
     return Stage.SELECT_SKILLS
 
 
+def _parse_outputs(outputs_json: str) -> dict[str, Any]:
+    """解析 outputs_json 为字典。"""
+    try:
+        parsed = json.loads(outputs_json or "{}")
+        if isinstance(parsed, dict):
+            return parsed
+    except json.JSONDecodeError:
+        pass
+    return {}
+
+
+def _allowed_output_values() -> set[str]:
+    """返回对外允许的产物类型集合。"""
+    return {item.value for item in OutputType}
+
+
+def _extract_public_outputs(outputs_json: str) -> dict[str, Any]:
+    """过滤出对外允许读取的产物。"""
+    outputs = _parse_outputs(outputs_json)
+    allowed = _allowed_output_values()
+    return {key: value for key, value in outputs.items() if key in allowed}
+
+
 def _serialize_job(job: PipelineJob) -> dict[str, Any]:
     """将任务模型序列化为轮询响应结构。"""
-    outputs_ready = False
-    try:
-        outputs_ready = bool(json.loads(job.outputs_json or "{}"))
-    except json.JSONDecodeError:
-        outputs_ready = False
-
+    public_outputs = _extract_public_outputs(job.outputs_json or "{}")
     return {
         "jobId": job.job_id,
         "authorId": job.author_id,
@@ -46,8 +64,18 @@ def _serialize_job(job: PipelineJob) -> dict[str, Any]:
         "progress": job.progress,
         "errorMessage": job.error_message,
         "retryable": job.status in {JobStatus.FAILED.value, JobStatus.CANCELED.value},
-        "outputsReady": outputs_ready,
+        "outputsReady": bool(public_outputs),
     }
+
+
+def _execute_job_by_type(job_id: str, job_type: str) -> None:
+    """按任务类型执行最小流水线。"""
+    if job_type == JobType.DOCUMENT_RELOAD.value:
+        execute_document_reload_job(job_id=job_id)
+    elif job_type == JobType.AUTHOR_SKILLS.value:
+        execute_author_skills_job(job_id=job_id)
+    elif job_type == JobType.AUTHOR_ANSWER.value:
+        execute_author_answer_job(job_id=job_id)
 
 
 def create_document_reload_job(
@@ -65,7 +93,6 @@ def create_document_reload_job(
 
         document.status = "processing"
         document.updated_at = now
-
         job = PipelineJob(
             job_id=str(uuid.uuid4()),
             author_id=author_id,
@@ -85,11 +112,11 @@ def create_document_reload_job(
         session.add(job)
         session.flush()
         serialized = _serialize_job(job)
-        job_id = job.job_id
+        created_job_id = job.job_id
 
     if auto_run:
-        execute_document_reload_job(job_id=job_id)
-        return get_job(job_id=job_id)
+        execute_document_reload_job(job_id=created_job_id)
+        return get_job(job_id=created_job_id)
     return serialized
 
 
@@ -120,7 +147,7 @@ def execute_document_reload_job(job_id: str) -> None:
                     document.updated_at = now
 
 
-def create_author_skills_job(author_id: str) -> dict[str, Any]:
+def create_author_skills_job(author_id: str, auto_run: bool = True) -> dict[str, Any]:
     """创建 author_skills 任务。"""
     now = _now_iso()
     with session_scope() as session:
@@ -145,11 +172,41 @@ def create_author_skills_job(author_id: str) -> dict[str, Any]:
         )
         session.add(job)
         session.flush()
-        return _serialize_job(job)
+        created_job_id = job.job_id
+        serialized = _serialize_job(job)
+
+    if auto_run:
+        execute_author_skills_job(job_id=created_job_id)
+        return get_job(job_id=created_job_id)
+    return serialized
 
 
-def create_author_answer_job(author_id: str, query: str) -> dict[str, Any]:
+def execute_author_skills_job(job_id: str) -> None:
+    """执行 author_skills 任务并写回任务状态。"""
+    with session_scope() as session:
+        job = session.get(PipelineJob, job_id)
+        if job is None:
+            raise HTTPException(status_code=404, detail="job not found")
+        if job.job_type != JobType.AUTHOR_SKILLS.value:
+            raise HTTPException(
+                status_code=409, detail="job type does not support author_skills run"
+            )
+        if job.status == JobStatus.CANCELED.value:
+            return
+        try:
+            pipeline_service.run_author_skills(session=session, job=job)
+        except Exception as exc:
+            now = _now_iso()
+            job.status = JobStatus.FAILED.value
+            job.error_message = str(exc)
+            job.updated_at = now
+            job.finished_at = now
+
+
+def create_author_answer_job(author_id: str, query: str, auto_run: bool = True) -> dict[str, Any]:
     """创建 author_answer 任务。"""
+    if not query.strip():
+        raise HTTPException(status_code=422, detail="query is required")
     now = _now_iso()
     with session_scope() as session:
         author = session.get(Author, author_id)
@@ -173,7 +230,35 @@ def create_author_answer_job(author_id: str, query: str) -> dict[str, Any]:
         )
         session.add(job)
         session.flush()
-        return _serialize_job(job)
+        created_job_id = job.job_id
+        serialized = _serialize_job(job)
+
+    if auto_run:
+        execute_author_answer_job(job_id=created_job_id)
+        return get_job(job_id=created_job_id)
+    return serialized
+
+
+def execute_author_answer_job(job_id: str) -> None:
+    """执行 author_answer 任务并写回任务状态。"""
+    with session_scope() as session:
+        job = session.get(PipelineJob, job_id)
+        if job is None:
+            raise HTTPException(status_code=404, detail="job not found")
+        if job.job_type != JobType.AUTHOR_ANSWER.value:
+            raise HTTPException(
+                status_code=409, detail="job type does not support author_answer run"
+            )
+        if job.status == JobStatus.CANCELED.value:
+            return
+        try:
+            pipeline_service.run_author_answer(session=session, job=job)
+        except Exception as exc:
+            now = _now_iso()
+            job.status = JobStatus.FAILED.value
+            job.error_message = str(exc)
+            job.updated_at = now
+            job.finished_at = now
 
 
 def get_job(job_id: str) -> dict[str, Any]:
@@ -186,31 +271,27 @@ def get_job(job_id: str) -> dict[str, Any]:
 
 
 def list_outputs(job_id: str) -> list[dict[str, Any]]:
-    """读取任务产物清单。"""
+    """读取任务产物清单（仅返回 V3 允许类型）。"""
     with session_scope() as session:
         job = session.get(PipelineJob, job_id)
         if job is None:
             raise HTTPException(status_code=404, detail="job not found")
-        try:
-            outputs = json.loads(job.outputs_json or "{}")
-        except json.JSONDecodeError:
-            outputs = {}
-        return [{"type": key, "uri": value} for key, value in outputs.items()]
+        outputs = _extract_public_outputs(job.outputs_json or "{}")
+        return [{"type": key} for key in sorted(outputs.keys())]
 
 
-def get_output(job_id: str, output_type: str) -> dict[str, str]:
-    """读取指定任务产物。"""
+def get_output(job_id: str, output_type: str) -> dict[str, Any]:
+    """读取指定任务产物（仅支持 V3 允许类型）。"""
+    if output_type not in _allowed_output_values():
+        raise HTTPException(status_code=422, detail="invalid output type")
     with session_scope() as session:
         job = session.get(PipelineJob, job_id)
         if job is None:
             raise HTTPException(status_code=404, detail="job not found")
-        try:
-            outputs = json.loads(job.outputs_json or "{}")
-        except json.JSONDecodeError:
-            outputs = {}
+        outputs = _extract_public_outputs(job.outputs_json or "{}")
         if output_type not in outputs:
             raise HTTPException(status_code=404, detail="output not found")
-        return {"type": output_type, "uri": str(outputs[output_type])}
+        return {"type": output_type, "content": outputs[output_type]}
 
 
 def retry_job(job_id: str) -> dict[str, Any]:
@@ -229,14 +310,11 @@ def retry_job(job_id: str) -> dict[str, Any]:
         job.finished_at = None
         job.updated_at = now
         job.outputs_json = "{}"
-        serialized = _serialize_job(job)
-        job_type = job.job_type
         resolved_job_id = job.job_id
+        job_type = job.job_type
 
-    if job_type == JobType.DOCUMENT_RELOAD.value:
-        execute_document_reload_job(job_id=resolved_job_id)
-        return get_job(job_id=resolved_job_id)
-    return serialized
+    _execute_job_by_type(job_id=resolved_job_id, job_type=job_type)
+    return get_job(job_id=resolved_job_id)
 
 
 def cancel_job(job_id: str) -> dict[str, Any]:

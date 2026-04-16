@@ -1,137 +1,107 @@
-## 1. 本轮目标
+﻿## 1. 本轮目标
 
-1. 严格按 `backend/tech.md` 与 `backend/backend_design_v3.md` 完成第二阶段落地，不扩展到第三阶段。
-2. 完成数据库首个迁移与核心表落地，打通作者创建、文档上传自动触发 `document_reload`、任务轮询/取消/重试最小闭环。
-3. 完成 `document_reload` 最小链路（`extract -> segment_sync`）并将章节/段落写入数据库。
-4. 新增至少三条集成测试并完成规定验证命令。
+1. 严格按 `backend/backend_design_v3.md`、`backend/tech.md` 与 `backend/content.md`（第三阶段）完成后端第三阶段落地。
+2. 打通 `author_skills` 最小闭环：读取作者 active 文档与未软删段落，串联 `analyze_method_chunks -> main_skill -> sub_skill -> render`，写入 `author_skill_snapshots` 并维护 latest 语义。
+3. 打通 `author_answer` 最小闭环：强制 `author_id`，读取 latest snapshot，执行可复现 `select_skills`，产出 `answer_json`。
+4. 完善任务产物读取：`GET /api/jobs/{job_id}/outputs` 与 `GET /api/jobs/{job_id}/outputs/{type}` 对齐 V3 输出类型与错误语义。
+5. 增加第三阶段集成测试并执行规定校验命令。
 
 ## 2. 已完成内容（按模块）
 
-### 2.1 数据库与迁移
+### 2.1 author_skills 最小闭环
 
-1. 新增 `alembic.ini`，支持 `alembic -c alembic.ini` 运行迁移。
-2. 新增首个迁移 `backend/alembic/versions/20260416_0001_init_core_tables.py`，创建 6 张核心表：
-   - `authors`
-   - `author_documents`
-   - `document_chapters`
-   - `document_segments`
-   - `author_skill_snapshots`
-   - `pipeline_jobs`
-3. `models.py` 与迁移对齐：
-   - 新增 `(document_id, chapter_title)` 唯一约束。
-   - 新增 `(document_id, chunk_id)` 唯一约束。
-   - `pipeline_jobs` 字段与 V3 约定保持一致（含 `status/current_stage/progress/error_message/outputs_json` 等）。
-4. 解决 SQLite 文件路径问题：
-   - `app/infra/db.py` 与 `alembic/env.py` 在启动时自动创建 sqlite 文件目录，避免 `unable to open database file`。
+1. 在 `app/services/pipeline_service.py` 实现 `run_author_skills`：
+   - 读取作者下 `active` 文档。
+   - 仅读取 `is_deleted=0` 的 `document_chapters/document_segments`。
+   - 串联阶段：`analyze -> main_skill -> sub_skill -> render`。
+2. 按 V3 语义推进任务状态与进度：
+   - `analyze=35`、`main_skill=55`、`sub_skill=70`、`render=85`、完成 `100`。
+3. 产出并写入任务产物：
+   - `main_skill_json`
+   - `sub_skill_json`
+   - `main_skill_md`
+   - `sub_skills_md_zip`
+4. 写入 `author_skill_snapshots` 并维护 latest：
+   - 新快照 `is_latest=true`
+   - 旧快照批量切换 `is_latest=false`
+5. 回填 `pipeline_jobs.snapshot_id` 与 `pipeline_jobs.outputs_json`，轮询接口可见。
 
-### 2.2 作者与文档闭环
+### 2.2 author_answer 最小闭环
 
-1. `POST /api/authors` 已落库，返回统一 envelope + camelCase 数据字段。
-2. `POST /api/authors/{author_id}/documents` 已落库并自动创建 `document_reload` 任务。
-3. 上传文档后自动执行 `document_reload`，并将文档状态从 `processing` 更新为 `active/failed`。
-4. `POST /api/authors/{author_id}/documents/{document_id}/reload` 可手动触发单文档重处理并返回 `reloadJobId`。
+1. 在 `app/services/pipeline_service.py` 实现 `run_author_answer`：
+   - 强制依赖 `author_id`（路由层已通过 `/api/authors/{author_id}/jobs/answer` 保证）。
+   - 读取该作者 latest snapshot。
+2. 实现最小可复现选择链路：
+   - `select_skills` 使用 deterministic 规则（基于 query 与技能文本匹配）选择技能。
+3. 生成 `answer_json` 并写入 `pipeline_jobs.outputs_json`。
+4. 阶段推进与进度对齐 V3：
+   - `select_skills=40`
+   - `answer=100`
 
-### 2.3 任务轮询与状态机
+### 2.3 任务执行与产物读取能力
 
-1. `GET /api/jobs/{job_id}` 返回轮询契约字段：
-   - `status`
-   - `currentStage`
-   - `progress`
-   - `errorMessage`
-   - `retryable`
-   - `outputsReady`
-2. `POST /api/jobs/{job_id}/cancel` 实现最小合法状态机：
-   - 仅允许取消 `queued/running`
-   - 对 `success/failed/canceled` 返回冲突错误
-3. `POST /api/jobs/{job_id}/retry` 实现最小合法状态机：
-   - 仅允许重试 `failed/canceled`
-   - 重置阶段与状态后执行对应最小逻辑
+1. 在 `app/services/job_service.py` 增加三类任务执行分发与重试分发：
+   - `document_reload`
+   - `author_skills`
+   - `author_answer`
+2. 对齐 V3 对外产物类型枚举过滤：
+   - `main_skill_json`
+   - `sub_skill_json`
+   - `answer_json`
+   - `main_skill_md`
+   - `sub_skills_md_zip`
+3. `GET /api/jobs/{job_id}/outputs/{type}` 行为补齐：
+   - 非法 `type` 返回 `422 INVALID_ARGUMENT`
+   - 缺失产物返回 `404 NOT_FOUND`
+4. 统一响应 envelope 继续生效：`success/data/error/requestId/timestamp`。
 
-### 2.4 document_reload 最小链路
+### 2.4 第三阶段测试补齐
 
-1. 已实现 `extract -> segment_sync` 最小流水线：
-   - `extract`：`app/services/extract_paragraphs.py`
-   - `segment_sync`：`app/services/pipeline_service.py`
-2. 章节映射与段落写入规则：
-   - 按 `(document_id, section_title)` upsert `document_chapters`
-   - 按 `(document_id, chunk_id)` upsert `document_segments`
-3. 软删除约束已执行：
-   - 已软删除章节不会被回填
-   - 已软删除段落不会被回填为有效数据
-4. 明确保持 V3 约束：
-   - `document_reload` 不自动触发 `author_skills`
-   - 架构仍是 `PipelineJob + 轮询`，未引入 SSE/WebSocket
-
-### 2.5 测试
-
-1. 新增 `tests/integration/test_author_document_job_flow.py`，覆盖 3 条集成测试：
-   - 作者创建
-   - 文档上传触发 `document_reload`
-   - 任务轮询状态读取
-2. 更新 `tests/conftest.py`：
-   - 每个用例前重建数据库
-   - 统一注入 `X-API-Key`
-3. 当前测试总计通过：`4 passed`
+1. 新增 `tests/integration/test_skills_answer_outputs.py`，覆盖：
+   - `author_skills` 跑通并写入 snapshot/产物。
+   - `author_answer` 跑通并产出 `answer_json`。
+   - `outputs` 与 `outputs/{type}` 成功/非法 type/缺失产物分支。
+2. 测试通过，当前后端测试总数 `7 passed`。
 
 ## 3. 关键文件变更清单
 
-1. `backend/alembic.ini`
-2. `backend/alembic/env.py`
-3. `backend/alembic/versions/20260416_0001_init_core_tables.py`
-4. `backend/app/domain/models.py`
-5. `backend/app/domain/schemas.py`
-6. `backend/app/infra/db.py`
-7. `backend/app/main.py`
-8. `backend/app/api/routes/authors.py`
-9. `backend/app/services/author_service.py`
-10. `backend/app/services/job_service.py`
-11. `backend/app/services/pipeline_service.py`
-12. `backend/app/services/extract_paragraphs.py`
-13. `backend/app/services/segment_service.py`
-14. `backend/app/services/stage_runners.py`
-15. `backend/scripts/migrate.py`
-16. `backend/tests/conftest.py`
-17. `backend/tests/integration/test_author_document_job_flow.py`
+1. `backend/app/services/pipeline_service.py`
+2. `backend/app/services/job_service.py`
+3. `backend/app/services/stage_runners.py`
+4. `backend/app/services/analyze_method_chunks.py`
+5. `backend/app/services/main_skill.py`
+6. `backend/app/services/sub_skill.py`
+7. `backend/app/services/render.py`
+8. `backend/app/services/select_skills.py`
+9. `backend/app/services/answer_with_skills.py`
+10. `backend/tests/integration/test_skills_answer_outputs.py`
+11. `backend/content.md`
 
-## 4. 验证结果（执行命令与结果）
+## 4. 验证结果（命令 + 结果）
 
-1. `uv run ruff check app scripts tests alembic`：通过。
-2. `uv run ruff format --check app scripts tests alembic`：通过。
-3. `uv run mypy app`：通过。
-4. `uv run python -m pytest -q`：通过（`4 passed`）。
-5. `uv run alembic -c alembic.ini upgrade head`：通过。
-6. `uv run python -c "import sqlite3; ..."` 验证表结构：数据库中存在
-   - `authors`
-   - `author_documents`
-   - `document_chapters`
-   - `document_segments`
-   - `author_skill_snapshots`
-   - `pipeline_jobs`
-   - `alembic_version`
+1. `uv run ruff check app scripts tests alembic`
+- 结果：通过（`All checks passed!`）
+2. `uv run ruff format --check app scripts tests alembic`
+- 结果：通过（`35 files already formatted`）
+3. `uv run mypy app`
+- 结果：通过（`Success: no issues found in 27 source files`）
+4. `uv run python -m pytest -q`
+- 结果：通过（`7 passed in 0.54s`）
+5. `uv run alembic -c alembic.ini upgrade head`
+- 结果：通过（SQLite migration context 正常，无报错）
 
-## 5. 未完成项与风险
+## 5. 未完成项与风险（含假设说明）
 
-1. `author_skills` 与 `author_answer` 仍为占位执行逻辑，仅 document_reload 达到最小可运行。
-2. `select_skills` 仍未实现真实选择策略，后续问答链路尚未与技能快照打通。
-3. 当前 `extract` 为最小实现（本地 PDF 可提取，非本地 URI 走兜底段落），未接入 references 中完整切分策略。
-4. 未实现 `GET /api/jobs/{job_id}/outputs` 的真实产物文件读取能力，仅提供最小 JSON 索引读取。
-5. 保守假设：第二阶段允许 `document_reload` 同步执行（在创建任务后立即跑完），后续可切到 Celery 异步消费而不改外部接口。
+1. 第三阶段按“最小闭环”实现，`analyze/main/sub/select/answer/render` 仍是可运行简化逻辑，尚未完全接入 references 对应的完整 Prompt/LLM 生产策略。
+2. 当前任务创建后默认在服务内同步执行（`auto_run=True` 的最小实现），尚未切换为 Celery Worker 异步消费；但对外仍保持 `PipelineJob + 轮询` 契约。
+3. 当前 `outputs_json` 存储的是可直接读取的结构化内容；尚未全部切换为 storage URI 映射（`artifact_type -> uri`）的最终形态。
+4. 本轮运行产生了本地数据库文件变更（`backend/storage/app.db`），属于运行态产物，不属于第三阶段功能代码。
+5. 保守一致假设：在未接入完整模型编排前，deterministic `select_skills` 与模板化 `answer_json` 可作为第三阶段验收口径。
 
-## 6. 下一步目标（第三阶段，可执行）
+## 6. 下一步目标（第四阶段，可执行）
 
-1. 打通 `author_skills` 最小闭环：
-   - 读取作者 active 文档章节段落
-   - 接入 `analyze_method_chunks -> main_skill -> sub_skill -> render` 阶段骨架
-   - 产出并写入 `author_skill_snapshots`
-2. 打通 `author_answer` 最小闭环：
-   - 强制携带 `author_id`
-   - 读取 latest snapshot
-   - 实现 `select_skills` 最小规则并输出 `answer_json`
-3. 完善任务产物读取接口：
-   - `GET /api/jobs/{job_id}/outputs`
-   - `GET /api/jobs/{job_id}/outputs/{type}`
-   - 对齐 V3 对外产物类型枚举
-4. 增加软删除一致性测试：
-   - 删除章节/段落后再次 `document_reload` 不回填软删数据
-5. 将 `document_reload` 从同步执行切换到 Celery 异步执行，并保持轮询契约不变。
-
+1. 将三类任务执行从同步 `auto_run` 切换为 Celery + Redis 异步执行，保持现有轮询契约不变。
+2. 将任务产物落盘到 `storage/authors/...`，并把 `outputs_json` 统一收敛为 `artifact_type -> uri`。
+3. 依据 `backend/references` 完成 `extract/analyze/main/sub/select/answer/render` 的生产版实现与 Prompt 装配。
+4. 补充软删除一致性与重试/取消语义的集成测试（覆盖失败重试、取消后不可继续执行等分支）。
+5. 增加 `author_answer` 无 latest snapshot、无可用技能、空查询等边界场景测试与错误码校验。

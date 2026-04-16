@@ -7,9 +7,22 @@ import uuid
 from datetime import UTC, datetime
 from typing import Any
 
-from app.domain.enums import JobStatus, Stage
-from app.domain.models import AuthorDocument, DocumentChapter, DocumentSegment, PipelineJob
+from app.domain.enums import JobStatus, OutputType, Stage
+from app.domain.models import (
+    Author,
+    AuthorDocument,
+    AuthorSkillSnapshot,
+    DocumentChapter,
+    DocumentSegment,
+    PipelineJob,
+)
+from app.services.analyze_method_chunks import run_analyze_method_chunks
+from app.services.answer_with_skills import run_answer_with_skills
 from app.services.extract_paragraphs import run_extract_paragraphs
+from app.services.main_skill import run_main_skill
+from app.services.render import run_render
+from app.services.select_skills import run_select_skills
+from app.services.sub_skill import run_sub_skill
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -19,14 +32,178 @@ def _now_iso() -> str:
     return datetime.now(tz=UTC).isoformat()
 
 
-def run_author_skills(job_id: str) -> dict[str, str]:
-    """执行作者技能流水线占位逻辑。"""
-    return {"jobId": job_id, "pipeline": "author_skills"}
+def _parse_outputs(outputs_json: str) -> dict[str, Any]:
+    """解析 outputs_json，失败时返回空字典。"""
+    try:
+        parsed = json.loads(outputs_json or "{}")
+        if isinstance(parsed, dict):
+            return parsed
+    except json.JSONDecodeError:
+        pass
+    return {}
 
 
-def run_author_answer(job_id: str) -> dict[str, str]:
-    """执行作者问答流水线占位逻辑。"""
-    return {"jobId": job_id, "pipeline": "author_answer"}
+def _load_author_segments(session: Session, author_id: str) -> list[dict[str, Any]]:
+    """读取作者 active 文档中未软删章节段落。"""
+    documents = session.execute(
+        select(AuthorDocument).where(
+            AuthorDocument.author_id == author_id,
+            AuthorDocument.status == "active",
+        )
+    ).scalars()
+    document_rows = list(documents)
+    if not document_rows:
+        return []
+    document_ids = [item.document_id for item in document_rows]
+
+    chapters = session.execute(
+        select(DocumentChapter).where(
+            DocumentChapter.document_id.in_(document_ids),
+            DocumentChapter.is_deleted.is_(False),
+        )
+    ).scalars()
+    chapter_by_id = {chapter.chapter_id: chapter for chapter in chapters}
+
+    segments = session.execute(
+        select(DocumentSegment).where(
+            DocumentSegment.document_id.in_(document_ids),
+            DocumentSegment.is_deleted.is_(False),
+        )
+    ).scalars()
+    segment_rows = sorted(
+        list(segments),
+        key=lambda item: (item.document_id, item.chapter_id, item.order_index),
+    )
+
+    result: list[dict[str, Any]] = []
+    for segment in segment_rows:
+        chapter = chapter_by_id.get(segment.chapter_id)
+        if chapter is None:
+            continue
+        result.append(
+            {
+                "document_id": segment.document_id,
+                "chapter_id": segment.chapter_id,
+                "chapter_title": chapter.chapter_title,
+                "chunk_id": segment.chunk_id,
+                "content": segment.content,
+                "order_index": segment.order_index,
+            }
+        )
+    return result
+
+
+def run_author_skills(session: Session, job: PipelineJob) -> None:
+    """执行 author_skills 最小闭环并写入 author_skill_snapshots。"""
+    author = session.get(Author, job.author_id)
+    if author is None:
+        raise ValueError("author not found for author_skills")
+
+    job.status = JobStatus.RUNNING.value
+    job.current_stage = Stage.ANALYZE.value
+    job.progress = 35
+    job.updated_at = _now_iso()
+    session.flush()
+
+    segments = _load_author_segments(session=session, author_id=job.author_id)
+    if not segments:
+        raise ValueError("no active segments found for author_skills")
+
+    method_analysis = run_analyze_method_chunks(segments=segments)
+
+    job.current_stage = Stage.MAIN_SKILL.value
+    job.progress = 55
+    job.updated_at = _now_iso()
+    main_skill_json = run_main_skill(method_analysis=method_analysis)
+
+    job.current_stage = Stage.SUB_SKILL.value
+    job.progress = 70
+    job.updated_at = _now_iso()
+    sub_skill_json = run_sub_skill(main_skill_json=main_skill_json, method_analysis=method_analysis)
+
+    job.current_stage = Stage.RENDER.value
+    job.progress = 85
+    job.updated_at = _now_iso()
+    rendered = run_render(main_skill_json=main_skill_json, sub_skill_json=sub_skill_json)
+
+    outputs = {
+        OutputType.MAIN_SKILL_JSON.value: main_skill_json,
+        OutputType.SUB_SKILL_JSON.value: sub_skill_json,
+        OutputType.MAIN_SKILL_MD.value: rendered["main_skill_md"],
+        OutputType.SUB_SKILLS_MD_ZIP.value: rendered["sub_skills_md_zip"],
+    }
+    snapshot_id = str(uuid.uuid4())
+    now = _now_iso()
+
+    latest_snapshots = session.execute(
+        select(AuthorSkillSnapshot).where(
+            AuthorSkillSnapshot.author_id == job.author_id,
+            AuthorSkillSnapshot.is_latest.is_(True),
+        )
+    ).scalars()
+    for snapshot in latest_snapshots:
+        snapshot.is_latest = False
+
+    session.add(
+        AuthorSkillSnapshot(
+            snapshot_id=snapshot_id,
+            author_id=job.author_id,
+            is_latest=True,
+            outputs_json=json.dumps(outputs),
+            created_at=now,
+        )
+    )
+
+    job.snapshot_id = snapshot_id
+    job.outputs_json = json.dumps(outputs)
+    job.status = JobStatus.SUCCESS.value
+    job.progress = 100
+    job.updated_at = now
+    job.finished_at = now
+
+
+def run_author_answer(session: Session, job: PipelineJob) -> None:
+    """执行 author_answer 最小闭环并产出 answer_json。"""
+    if not job.query:
+        raise ValueError("author_answer requires non-empty query")
+
+    latest_snapshot = (
+        session.execute(
+            select(AuthorSkillSnapshot)
+            .where(
+                AuthorSkillSnapshot.author_id == job.author_id,
+                AuthorSkillSnapshot.is_latest.is_(True),
+            )
+            .order_by(AuthorSkillSnapshot.created_at.desc())
+        )
+        .scalars()
+        .first()
+    )
+    if latest_snapshot is None:
+        raise ValueError("no latest snapshot found for author_answer")
+
+    snapshot_outputs = _parse_outputs(latest_snapshot.outputs_json)
+
+    job.status = JobStatus.RUNNING.value
+    job.current_stage = Stage.SELECT_SKILLS.value
+    job.progress = 40
+    job.updated_at = _now_iso()
+    selection = run_select_skills(snapshot_outputs=snapshot_outputs, query=job.query)
+
+    job.current_stage = Stage.ANSWER.value
+    job.updated_at = _now_iso()
+    answer_json = run_answer_with_skills(
+        query=job.query, selected=selection, snapshot_outputs=snapshot_outputs
+    )
+
+    outputs = {OutputType.ANSWER_JSON.value: answer_json}
+    now = _now_iso()
+    job.snapshot_id = latest_snapshot.snapshot_id
+    job.outputs_json = json.dumps(outputs)
+    job.status = JobStatus.SUCCESS.value
+    job.progress = 100
+    job.updated_at = now
+    job.finished_at = now
 
 
 def _upsert_chapters_and_segments(
