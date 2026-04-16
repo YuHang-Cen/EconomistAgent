@@ -16,6 +16,7 @@ from app.domain.models import (
     DocumentSegment,
     PipelineJob,
 )
+from app.infra import storage
 from app.services.analyze_method_chunks import run_analyze_method_chunks
 from app.services.answer_with_skills import run_answer_with_skills
 from app.services.extract_paragraphs import run_extract_paragraphs
@@ -25,6 +26,10 @@ from app.services.select_skills import run_select_skills
 from app.services.sub_skill import run_sub_skill
 from sqlalchemy import select
 from sqlalchemy.orm import Session
+
+
+class PipelineCanceledError(RuntimeError):
+    """表示任务在阶段边界被取消。"""
 
 
 def _now_iso() -> str:
@@ -41,6 +46,23 @@ def _parse_outputs(outputs_json: str) -> dict[str, Any]:
     except json.JSONDecodeError:
         pass
     return {}
+
+
+def _read_uri_content(uri: str) -> Any:
+    """根据 URI 读取 JSON 或文本内容。"""
+    path = storage.resolve_storage_uri(uri)
+    if not path.exists():
+        return None
+    if path.suffix.lower() == ".json":
+        return json.loads(path.read_text(encoding="utf-8"))
+    return path.read_text(encoding="utf-8")
+
+
+def _ensure_not_canceled(session: Session, job: PipelineJob) -> None:
+    """在阶段边界检查任务是否已取消。"""
+    session.refresh(job, attribute_names=["status"])
+    if job.status == JobStatus.CANCELED.value:
+        raise PipelineCanceledError("job canceled")
 
 
 def _load_author_segments(session: Session, author_id: str) -> list[dict[str, Any]]:
@@ -93,8 +115,54 @@ def _load_author_segments(session: Session, author_id: str) -> list[dict[str, An
     return result
 
 
+def _store_author_skill_artifacts(
+    author_id: str,
+    snapshot_id: str,
+    main_skill_json: dict[str, Any],
+    sub_skill_json: dict[str, Any],
+    rendered: dict[str, Any],
+) -> dict[str, str]:
+    """落盘作者快照产物并返回 artifact_type -> uri。"""
+    snapshot_dir = storage.snapshot_root(author_id=author_id, snapshot_id=snapshot_id)
+    main_skill_json_uri = storage.write_json(snapshot_dir / "main_skill.json", main_skill_json)
+    sub_skill_json_uri = storage.write_json(snapshot_dir / "sub_skill.json", sub_skill_json)
+    main_skill_md_uri = storage.write_text(
+        snapshot_dir / "main_skill.md", rendered["main_skill_md"]
+    )
+
+    sub_skill_files = rendered.get("sub_skill_files", [])
+    zip_files: list[tuple[str, str]] = []
+    if isinstance(sub_skill_files, list):
+        for item in sub_skill_files:
+            if not isinstance(item, dict):
+                continue
+            name = item.get("name")
+            content = item.get("content")
+            if isinstance(name, str) and isinstance(content, str):
+                zip_files.append((name, content))
+    sub_skills_md_zip_uri = storage.write_zip_from_files(
+        snapshot_dir / "sub_skills_md.zip", zip_files
+    )
+
+    return {
+        OutputType.MAIN_SKILL_JSON.value: main_skill_json_uri,
+        OutputType.SUB_SKILL_JSON.value: sub_skill_json_uri,
+        OutputType.MAIN_SKILL_MD.value: main_skill_md_uri,
+        OutputType.SUB_SKILLS_MD_ZIP.value: sub_skills_md_zip_uri,
+    }
+
+
+def _store_answer_artifact(
+    author_id: str, job_id: str, answer_json: dict[str, Any]
+) -> dict[str, str]:
+    """落盘作者问答产物并返回 artifact_type -> uri。"""
+    answer_dir = storage.answer_root(author_id=author_id, job_id=job_id)
+    answer_json_uri = storage.write_json(answer_dir / "answer.json", answer_json)
+    return {OutputType.ANSWER_JSON.value: answer_json_uri}
+
+
 def run_author_skills(session: Session, job: PipelineJob) -> None:
-    """执行 author_skills 最小闭环并写入 author_skill_snapshots。"""
+    """执行 author_skills 闭环并写入 author_skill_snapshots。"""
     author = session.get(Author, job.author_id)
     if author is None:
         raise ValueError("author not found for author_skills")
@@ -104,35 +172,40 @@ def run_author_skills(session: Session, job: PipelineJob) -> None:
     job.progress = 35
     job.updated_at = _now_iso()
     session.flush()
+    _ensure_not_canceled(session, job)
 
     segments = _load_author_segments(session=session, author_id=job.author_id)
     if not segments:
         raise ValueError("no active segments found for author_skills")
-
     method_analysis = run_analyze_method_chunks(segments=segments)
 
+    _ensure_not_canceled(session, job)
     job.current_stage = Stage.MAIN_SKILL.value
     job.progress = 55
     job.updated_at = _now_iso()
     main_skill_json = run_main_skill(method_analysis=method_analysis)
 
+    _ensure_not_canceled(session, job)
     job.current_stage = Stage.SUB_SKILL.value
     job.progress = 70
     job.updated_at = _now_iso()
     sub_skill_json = run_sub_skill(main_skill_json=main_skill_json, method_analysis=method_analysis)
 
+    _ensure_not_canceled(session, job)
     job.current_stage = Stage.RENDER.value
     job.progress = 85
     job.updated_at = _now_iso()
     rendered = run_render(main_skill_json=main_skill_json, sub_skill_json=sub_skill_json)
 
-    outputs = {
-        OutputType.MAIN_SKILL_JSON.value: main_skill_json,
-        OutputType.SUB_SKILL_JSON.value: sub_skill_json,
-        OutputType.MAIN_SKILL_MD.value: rendered["main_skill_md"],
-        OutputType.SUB_SKILLS_MD_ZIP.value: rendered["sub_skills_md_zip"],
-    }
+    _ensure_not_canceled(session, job)
     snapshot_id = str(uuid.uuid4())
+    outputs = _store_author_skill_artifacts(
+        author_id=job.author_id,
+        snapshot_id=snapshot_id,
+        main_skill_json=main_skill_json,
+        sub_skill_json=sub_skill_json,
+        rendered=rendered,
+    )
     now = _now_iso()
 
     latest_snapshots = session.execute(
@@ -163,7 +236,7 @@ def run_author_skills(session: Session, job: PipelineJob) -> None:
 
 
 def run_author_answer(session: Session, job: PipelineJob) -> None:
-    """执行 author_answer 最小闭环并产出 answer_json。"""
+    """执行 author_answer 闭环并产出 answer_json。"""
     if not job.query:
         raise ValueError("author_answer requires non-empty query")
 
@@ -182,21 +255,44 @@ def run_author_answer(session: Session, job: PipelineJob) -> None:
     if latest_snapshot is None:
         raise ValueError("no latest snapshot found for author_answer")
 
-    snapshot_outputs = _parse_outputs(latest_snapshot.outputs_json)
+    snapshot_output_uris = _parse_outputs(latest_snapshot.outputs_json)
+    main_skill_uri = snapshot_output_uris.get(OutputType.MAIN_SKILL_JSON.value)
+    sub_skill_uri = snapshot_output_uris.get(OutputType.SUB_SKILL_JSON.value)
+    if not isinstance(main_skill_uri, str) or not isinstance(sub_skill_uri, str):
+        raise ValueError("snapshot outputs missing main/sub skill uri")
+
+    main_skill_json = _read_uri_content(main_skill_uri)
+    sub_skill_json = _read_uri_content(sub_skill_uri)
+    if not isinstance(main_skill_json, dict) or not isinstance(sub_skill_json, dict):
+        raise ValueError("snapshot artifacts unreadable")
+    snapshot_outputs = {
+        OutputType.MAIN_SKILL_JSON.value: main_skill_json,
+        OutputType.SUB_SKILL_JSON.value: sub_skill_json,
+    }
 
     job.status = JobStatus.RUNNING.value
     job.current_stage = Stage.SELECT_SKILLS.value
     job.progress = 40
     job.updated_at = _now_iso()
-    selection = run_select_skills(snapshot_outputs=snapshot_outputs, query=job.query)
+    session.flush()
+    _ensure_not_canceled(session, job)
 
+    selection = run_select_skills(snapshot_outputs=snapshot_outputs, query=job.query)
+    if not selection.get("selected_main_skill_id"):
+        raise ValueError("no available skill selected for author_answer")
+
+    _ensure_not_canceled(session, job)
     job.current_stage = Stage.ANSWER.value
     job.updated_at = _now_iso()
     answer_json = run_answer_with_skills(
-        query=job.query, selected=selection, snapshot_outputs=snapshot_outputs
+        query=job.query,
+        selected=selection,
+        snapshot_outputs=snapshot_outputs,
     )
 
-    outputs = {OutputType.ANSWER_JSON.value: answer_json}
+    outputs = _store_answer_artifact(
+        author_id=job.author_id, job_id=job.job_id, answer_json=answer_json
+    )
     now = _now_iso()
     job.snapshot_id = latest_snapshot.snapshot_id
     job.outputs_json = json.dumps(outputs)
@@ -294,7 +390,7 @@ def _upsert_chapters_and_segments(
 
 
 def run_document_reload(session: Session, job: PipelineJob) -> None:
-    """执行最小 document_reload 链路：extract -> segment_sync。"""
+    """执行 document_reload 链路：extract -> segment_sync。"""
     if not job.document_id:
         raise ValueError("document_reload requires document_id")
 
@@ -310,20 +406,31 @@ def run_document_reload(session: Session, job: PipelineJob) -> None:
     document.status = "processing"
     document.updated_at = now
     session.flush()
+    _ensure_not_canceled(session, job)
 
     extracted_rows = run_extract_paragraphs(
         book_title=document.book_title, pdf_uri=document.pdf_uri
     )
+
+    _ensure_not_canceled(session, job)
     job.current_stage = Stage.SEGMENT_SYNC.value
     job.updated_at = _now_iso()
     _upsert_chapters_and_segments(
-        session=session, document_id=document.document_id, extracted_rows=extracted_rows
+        session=session,
+        document_id=document.document_id,
+        extracted_rows=extracted_rows,
     )
 
+    report_uri = storage.write_json(
+        storage.job_root(author_id=job.author_id, job_id=job.job_id)
+        / "document_reload_report.json",
+        {"segmentSyncRows": len(extracted_rows)},
+    )
+    now = _now_iso()
     job.status = JobStatus.SUCCESS.value
     job.progress = 100
-    job.finished_at = _now_iso()
-    job.updated_at = job.finished_at
-    job.outputs_json = json.dumps({"segmentSyncRows": len(extracted_rows)})
+    job.finished_at = now
+    job.updated_at = now
+    job.outputs_json = json.dumps({"document_reload_report": report_uri})
     document.status = "active"
-    document.updated_at = _now_iso()
+    document.updated_at = now

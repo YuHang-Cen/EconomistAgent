@@ -1,10 +1,11 @@
-"""提供 uv run 命令入口，统一启动开发服务与工程检查。"""
+"""Entry points for `uv run` commands."""
 
 from __future__ import annotations
 
+import os
 import subprocess
 import sys
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 
 
 def _run(command: Sequence[str]) -> int:
@@ -13,34 +14,70 @@ def _run(command: Sequence[str]) -> int:
 
 
 def dev() -> None:
-    """启动 FastAPI 开发服务器。"""
+    """Start FastAPI development server."""
     raise SystemExit(_run(["uvicorn", "app.main:app", "--reload"]))
 
 
+def _build_worker_options(
+    platform: str | None = None,
+    env: Mapping[str, str] | None = None,
+) -> list[str]:
+    """Build worker options with a Windows-safe default pool."""
+    runtime_platform = platform or sys.platform
+    environment = env or os.environ
+
+    options: list[str] = ["worker", "--loglevel=info"]
+
+    configured_pool = environment.get("CELERY_WORKER_POOL", "").strip()
+    if configured_pool:
+        pool = configured_pool
+    elif runtime_platform.startswith("win"):
+        pool = "threads"
+    else:
+        pool = ""
+
+    if pool:
+        options.append(f"--pool={pool}")
+
+    configured_concurrency = environment.get("CELERY_WORKER_CONCURRENCY", "").strip()
+    if configured_concurrency:
+        options.append(f"--concurrency={configured_concurrency}")
+    elif pool == "solo":
+        options.append("--concurrency=1")
+
+    return options
+
+
+def _build_worker_command(
+    platform: str | None = None,
+    env: Mapping[str, str] | None = None,
+) -> list[str]:
+    """Build the full Celery worker command."""
+    return ["celery", "-A", "app.infra.queue:celery_app", *_build_worker_options(platform, env)]
+
+
 def worker() -> None:
-    """启动 Celery worker。"""
-    raise SystemExit(
-        _run(["celery", "-A", "app.infra.queue:celery_app", "worker", "--loglevel=info"])
-    )
+    """Start Celery worker."""
+    raise SystemExit(_run(_build_worker_command()))
 
 
 def lint() -> None:
-    """执行 Ruff 静态检查。"""
+    """Run Ruff lint checks."""
     raise SystemExit(_run(["ruff", "check", "app", "scripts", "tests", "alembic"]))
 
 
 def format_code() -> None:
-    """执行 Ruff 代码格式化。"""
+    """Run Ruff formatter."""
     raise SystemExit(_run(["ruff", "format", "app", "scripts", "tests", "alembic"]))
 
 
 def typecheck() -> None:
-    """执行 Mypy 类型检查。"""
+    """Run Mypy checks."""
     raise SystemExit(_run(["mypy", "app"]))
 
 
 def test() -> None:
-    """执行 Pytest 测试。"""
+    """Run pytest."""
     raise SystemExit(_run(["python", "-m", "pytest", "-q"]))
 
 

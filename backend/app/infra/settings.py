@@ -26,6 +26,9 @@ class Settings(BaseSettings):
     database_url: str = Field(default="sqlite:///./storage/app.db")
     redis_url: str = Field(default="redis://127.0.0.1:6379/0")
     storage_root: str = Field(default="storage")
+    celery_task_always_eager: bool = Field(default=False)
+    celery_task_eager_propagates: bool = Field(default=True)
+    method_chunk_max_words: int = Field(default=800)
 
     model_config = SettingsConfigDict(
         env_file=str(ENV_FILE),

@@ -1,14 +1,31 @@
-"""验证 author_skills、author_answer 与 jobs outputs 的第三阶段闭环行为。"""
+"""Integration coverage for author_skills/author_answer outputs contract."""
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from typing import Any
 
 from fastapi.testclient import TestClient
 
 
-def _create_author_and_document(client: TestClient) -> tuple[str, str]:
-    """创建作者并上传文档，返回 author_id 与 document_id。"""
+def _wait_job_status(
+    client: TestClient, job_id: str, expected: str, max_attempts: int = 12
+) -> dict[str, Any]:
+    """Poll until the job reaches the expected status."""
+    payload: dict[str, Any] = {}
+    for _ in range(max_attempts):
+        response = client.get(f"/api/jobs/{job_id}")
+        payload = response.json()["data"]
+        if payload.get("status") == expected:
+            return payload
+    return payload
+
+
+def _create_author_and_document(
+    client: TestClient,
+    create_test_pdf: Callable[[str, list[str] | None], str],
+) -> tuple[str, str]:
+    """Create author + valid document and wait for reload success."""
     author_response = client.post(
         "/api/authors",
         json={
@@ -18,26 +35,34 @@ def _create_author_and_document(client: TestClient) -> tuple[str, str]:
         },
     )
     author_id = author_response.json()["data"]["authorId"]
+    pdf_uri = create_test_pdf("general-theory.pdf")
     document_response = client.post(
         f"/api/authors/{author_id}/documents",
-        json={"bookTitle": "General Theory", "pdfUri": "memory://general-theory.pdf"},
+        json={"bookTitle": "General Theory", "pdfUri": pdf_uri},
     )
     document_id = document_response.json()["data"]["documentId"]
+    reload_job_id = document_response.json()["data"]["reloadJobId"]
+    _wait_job_status(client=client, job_id=reload_job_id, expected="success")
     return author_id, document_id
 
 
-def test_author_skills_job_creates_snapshot_and_outputs(client: TestClient) -> None:
-    """author_skills 任务应成功并可读取技能产物。"""
-    author_id, _document_id = _create_author_and_document(client)
+def test_author_skills_job_creates_snapshot_and_outputs(
+    client: TestClient,
+    create_test_pdf: Callable[[str, list[str] | None], str],
+) -> None:
+    """author_skills should complete and expose all required outputs."""
+    author_id, _document_id = _create_author_and_document(client, create_test_pdf)
     skills_job_response = client.post(f"/api/authors/{author_id}/jobs/skills")
     payload = skills_job_response.json()
     assert skills_job_response.status_code == 200
-    assert payload["data"]["status"] == "success"
-    assert payload["data"]["currentStage"] == "render"
-    assert payload["data"]["progress"] == 100
-    assert payload["data"]["outputsReady"] is True
 
     job_id = payload["data"]["jobId"]
+    final_payload = _wait_job_status(client=client, job_id=job_id, expected="success")
+    assert final_payload["status"] == "success"
+    assert final_payload["currentStage"] == "render"
+    assert final_payload["progress"] == 100
+    assert final_payload["outputsReady"] is True
+
     outputs_response = client.get(f"/api/jobs/{job_id}/outputs")
     outputs_payload = outputs_response.json()["data"]
     output_types = {item["type"] for item in outputs_payload}
@@ -49,10 +74,14 @@ def test_author_skills_job_creates_snapshot_and_outputs(client: TestClient) -> N
     }.issubset(output_types)
 
 
-def test_author_answer_job_generates_answer_json(client: TestClient) -> None:
-    """author_answer 应读取最新快照并生成 answer_json。"""
-    author_id, _document_id = _create_author_and_document(client)
-    client.post(f"/api/authors/{author_id}/jobs/skills")
+def test_author_answer_job_generates_answer_json(
+    client: TestClient,
+    create_test_pdf: Callable[[str, list[str] | None], str],
+) -> None:
+    """author_answer should read latest snapshot and write answer_json."""
+    author_id, _document_id = _create_author_and_document(client, create_test_pdf)
+    skills_job_id = client.post(f"/api/authors/{author_id}/jobs/skills").json()["data"]["jobId"]
+    _wait_job_status(client=client, job_id=skills_job_id, expected="success")
 
     answer_job_response = client.post(
         f"/api/authors/{author_id}/jobs/answer",
@@ -60,11 +89,13 @@ def test_author_answer_job_generates_answer_json(client: TestClient) -> None:
     )
     payload = answer_job_response.json()
     assert answer_job_response.status_code == 200
-    assert payload["data"]["status"] == "success"
-    assert payload["data"]["currentStage"] == "answer"
-    assert payload["data"]["outputsReady"] is True
 
     job_id = payload["data"]["jobId"]
+    final_payload = _wait_job_status(client=client, job_id=job_id, expected="success")
+    assert final_payload["status"] == "success"
+    assert final_payload["currentStage"] == "answer"
+    assert final_payload["outputsReady"] is True
+
     answer_output_response = client.get(f"/api/jobs/{job_id}/outputs/answer_json")
     answer_output = answer_output_response.json()["data"]["content"]
     assert answer_output_response.status_code == 200
@@ -73,11 +104,15 @@ def test_author_answer_job_generates_answer_json(client: TestClient) -> None:
     assert "answer" in answer_output
 
 
-def test_outputs_type_validation_and_not_found(client: TestClient) -> None:
-    """非法产物类型应返回 INVALID_ARGUMENT，缺失产物应返回 NOT_FOUND。"""
-    author_id, _document_id = _create_author_and_document(client)
+def test_outputs_type_validation_and_not_found(
+    client: TestClient,
+    create_test_pdf: Callable[[str, list[str] | None], str],
+) -> None:
+    """Invalid output type should 422; missing output should 404."""
+    author_id, _document_id = _create_author_and_document(client, create_test_pdf)
     skills_job = client.post(f"/api/authors/{author_id}/jobs/skills").json()["data"]
     job_id = skills_job["jobId"]
+    _wait_job_status(client=client, job_id=job_id, expected="success")
 
     invalid_type_response = client.get(f"/api/jobs/{job_id}/outputs/not_real_type")
     invalid_payload: dict[str, Any] = invalid_type_response.json()

@@ -30,6 +30,7 @@ backend/.mypy_cache/
 backend/.ruff_cache/
 backend/.coverage
 backend/htmlcov/
+backend/.env
 
 # Node (frontend)
 frontend/node_modules/

@@ -6,9 +6,11 @@ import json
 import uuid
 from datetime import UTC, datetime
 from typing import Any
+from zipfile import ZipFile
 
 from app.domain.enums import JobStatus, JobType, OutputType, Stage
 from app.domain.models import Author, AuthorDocument, PipelineJob
+from app.infra import storage
 from app.infra.db import session_scope
 from app.services import pipeline_service
 from fastapi import HTTPException
@@ -68,20 +70,22 @@ def _serialize_job(job: PipelineJob) -> dict[str, Any]:
     }
 
 
-def _execute_job_by_type(job_id: str, job_type: str) -> None:
-    """按任务类型执行最小流水线。"""
+def _dispatch_job(job_id: str, job_type: str) -> None:
+    """按任务类型分发 Celery 异步任务。"""
+    from app.services import stage_runners
+
     if job_type == JobType.DOCUMENT_RELOAD.value:
-        execute_document_reload_job(job_id=job_id)
+        stage_runners.run_document_reload_pipeline.delay(job_id)
     elif job_type == JobType.AUTHOR_SKILLS.value:
-        execute_author_skills_job(job_id=job_id)
+        stage_runners.run_author_skills_pipeline.delay(job_id)
     elif job_type == JobType.AUTHOR_ANSWER.value:
-        execute_author_answer_job(job_id=job_id)
+        stage_runners.run_author_answer_pipeline.delay(job_id)
 
 
 def create_document_reload_job(
-    author_id: str, document_id: str, auto_run: bool = False
+    author_id: str, document_id: str, auto_run: bool = True
 ) -> dict[str, Any]:
-    """创建文档重处理任务，并可选择立即执行。"""
+    """创建文档重处理任务，并自动入队。"""
     now = _now_iso()
     with session_scope() as session:
         author = session.get(Author, author_id)
@@ -111,12 +115,11 @@ def create_document_reload_job(
         )
         session.add(job)
         session.flush()
-        serialized = _serialize_job(job)
         created_job_id = job.job_id
+        serialized = _serialize_job(job)
 
     if auto_run:
-        execute_document_reload_job(job_id=created_job_id)
-        return get_job(job_id=created_job_id)
+        _dispatch_job(job_id=created_job_id, job_type=JobType.DOCUMENT_RELOAD.value)
     return serialized
 
 
@@ -134,6 +137,16 @@ def execute_document_reload_job(job_id: str) -> None:
             return
         try:
             pipeline_service.run_document_reload(session=session, job=job)
+        except pipeline_service.PipelineCanceledError:
+            now = _now_iso()
+            job.status = JobStatus.CANCELED.value
+            job.updated_at = now
+            job.finished_at = now
+            if job.document_id:
+                document = session.get(AuthorDocument, job.document_id)
+                if document is not None:
+                    document.status = "active"
+                    document.updated_at = now
         except Exception as exc:
             now = _now_iso()
             job.status = JobStatus.FAILED.value
@@ -148,7 +161,7 @@ def execute_document_reload_job(job_id: str) -> None:
 
 
 def create_author_skills_job(author_id: str, auto_run: bool = True) -> dict[str, Any]:
-    """创建 author_skills 任务。"""
+    """创建 author_skills 任务并自动入队。"""
     now = _now_iso()
     with session_scope() as session:
         author = session.get(Author, author_id)
@@ -176,8 +189,7 @@ def create_author_skills_job(author_id: str, auto_run: bool = True) -> dict[str,
         serialized = _serialize_job(job)
 
     if auto_run:
-        execute_author_skills_job(job_id=created_job_id)
-        return get_job(job_id=created_job_id)
+        _dispatch_job(job_id=created_job_id, job_type=JobType.AUTHOR_SKILLS.value)
     return serialized
 
 
@@ -195,6 +207,11 @@ def execute_author_skills_job(job_id: str) -> None:
             return
         try:
             pipeline_service.run_author_skills(session=session, job=job)
+        except pipeline_service.PipelineCanceledError:
+            now = _now_iso()
+            job.status = JobStatus.CANCELED.value
+            job.updated_at = now
+            job.finished_at = now
         except Exception as exc:
             now = _now_iso()
             job.status = JobStatus.FAILED.value
@@ -204,7 +221,7 @@ def execute_author_skills_job(job_id: str) -> None:
 
 
 def create_author_answer_job(author_id: str, query: str, auto_run: bool = True) -> dict[str, Any]:
-    """创建 author_answer 任务。"""
+    """创建 author_answer 任务并自动入队。"""
     if not query.strip():
         raise HTTPException(status_code=422, detail="query is required")
     now = _now_iso()
@@ -234,8 +251,7 @@ def create_author_answer_job(author_id: str, query: str, auto_run: bool = True) 
         serialized = _serialize_job(job)
 
     if auto_run:
-        execute_author_answer_job(job_id=created_job_id)
-        return get_job(job_id=created_job_id)
+        _dispatch_job(job_id=created_job_id, job_type=JobType.AUTHOR_ANSWER.value)
     return serialized
 
 
@@ -253,6 +269,11 @@ def execute_author_answer_job(job_id: str) -> None:
             return
         try:
             pipeline_service.run_author_answer(session=session, job=job)
+        except pipeline_service.PipelineCanceledError:
+            now = _now_iso()
+            job.status = JobStatus.CANCELED.value
+            job.updated_at = now
+            job.finished_at = now
         except Exception as exc:
             now = _now_iso()
             job.status = JobStatus.FAILED.value
@@ -268,6 +289,24 @@ def get_job(job_id: str) -> dict[str, Any]:
         if job is None:
             raise HTTPException(status_code=404, detail="job not found")
         return _serialize_job(job)
+
+
+def _read_output_content(uri: str) -> Any:
+    """根据 URI 读取产物内容。"""
+    path = storage.resolve_storage_uri(uri)
+    if not path.exists():
+        raise HTTPException(status_code=404, detail="output not found")
+
+    suffix = path.suffix.lower()
+    if suffix == ".json":
+        return json.loads(path.read_text(encoding="utf-8"))
+    if suffix == ".md":
+        return path.read_text(encoding="utf-8")
+    if suffix == ".zip":
+        with ZipFile(path, mode="r") as zip_file:
+            return {"uri": uri, "files": sorted(zip_file.namelist())}
+
+    return path.read_text(encoding="utf-8")
 
 
 def list_outputs(job_id: str) -> list[dict[str, Any]]:
@@ -289,9 +328,11 @@ def get_output(job_id: str, output_type: str) -> dict[str, Any]:
         if job is None:
             raise HTTPException(status_code=404, detail="job not found")
         outputs = _extract_public_outputs(job.outputs_json or "{}")
-        if output_type not in outputs:
+        output_uri = outputs.get(output_type)
+        if not isinstance(output_uri, str) or not output_uri.strip():
             raise HTTPException(status_code=404, detail="output not found")
-        return {"type": output_type, "content": outputs[output_type]}
+        content = _read_output_content(output_uri)
+        return {"type": output_type, "content": content}
 
 
 def retry_job(job_id: str) -> dict[str, Any]:
@@ -313,7 +354,7 @@ def retry_job(job_id: str) -> dict[str, Any]:
         resolved_job_id = job.job_id
         job_type = job.job_type
 
-    _execute_job_by_type(job_id=resolved_job_id, job_type=job_type)
+    _dispatch_job(job_id=resolved_job_id, job_type=job_type)
     return get_job(job_id=resolved_job_id)
 
 

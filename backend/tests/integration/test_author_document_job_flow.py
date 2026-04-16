@@ -1,12 +1,37 @@
-"""验证作者创建、文档上传触发任务与任务轮询最小闭环。"""
+"""Integration tests for author/document creation and document_reload lifecycle."""
 
 from __future__ import annotations
+
+from collections.abc import Callable
+from pathlib import Path
+from typing import Any
+from uuid import uuid4
 
 from fastapi.testclient import TestClient
 
 
+def _wait_job_status(
+    client: TestClient, job_id: str, expected: str, max_attempts: int = 15
+) -> dict[str, Any]:
+    """Poll job until it reaches expected terminal status."""
+    payload: dict[str, Any] = {}
+    for _ in range(max_attempts):
+        response = client.get(f"/api/jobs/{job_id}")
+        payload = response.json()["data"]
+        if payload.get("status") == expected:
+            return payload
+    return payload
+
+
+def _find_document_status(client: TestClient, author_id: str, document_id: str) -> str:
+    """Read document status from author's document list."""
+    documents = client.get(f"/api/authors/{author_id}/documents").json()["data"]
+    matched = next(item for item in documents if item["documentId"] == document_id)
+    return str(matched["status"])
+
+
 def test_create_author(client: TestClient) -> None:
-    """应能够创建作者并返回 camelCase 响应字段。"""
+    """Author create endpoint should return camelCase payload."""
     response = client.post(
         "/api/authors",
         json={
@@ -22,17 +47,21 @@ def test_create_author(client: TestClient) -> None:
     assert payload["data"]["manuscriptsCount"] == 0
 
 
-def test_upload_document_creates_reload_job(client: TestClient) -> None:
-    """上传文档后应自动创建并执行 document_reload 任务。"""
+def test_upload_document_creates_reload_job(
+    client: TestClient,
+    create_test_pdf: Callable[[str, list[str] | None], str],
+) -> None:
+    """Uploading a valid local PDF should create and complete document_reload job."""
     create_author_response = client.post(
         "/api/authors",
         json={"authorName": "John Hicks", "school": "Neoclassical", "avatarUrl": ""},
     )
     author_id = create_author_response.json()["data"]["authorId"]
+    pdf_uri = create_test_pdf("value-and-capital.pdf")
 
     upload_response = client.post(
         f"/api/authors/{author_id}/documents",
-        json={"bookTitle": "Value and Capital", "pdfUri": "memory://value-and-capital.pdf"},
+        json={"bookTitle": "Value and Capital", "pdfUri": pdf_uri},
     )
     payload = upload_response.json()
     assert upload_response.status_code == 200
@@ -41,24 +70,27 @@ def test_upload_document_creates_reload_job(client: TestClient) -> None:
     assert payload["data"]["reloadJobId"]
 
     job_id = payload["data"]["reloadJobId"]
-    job_response = client.get(f"/api/jobs/{job_id}")
-    job_payload = job_response.json()
-    assert job_response.status_code == 200
-    assert job_payload["data"]["status"] == "success"
-    assert job_payload["data"]["currentStage"] == "segment_sync"
-    assert job_payload["data"]["progress"] == 100
+    final_payload = _wait_job_status(client=client, job_id=job_id, expected="success")
+    assert final_payload["status"] == "success"
+    assert final_payload["currentStage"] == "segment_sync"
+    assert final_payload["progress"] == 100
 
 
-def test_poll_job_status_contract(client: TestClient) -> None:
-    """任务轮询返回必须包含约定字段。"""
+def test_poll_job_status_contract(
+    client: TestClient,
+    create_test_pdf: Callable[[str, list[str] | None], str],
+) -> None:
+    """Job polling response should keep required contract fields."""
     create_author_response = client.post(
         "/api/authors",
         json={"authorName": "Milton Friedman", "school": "Chicago School", "avatarUrl": ""},
     )
     author_id = create_author_response.json()["data"]["authorId"]
+    pdf_uri = create_test_pdf("capitalism-and-freedom.pdf")
+
     upload_response = client.post(
         f"/api/authors/{author_id}/documents",
-        json={"bookTitle": "Capitalism and Freedom", "pdfUri": "memory://caf.pdf"},
+        json={"bookTitle": "Capitalism and Freedom", "pdfUri": pdf_uri},
     )
     job_id = upload_response.json()["data"]["reloadJobId"]
 
@@ -71,3 +103,76 @@ def test_poll_job_status_contract(client: TestClient) -> None:
     assert "errorMessage" in payload
     assert "retryable" in payload
     assert "outputsReady" in payload
+
+
+def test_document_reload_fails_when_pdf_path_missing(client: TestClient) -> None:
+    """Missing file path should fail reload job with actionable error."""
+    create_author_response = client.post(
+        "/api/authors",
+        json={"authorName": "Missing Path", "school": "Test", "avatarUrl": ""},
+    )
+    author_id = create_author_response.json()["data"]["authorId"]
+    missing_path = str((Path("storage") / "test_inputs" / f"{uuid4()}-missing.pdf").resolve())
+
+    upload_response = client.post(
+        f"/api/authors/{author_id}/documents",
+        json={"bookTitle": "Broken Path", "pdfUri": missing_path},
+    )
+    payload = upload_response.json()["data"]
+
+    final_payload = _wait_job_status(client, payload["reloadJobId"], "failed")
+    assert final_payload["status"] == "failed"
+    assert "pdf path does not exist" in str(final_payload["errorMessage"])
+    assert final_payload["outputsReady"] is False
+    assert _find_document_status(client, author_id, payload["documentId"]) == "failed"
+
+
+def test_document_reload_fails_when_path_not_pdf(client: TestClient) -> None:
+    """Non-PDF file extension should fail reload job."""
+    create_author_response = client.post(
+        "/api/authors",
+        json={"authorName": "Bad Suffix", "school": "Test", "avatarUrl": ""},
+    )
+    author_id = create_author_response.json()["data"]["authorId"]
+
+    input_root = Path("storage") / "test_inputs"
+    input_root.mkdir(parents=True, exist_ok=True)
+    text_path = (input_root / f"{uuid4()}-not-a-pdf.txt").resolve()
+    text_path.write_text("plain text", encoding="utf-8")
+
+    upload_response = client.post(
+        f"/api/authors/{author_id}/documents",
+        json={"bookTitle": "Wrong Type", "pdfUri": str(text_path)},
+    )
+    payload = upload_response.json()["data"]
+
+    final_payload = _wait_job_status(client, payload["reloadJobId"], "failed")
+    assert final_payload["status"] == "failed"
+    assert "must end with .pdf" in str(final_payload["errorMessage"])
+    assert final_payload["outputsReady"] is False
+    assert _find_document_status(client, author_id, payload["documentId"]) == "failed"
+
+
+def test_document_reload_fails_when_pdf_has_no_extractable_segments(
+    client: TestClient,
+    create_test_pdf: Callable[[str, list[str] | None], str],
+) -> None:
+    """Empty/invalid extraction should fail reload job instead of writing fallback segments."""
+    create_author_response = client.post(
+        "/api/authors",
+        json={"authorName": "Empty PDF", "school": "Test", "avatarUrl": ""},
+    )
+    author_id = create_author_response.json()["data"]["authorId"]
+    empty_pdf_uri = create_test_pdf("empty.pdf", blocks=[])
+
+    upload_response = client.post(
+        f"/api/authors/{author_id}/documents",
+        json={"bookTitle": "No Segments", "pdfUri": empty_pdf_uri},
+    )
+    payload = upload_response.json()["data"]
+
+    final_payload = _wait_job_status(client, payload["reloadJobId"], "failed")
+    assert final_payload["status"] == "failed"
+    assert "no extractable segments" in str(final_payload["errorMessage"])
+    assert final_payload["outputsReady"] is False
+    assert _find_document_status(client, author_id, payload["documentId"]) == "failed"

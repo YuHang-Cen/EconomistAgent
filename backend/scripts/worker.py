@@ -1,13 +1,14 @@
-"""提供 Celery worker 启动脚本入口。"""
+"""Celery worker script entrypoint."""
 
 from __future__ import annotations
 
+from app.cli import _build_worker_options
 from app.infra.queue import celery_app
 
 
 def main() -> None:
-    """以标准参数启动 Celery worker。"""
-    celery_app.worker_main(["worker", "--loglevel=info"])
+    """Start Celery worker with shared CLI options."""
+    celery_app.worker_main(_build_worker_options())
 
 
 if __name__ == "__main__":
