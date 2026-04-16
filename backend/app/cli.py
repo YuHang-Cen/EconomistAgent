@@ -6,6 +6,7 @@ import os
 import subprocess
 import sys
 from collections.abc import Mapping, Sequence
+from pathlib import Path
 
 
 def _run(command: Sequence[str]) -> int:
@@ -13,8 +14,30 @@ def _run(command: Sequence[str]) -> int:
     return completed.returncode
 
 
+def _run_migrations() -> int:
+    """Run `alembic upgrade head` before starting API server."""
+    project_root = Path(__file__).resolve().parents[1]
+    completed = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "alembic",
+            "-c",
+            str(project_root / "alembic.ini"),
+            "upgrade",
+            "head",
+        ],
+        check=False,
+        cwd=project_root,
+    )
+    return completed.returncode
+
+
 def dev() -> None:
     """Start FastAPI development server."""
+    migration_code = _run_migrations()
+    if migration_code != 0:
+        raise SystemExit(migration_code)
     raise SystemExit(_run(["uvicorn", "app.main:app", "--reload"]))
 
 
