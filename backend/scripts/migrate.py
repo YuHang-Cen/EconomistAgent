@@ -8,7 +8,7 @@ import sys
 
 def main() -> None:
     """执行 alembic upgrade head。"""
-    result = subprocess.run(["alembic", "upgrade", "head"], check=False)
+    result = subprocess.run(["alembic", "-c", "alembic.ini", "upgrade", "head"], check=False)
     raise SystemExit(result.returncode)
 
 

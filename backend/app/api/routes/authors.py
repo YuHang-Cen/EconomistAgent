@@ -9,7 +9,7 @@ from app.domain.schemas import (
     AuthorCreateRequest,
     AuthorDocumentUploadRequest,
     AuthorDocumentUploadResponse,
-    AuthorResponse,
+    ReloadJobResponse,
     build_success_response,
 )
 from app.services import author_service
@@ -22,15 +22,14 @@ router = APIRouter(tags=["authors"], dependencies=[Depends(verify_api_key)])
 def create_author(
     payload: AuthorCreateRequest, request_id: Annotated[str, Depends(get_request_id)]
 ) -> dict[str, Any]:
-    """创建作者骨架接口。"""
+    """创建作者接口。"""
     author = author_service.create_author(payload)
-    response = AuthorResponse.model_validate(author).model_dump(by_alias=True)
-    return build_success_response(request_id=request_id, data=response)
+    return build_success_response(request_id=request_id, data=author.model_dump(by_alias=True))
 
 
 @router.get("/authors")
 def list_authors(request_id: Annotated[str, Depends(get_request_id)]) -> dict[str, Any]:
-    """获取作者列表骨架接口。"""
+    """获取作者列表接口。"""
     authors = [item.model_dump(by_alias=True) for item in author_service.list_authors()]
     return build_success_response(request_id=request_id, data=authors)
 
@@ -41,7 +40,7 @@ def upload_document(
     payload: AuthorDocumentUploadRequest,
     request_id: Annotated[str, Depends(get_request_id)],
 ) -> dict[str, Any]:
-    """上传作者文档并自动触发 document_reload 任务。"""
+    """上传作者文档并自动触发 document_reload 任务接口。"""
     result = author_service.upload_document(author_id=author_id, payload=payload)
     response = AuthorDocumentUploadResponse.model_validate(result).model_dump(by_alias=True)
     return build_success_response(request_id=request_id, data=response)
@@ -51,7 +50,7 @@ def upload_document(
 def list_documents(
     author_id: str, request_id: Annotated[str, Depends(get_request_id)]
 ) -> dict[str, Any]:
-    """获取指定作者文档列表骨架接口。"""
+    """获取指定作者文档列表接口。"""
     documents = [
         item.model_dump(by_alias=True) for item in author_service.list_documents(author_id)
     ]
@@ -64,6 +63,7 @@ def reload_document(
     document_id: str,
     request_id: Annotated[str, Depends(get_request_id)],
 ) -> dict[str, Any]:
-    """触发单文档重处理任务骨架接口。"""
+    """触发单文档重处理任务接口。"""
     result = author_service.reload_document(author_id=author_id, document_id=document_id)
-    return build_success_response(request_id=request_id, data=result)
+    response = ReloadJobResponse.model_validate(result).model_dump(by_alias=True)
+    return build_success_response(request_id=request_id, data=response)

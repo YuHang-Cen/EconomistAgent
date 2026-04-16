@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from logging.config import fileConfig
+from pathlib import Path
 
 from alembic import context
 from app.domain.models import Base
@@ -12,6 +13,15 @@ from sqlalchemy import engine_from_config, pool
 config = context.config
 settings = get_settings()
 config.set_main_option("sqlalchemy.url", settings.database_url)
+
+if settings.database_url.startswith("sqlite:///") and not settings.database_url.endswith(
+    ":memory:"
+):
+    sqlite_path = settings.database_url.replace("sqlite:///", "", 1)
+    db_file = Path(sqlite_path)
+    if not db_file.is_absolute():
+        db_file = Path.cwd() / db_file
+    db_file.parent.mkdir(parents=True, exist_ok=True)
 
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from app.infra.queue import celery_app
-from app.services import pipeline_service
+from app.services import job_service, pipeline_service
 
 
 @celery_app.task(name="pipeline.author_skills")
@@ -15,7 +15,8 @@ def run_author_skills_pipeline(job_id: str) -> dict[str, str]:
 @celery_app.task(name="pipeline.document_reload")
 def run_document_reload_pipeline(job_id: str) -> dict[str, str]:
     """执行 document_reload 任务。"""
-    return pipeline_service.run_document_reload(job_id=job_id)
+    job_service.execute_document_reload_job(job_id=job_id)
+    return {"jobId": job_id, "pipeline": "document_reload"}
 
 
 @celery_app.task(name="pipeline.author_answer")

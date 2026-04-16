@@ -15,6 +15,19 @@ from app.domain.schemas import build_error_response, build_success_response
 from app.infra.logging import configure_logging
 
 
+def _error_code_from_status(status_code: int) -> str:
+    """将 HTTP 状态码映射为统一错误码。"""
+    if status_code == 401:
+        return "UNAUTHORIZED"
+    if status_code == 404:
+        return "NOT_FOUND"
+    if status_code == 409:
+        return "TASK_CONFLICT"
+    if status_code == 422:
+        return "INVALID_ARGUMENT"
+    return "INTERNAL_ERROR"
+
+
 def create_app() -> FastAPI:
     """创建并配置 FastAPI 应用实例。"""
     configure_logging()
@@ -35,7 +48,7 @@ def create_app() -> FastAPI:
         request_id = getattr(request.state, "request_id", str(uuid.uuid4()))
         payload = build_error_response(
             request_id=request_id,
-            code="INVALID_ARGUMENT" if exc.status_code == 422 else "INTERNAL_ERROR",
+            code=_error_code_from_status(exc.status_code),
             message=str(exc.detail),
         )
         return JSONResponse(status_code=exc.status_code, content=payload)

@@ -109,6 +109,12 @@ class AuthorDocumentUploadResponse(CamelModel):
     reload_job_id: str
 
 
+class ReloadJobResponse(CamelModel):
+    """文档重处理触发返回体。"""
+
+    reload_job_id: str
+
+
 class AuthorAnswerRequest(CamelModel):
     """作者问答请求体。"""
 

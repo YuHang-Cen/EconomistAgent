@@ -1,11 +1,11 @@
-"""定义作者、文档、章节、段落、任务与快照的 SQLAlchemy 模型骨架。"""
+"""定义作者、文档、章节、段落、任务与快照的 SQLAlchemy 模型。"""
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import UTC, datetime
 
 from app.infra.db import Base
-from sqlalchemy import Boolean, Integer, String, Text
+from sqlalchemy import Boolean, Integer, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 
 
@@ -40,6 +40,7 @@ class DocumentChapter(Base):
     """文档章节实体模型。"""
 
     __tablename__ = "document_chapters"
+    __table_args__ = (UniqueConstraint("document_id", "chapter_title", name="uq_chapter_title"),)
 
     chapter_id: Mapped[str] = mapped_column(String(64), primary_key=True)
     document_id: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
@@ -55,6 +56,7 @@ class DocumentSegment(Base):
     """文档段落实体模型。"""
 
     __tablename__ = "document_segments"
+    __table_args__ = (UniqueConstraint("document_id", "chunk_id", name="uq_segment_chunk"),)
 
     segment_id: Mapped[str] = mapped_column(String(64), primary_key=True)
     document_id: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
@@ -97,9 +99,9 @@ class PipelineJob(Base):
     outputs_json: Mapped[str] = mapped_column(Text, nullable=False, default="{}")
     error_message: Mapped[str | None] = mapped_column(Text, nullable=True)
     created_at: Mapped[str] = mapped_column(
-        String(64), nullable=False, default=lambda: datetime.utcnow().isoformat()
+        String(64), nullable=False, default=lambda: datetime.now(tz=UTC).isoformat()
     )
     updated_at: Mapped[str] = mapped_column(
-        String(64), nullable=False, default=lambda: datetime.utcnow().isoformat()
+        String(64), nullable=False, default=lambda: datetime.now(tz=UTC).isoformat()
     )
     finished_at: Mapped[str | None] = mapped_column(String(64), nullable=True)
