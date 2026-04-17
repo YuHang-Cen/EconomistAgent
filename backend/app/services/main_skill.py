@@ -282,6 +282,13 @@ def _require_string(value: Any, field_path: str) -> str:
     return text
 
 
+def _require_string_allow_empty(value: Any, field_path: str) -> str:
+    """Validate and return a string value (may be empty after trimming)."""
+    if not isinstance(value, str):
+        raise ValueError(f"Field '{field_path}' must be a string.")
+    return value.strip()
+
+
 def _require_string_list(value: Any, field_path: str) -> list[str]:
     """Validate and return a list of non-empty strings for a required field."""
     if not isinstance(value, list):
@@ -340,11 +347,14 @@ def _normalize_main_skill_shape(data: dict[str, Any]) -> dict[str, Any]:
             value = _require_string_list(node.get("value"), f"signal_summary.{key}.value")
         else:
             value = _require_string(node.get("value"), f"signal_summary.{key}.value")
-        notes = _require_string(node.get("notes"), f"signal_summary.{key}.notes")
+        notes = _require_string_allow_empty(node.get("notes"), f"signal_summary.{key}.notes")
         normalized_signals[key] = {"value": value, "notes": notes}
 
+    name_raw = pattern_summary.get("name")
+    name = name_raw.strip() if isinstance(name_raw, str) else ""
     normalized_pattern_summary = {
-        "name": _require_string(pattern_summary.get("name"),"pattern_summary.name"),
+        # `name` is optional for backward compatibility; it will be filled later if empty.
+        "name": name,
         "description": _require_string(pattern_summary.get("description"), "pattern_summary.description"),
         "applicability": _require_string(pattern_summary.get("applicability"), "pattern_summary.applicability"),
         "core_steps": _require_string_list(pattern_summary.get("core_steps"), "pattern_summary.core_steps"),
@@ -406,6 +416,8 @@ def run_main_skill(method_analysis: dict[str, Any]) -> dict[str, Any]:
     for index, (section_id, section_title, section_records) in enumerate(section_groups, start=1):
         section_payload = _build_intermediate_payload(section_records)
         generated = _invoke_main_skill(section_payload=section_payload, llm=llm)
+        if not str(generated.get("pattern_summary", {}).get("name", "")).strip():
+            generated["pattern_summary"]["name"] = section_title or f"main_skill_{index:03d}"
 
         main_skills.append(
             {

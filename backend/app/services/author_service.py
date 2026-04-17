@@ -47,6 +47,24 @@ def create_author(payload: AuthorCreateRequest) -> AuthorResponse:
     )
     with session_scope() as session:
         session.add(author)
+    try:
+        storage.write_json(
+            storage.author_root(author_id=author.author_id) / "author_meta.json",
+            {
+                "author_id": author.author_id,
+                "author_name": author.author_name,
+                "school": author.school,
+                "avatar_url": author.avatar_url,
+                "created_at": author.created_at,
+                "updated_at": author.updated_at,
+            },
+        )
+    except OSError as exc:
+        logger.warning(
+            "failed to write author manifest: author_id=%s, error=%s",
+            author.author_id,
+            exc,
+        )
     return AuthorResponse(
         author_id=author.author_id,
         author_name=author.author_name,
@@ -104,12 +122,44 @@ def upload_document(author_id: str, payload: AuthorDocumentUploadRequest) -> dic
         session.add(document)
         session.flush()
         document_id = document.document_id
+        author_manifest = {
+            "author_id": author.author_id,
+            "author_name": author.author_name,
+            "school": author.school,
+            "avatar_url": author.avatar_url,
+            "created_at": author.created_at,
+            "updated_at": author.updated_at,
+        }
 
     from app.services import job_service
 
     job = job_service.create_document_reload_job(
         author_id=author_id, document_id=document_id, auto_run=True
     )
+    try:
+        storage.write_json(
+            storage.document_root(author_id=author_id, document_id=document_id) / "document_meta.json",
+            {
+                "document_id": document_id,
+                "author_id": author_id,
+                "book_title": document.book_title,
+                "pdf_uri": document.pdf_uri,
+                "status": document.status,
+                "created_at": document.created_at,
+                "updated_at": document.updated_at,
+            },
+        )
+        storage.write_json(
+            storage.author_root(author_id=author_id) / "author_meta.json",
+            author_manifest,
+        )
+    except OSError as exc:
+        logger.warning(
+            "failed to write document/author manifest: author_id=%s, document_id=%s, error=%s",
+            author_id,
+            document_id,
+            exc,
+        )
     return {"document_id": document_id, "reload_job_id": str(job["jobId"])}
 
 

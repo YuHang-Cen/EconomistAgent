@@ -25,6 +25,7 @@ lint = "app.cli:lint"
 format = "app.cli:format_code"
 typecheck = "app.cli:typecheck"
 test = "app.cli:test"
+rebuild-db = "app.cli:rebuild_db"
 
 [build-system]
 requires = ["hatchling>=1.25.0"]

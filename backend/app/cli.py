@@ -104,5 +104,27 @@ def test() -> None:
     raise SystemExit(_run(["python", "-m", "pytest", "-q"]))
 
 
+def rebuild_db() -> None:
+    """Rebuild the SQLite database from storage manifests/artifacts."""
+    migration_code = _run_migrations()
+    if migration_code != 0:
+        raise SystemExit(migration_code)
+    from app.infra import storage
+    from app.scripts.rebuild_db_from_storage import rebuild_from_storage
+
+    summary = rebuild_from_storage(storage_root=storage.ensure_storage_root())
+    print(
+        {
+            "authors": summary.authors,
+            "documents": summary.documents,
+            "chapters": summary.chapters,
+            "segments": summary.segments,
+            "snapshots": summary.snapshots,
+            "warnings": summary.warnings,
+        }
+    )
+    raise SystemExit(0)
+
+
 if __name__ == "__main__":
     sys.exit(_run(["uvicorn", "app.main:app", "--reload"]))

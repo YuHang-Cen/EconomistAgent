@@ -128,6 +128,7 @@ def _load_author_segments(session: Session, author_id: str) -> list[dict[str, An
 def _store_author_skill_artifacts(
     author_id: str,
     snapshot_id: str,
+    created_at: str,
     method_analysis: dict[str, Any],
     main_skill_json: dict[str, Any],
     sub_skill_json: dict[str, Any],
@@ -135,6 +136,14 @@ def _store_author_skill_artifacts(
 ) -> dict[str, str]:
     """                         ?artifact_type -> uri ?"""
     snapshot_dir = storage.snapshot_root(author_id=author_id, snapshot_id=snapshot_id)
+    snapshot_meta_uri = storage.write_json(
+        snapshot_dir / "snapshot_meta.json",
+        {
+            "author_id": author_id,
+            "snapshot_id": snapshot_id,
+            "created_at": created_at,
+        },
+    )
     method_analysis_json_uri = storage.write_json(
         snapshot_dir / "method_analysis.json", method_analysis
     )
@@ -216,6 +225,7 @@ def _store_author_skill_artifacts(
     )
 
     return {
+        "snapshot_meta_json": snapshot_meta_uri,
         OutputType.METHOD_ANALYSIS_JSON.value: method_analysis_json_uri,
         OutputType.MAIN_SKILL_JSON.value: main_skill_json_uri,
         OutputType.SUB_SKILL_JSON.value: sub_skill_json_uri,
@@ -263,15 +273,16 @@ def run_author_skills(session: Session, job: PipelineJob) -> None:
 
     _ensure_not_canceled(session, job)
     snapshot_id = str(uuid.uuid4())
+    now = _now_iso()
     outputs = _store_author_skill_artifacts(
         author_id=job.author_id,
         snapshot_id=snapshot_id,
+        created_at=now,
         method_analysis=method_analysis,
         main_skill_json=main_skill_json,
         sub_skill_json=sub_skill_json,
         rendered=rendered,
     )
-    now = _now_iso()
 
     latest_snapshots = session.execute(
         select(AuthorSkillSnapshot).where(
@@ -488,6 +499,28 @@ def run_document_reload(session: Session, job: PipelineJob) -> None:
     extracted_rows = run_extract_paragraphs(
         book_title=document.book_title, pdf_uri=document.pdf_uri
     )
+    try:
+        storage.write_json(
+            storage.document_root(author_id=job.author_id, document_id=document.document_id)
+            / "extracted_segments.json",
+            extracted_rows,
+        )
+        storage.write_json(
+            storage.document_root(author_id=job.author_id, document_id=document.document_id)
+            / "document_meta.json",
+            {
+                "document_id": document.document_id,
+                "author_id": job.author_id,
+                "book_title": document.book_title,
+                "pdf_uri": document.pdf_uri,
+                "status": document.status,
+                "created_at": document.created_at,
+                "updated_at": document.updated_at,
+            },
+        )
+    except OSError:
+        # Storage manifests are best-effort and should not fail the pipeline run.
+        pass
 
     _ensure_not_canceled(session, job)
     job.current_stage = Stage.SEGMENT_SYNC.value
@@ -511,3 +544,19 @@ def run_document_reload(session: Session, job: PipelineJob) -> None:
     job.outputs_json = json.dumps({"document_reload_report": report_uri})
     document.status = "active"
     document.updated_at = now
+    try:
+        storage.write_json(
+            storage.document_root(author_id=job.author_id, document_id=document.document_id)
+            / "document_meta.json",
+            {
+                "document_id": document.document_id,
+                "author_id": job.author_id,
+                "book_title": document.book_title,
+                "pdf_uri": document.pdf_uri,
+                "status": document.status,
+                "created_at": document.created_at,
+                "updated_at": document.updated_at,
+            },
+        )
+    except OSError:
+        pass

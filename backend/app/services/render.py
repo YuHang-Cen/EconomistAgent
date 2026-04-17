@@ -109,7 +109,6 @@ def _validate_and_normalize_main_skill(raw_skill: dict[str, Any]) -> MainSkillDa
         raise ValueError("Missing or invalid field: signal_summary")
 
     required_pattern_keys = [
-        "name",
         "description",
         "applicability",
         "core_steps",
@@ -152,10 +151,20 @@ def _validate_and_normalize_main_skill(raw_skill: dict[str, Any]) -> MainSkillDa
     system_scope, system_scope_notes = read_signal_node("system_scope")
     equilibrium_view, equilibrium_view_notes = read_signal_node("equilibrium_view")
 
+    section_id = str(raw_skill.get("section_id", "")).strip()
+    main_skill_id = str(raw_skill.get("main_skill_id", "")).strip()
+    section_title = str(raw_skill.get("section_title", "")).strip()
+    name_raw = pattern_summary.get("name")
+    name = str(name_raw).strip() if isinstance(name_raw, str) else ""
+    if not name:
+        # Older main_skill.json payloads omit pattern_summary.name. Make rendering resilient
+        # by falling back to section title or the stable main_skill_id.
+        name = section_title or main_skill_id or "Main Skill"
+
     return MainSkillData(
-        section_id=str(raw_skill.get("section_id", "")).strip(),
-        main_skill_id=str(raw_skill.get("main_skill_id", "")).strip(),
-        name=_require_string(pattern_summary.get("name"), "pattern_summary.name"),
+        section_id=section_id,
+        main_skill_id=main_skill_id,
+        name=name,
         description=_require_string(pattern_summary.get("description"), "pattern_summary.description"),
         applicability=_require_string(pattern_summary.get("applicability"), "pattern_summary.applicability"),
         core_steps=_require_string_list(pattern_summary.get("core_steps"), "pattern_summary.core_steps"),
