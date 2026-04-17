@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import shutil
 from io import BytesIO
 from pathlib import Path
 from zipfile import ZIP_DEFLATED, ZipFile
@@ -50,6 +51,14 @@ def answer_root(author_id: str, job_id: str) -> Path:
     path = author_root(author_id) / "answers" / job_id
     path.mkdir(parents=True, exist_ok=True)
     return path
+
+
+def delete_author_root(author_id: str) -> None:
+    """Delete the author storage directory if it exists."""
+    path = author_root(author_id)
+    if not path.exists():
+        return
+    shutil.rmtree(path)
 
 
 def _to_storage_uri(path: Path) -> str:

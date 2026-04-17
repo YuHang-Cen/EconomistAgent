@@ -67,11 +67,19 @@ def test_author_skills_job_creates_snapshot_and_outputs(
     outputs_payload = outputs_response.json()["data"]
     output_types = {item["type"] for item in outputs_payload}
     assert {
+        "method_analysis_json",
         "main_skill_json",
         "sub_skill_json",
         "main_skill_md",
         "sub_skills_md_zip",
     }.issubset(output_types)
+
+    method_output_response = client.get(f"/api/jobs/{job_id}/outputs/method_analysis_json")
+    method_output = method_output_response.json()["data"]["content"]
+    assert method_output_response.status_code == 200
+    assert isinstance(method_output, dict)
+    assert "chunks" in method_output
+    assert "errors" in method_output
 
 
 def test_author_answer_job_generates_answer_json(

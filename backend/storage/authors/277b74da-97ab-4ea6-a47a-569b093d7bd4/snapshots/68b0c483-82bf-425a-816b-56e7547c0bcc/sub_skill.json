@@ -1,0 +1,211 @@
+{
+  "sub_skills": [
+    {
+      "name": "Causal Chain Analysis of Proposed Solutions",
+      "description": "This method is used when evaluating a proposed policy, belief, or system by examining its underlying assumptions and projecting their logical and practical consequences to reveal inherent contradictions, systemic failures, or perverse outcomes that undermine the original goals.",
+      "abstract_action_chain": [
+        "Identify the core operational assumption or causal premise of the proposed system.",
+        "Trace the logical and practical chain of effects that unfolds from implementing this premise.",
+        "Project the chain to its systemic endpoint or ultimate consequence.",
+        "Contrast the revealed outcome with the system's stated goals to demonstrate inherent failure."
+      ],
+      "method_program_summary": "Begin by isolating the foundational assumption or causal mechanism at the heart of the proposal or belief system. Systematically unpack this premise by tracing its sequential effects under realistic conditions, showing how each stage logically leads to the next, often transforming the nature of relationships or power dynamics. Continue this chain of reasoning to its logical conclusion, projecting the final systemic state or endpoint that would result. Finally, evaluate this projected outcome against the original stated objectives of the proposal, demonstrating that the inherent logic of the method leads to results that contradict, undermine, or are opposite to its intended aims, thereby revealing a fundamental flaw or danger.",
+      "section_id": "a3a1efa9-0250-43f9-9caf-36106bc362dd",
+      "main_skill_id": "main_skill_001",
+      "normalized_pattern": "Causal Chain Analysis",
+      "source_chunk_ids": [
+        1,
+        5
+      ],
+      "method_program_example": "The method begins by establishing a causal premise: independent national economic planning is inherently harmful and friction-producing. It then unfolds this premise into a logical sequence. First, planning fosters a rigid, artificial national economic solidarity. This transforms international relations from interactions between individuals into negotiations between monolithic state bodies. Since these states recognize no superior law and act only in their immediate national interest, their negotiations inevitably become contests of force, replacing the non-violent 'struggle' of market competition. The analysis concludes by projecting this causal chain to its endpoint—a world of totalitarian, nationalist states in recurrent conflict—thereby framing the current historical moment as a critical juncture where the lesson must be learned to avoid this predetermined, negative future."
+    },
+    {
+      "name": "Operational Consequence Derivation",
+      "description": "This method is used when analyzing a proposed system, policy, or goal to reveal its inherent structural contradictions, power dynamics, or unintended systemic outcomes. It is triggered by encountering a normative proposal that requires centralized coordination or the ranking of competing claims.",
+      "abstract_action_chain": [
+        "Isolate and define the core normative proposal or systemic goal.",
+        "Decompose the proposal into its necessary operational steps and decision-making requirements.",
+        "Deduce the logical consequences and conflicts arising from each operational step.",
+        "Extrapolate these consequences to predict broader systemic shifts and secondary effects."
+      ],
+      "method_program_summary": "Begin by clearly defining the target proposal or goal. Systematically unpack its implementation, identifying the essential operational decisions a central authority must make, particularly those involving prioritization or the balancing of competing interests. From each operational necessity, logically derive the immediate practical consequences, such as the creation of arbitrary hierarchies, perceptions of injustice, or the need for coercive enforcement. Finally, chain these consequences together to forecast how they would transform the broader system, often revealing a shift in the nature of social conflict or the emergence of new power dynamics.",
+      "section_id": "a3a1efa9-0250-43f9-9caf-36106bc362dd",
+      "main_skill_id": "main_skill_001",
+      "normalized_pattern": "Causal Derivation",
+      "source_chunk_ids": [
+        4
+      ],
+      "method_program_example": "The method begins by isolating a specific normative proposal (international planning for equalization). It then logically unpacks what the implementation of this proposal would necessarily entail: a central authority must rank the competing claims of different groups. From this operational necessity, the author derives the inevitable outcomes: the creation of arbitrary hierarchies, the perception of injustice among those deprioritized, and the consequent need for coercive power to enforce the plan. Finally, the argument extrapolates these outcomes to predict a shift in social conflict from class struggle within nations to international struggle between the working classes of different countries, driven by the centralized allocation of resources."
+    },
+    {
+      "name": "Comparative Institutional Analysis",
+      "description": "This method is used when evaluating competing institutional proposals, policy frameworks, or governance models to determine their feasibility, internal consistency, and likely consequences. It is triggered by the need to assess abstract ideals against practical realities, expose hidden contradictions in advocated positions, or derive design principles from empirical patterns.",
+      "abstract_action_chain": [
+        "Identify and characterize the target proposal or ideal being analyzed",
+        "Expose internal contradictions or contrast the proposal with observed empirical realities",
+        "Derive a general principle or limitation from the comparative analysis",
+        "Apply the derived principle to propose a superior institutional alternative",
+        "Support the alternative with logical safeguards and empirical validation"
+      ],
+      "method_program_summary": "Begin by clearly identifying the institutional proposal, ideal, or policy framework under examination, noting its advocates and stated objectives. Systematically analyze this target by exposing its internal logical contradictions or by contrasting its assumptions with observed empirical patterns and historical outcomes. From this comparative analysis, derive a general principle—such as a limitation of scale, a conflict between means and ends, or a condition for effective governance. Apply this principle to construct a superior institutional alternative that addresses the identified flaws, typically favoring limited, rules-based orders over centralized, planning-based systems. Finally, validate the proposed alternative by demonstrating its logical coherence, its safeguards against concentrated power, and its alignment with empirical evidence of successful governance models.",
+      "section_id": "a3a1efa9-0250-43f9-9caf-36106bc362dd",
+      "main_skill_id": "main_skill_001",
+      "normalized_pattern": "Comparative Analysis",
+      "source_chunk_ids": [
+        2,
+        6,
+        8
+      ],
+      "method_program_example": "The analysis begins by establishing a premise: economic planning faces fewer difficulties in small, homogeneous groups like families or small communities due to shared values and goals. It then scales this scenario up to the national level, noting that agreement on ends decreases and the need for compulsion grows. The core methodological move is to extrapolate this scaling effect further to the international level. The argument demonstrates that the fundamental conflict between planning and freedom becomes exponentially more severe as the scale increases, because the necessary preconditions—common standards, values, and a sense of shared identity—disintegrate. This logical progression is then solidified with vivid, concrete examples of potential international conflicts to make the abstract scaling argument tangible and persuasive."
+    },
+    {
+      "name": "Conceptual Counter-Clarification",
+      "description": "This method is used when a prevailing belief or solution to a complex problem is found to be inadequate or misleading, and a more precise, superior alternative concept needs to be established and defended.",
+      "abstract_action_chain": [
+        "Identify and reject the prevailing but inadequate belief or solution.",
+        "Introduce and define the core characteristics of the superior alternative concept.",
+        "Clarify the concept's scope and nature by contrasting it with related but flawed ideas, often using historical or conceptual analogies.",
+        "Demonstrate the functional advantages and practical feasibility of the clarified concept in resolving the original problem."
+      ],
+      "method_program_summary": "Begin by directly challenging a widely accepted but flawed understanding of a problem. Propose a refined or alternative concept as the superior solution. Systematically clarify this concept's essential nature and boundaries by distinguishing it from related, often confused, ideas—this can involve historical comparison or conceptual contrast. Conclude by explicitly showing how this clarified concept functionally addresses the core problem more effectively than the rejected belief, establishing both its theoretical merit and practical viability.",
+      "section_id": "a3a1efa9-0250-43f9-9caf-36106bc362dd",
+      "main_skill_id": "main_skill_001",
+      "normalized_pattern": "Concept Clarification",
+      "source_chunk_ids": [
+        7
+      ],
+      "method_program_example": "The author begins by directly contradicting a widely held belief about the solution to international conflict. He then posits the true solution—a superior, limited political authority—and proceeds to clarify its essential characteristics by contrasting it with the modern sovereign state and linking it to the historical concept of the ultra-liberal state. He identifies this clarified concept as 'federation,' distinguishes it from centralized world government and mere pious declarations of law, and finally demonstrates how this institutional design functionally resolves the core problem by limiting harmful planning while enabling desirable forms of governance."
+    },
+    {
+      "name": "Constraint-Based Solution Derivation",
+      "description": "Use this method when analyzing a proposed system, principle, or solution that faces a significant tension between its ideal objectives and inherent practical limitations. It is appropriate for deriving viable operational forms or predicting systemic outcomes from structural contradictions.",
+      "abstract_action_chain": [
+        "Define the core objective and identify its inherent structural constraints or contradictions.",
+        "Analyze the operational consequences of these constraints, often using historical or logical tests.",
+        "Derive and propose a modified or tiered solution that prioritizes feasibility within the constrained reality."
+      ],
+      "method_program_summary": "Begin by clearly stating the system's core task or the principle's ideal goal. Immediately identify the fundamental structural constraints, contradictions, or practical difficulties that make the ideal form unworkable. Logically deduce the necessary operational consequences or failure modes that arise from these constraints, testing this derivation against historical examples or counterfactual scenarios. Finally, synthesize a revised proposal that hierarchically addresses the problem: prioritize a feasible, limited application that works within the primary constraints, while acknowledging broader, looser mechanisms for residual issues, thereby avoiding the failure caused by overextension.",
+      "section_id": "a3a1efa9-0250-43f9-9caf-36106bc362dd",
+      "main_skill_id": "main_skill_001",
+      "normalized_pattern": "Constraint Reasoning",
+      "source_chunk_ids": [
+        3,
+        9
+      ],
+      "method_program_example": "The author begins by defining the core task of the system under analysis: the centralized direction of economic life across diverse peoples. He then identifies the system's inherent structural constraints, primarily the clash of divergent ideals, values, and economic interests. From these constraints, he logically derives the necessary operational consequence: the impossibility of democratic execution and the inevitable resort to force by a dominant group. This derivation is tested and reinforced by applying it to a concrete historical example (German Grossraumwirtschaft) and by considering a counterfactual scenario (an idealistic, unselfish planner) to demonstrate that the coercive outcome is a function of the task's structure, not the actors' morality."
+    },
+    {
+      "name": "Causal Chain Analysis",
+      "description": "This method is used when a complex systemic problem requires tracing the logical sequence from a foundational principle or condition through intermediate causal mechanisms to final institutional or social outcomes. It is appropriate for analyzing how exceeding a critical threshold in one domain triggers a chain of consequences that reshape the entire system.",
+      "abstract_action_chain": [
+        "Establish a foundational principle or logical premise governing the system.",
+        "Identify a critical threshold or tipping point within the causal mechanism.",
+        "Deduce the systemic consequences that unfold from exceeding that threshold.",
+        "Illustrate the resulting contradictions or failures through analogy or concrete example.",
+        "Analyze the final institutional or social outcomes of the causal chain."
+      ],
+      "method_program_summary": "Begin by positing a core principle that defines the system's operational logic. Next, introduce a causal mechanism that links changes in one variable to broader systemic effects, specifying a critical point where the nature of the system shifts. Substantiate this chain by tracing the logical progression of consequences, demonstrating how each stage leads to the next. To make the abstract consequences tangible, illustrate the resulting contradictions or breakdowns using a relevant analogy or historical case. Finally, examine the terminal point of the chain, showing how the accumulated effects manifest as specific institutional failures or social transformations.",
+      "section_id": "deea4935-7f14-4bf5-a517-aad7f692fd51",
+      "main_skill_id": "main_skill_002",
+      "normalized_pattern": "Causal Chain Analysis",
+      "source_chunk_ids": [
+        12
+      ],
+      "method_program_example": "The method begins by positing a core principle: voluntary agreement limits state action. It then introduces a causal mechanism where expanding the communal sector beyond a certain point leads to indirect control over the entire system. This causal chain is substantiated with a quantitative example (Germany, 1928). The analysis then shifts to the political sphere, tracing the consequences of this systemic shift: planning without substantive agreement on ends creates an impossible demand for consensus, which is illustrated with the analogy of a journey without a destination. Finally, the method examines the institutional outcome, showing how this contradiction leads to the failure of democratic assemblies and the transfer of power to experts."
+    },
+    {
+      "name": "Systemic Institutional Derivation",
+      "description": "Use this method when you need to determine the necessary institutional or procedural forms that logically follow from the core functional requirements of a system, especially when comparing alternative systemic models.",
+      "abstract_action_chain": [
+        "Establish the fundamental operational logic or core functional requirement of the primary system.",
+        "Deduce the institutional or procedural forms that are causally necessitated by that requirement.",
+        "Contrast the derived chain with the functional requirements and consequent forms of an alternative system.",
+        "Synthesize the implications for normative values or broader societal conditions in each systemic context."
+      ],
+      "method_program_summary": "Begin by defining the essential functional logic of the system under analysis. From this foundational requirement, logically derive the institutional structures, decision-making procedures, or power arrangements that are indispensable for the system to operate effectively. To strengthen the derivation, contrast this causal chain with that of a relevant alternative system, showing how its different functional starting point leads to distinct institutional and normative consequences. The final synthesis should clarify how specific values (e.g., freedom, efficiency, stability) become possible or impossible as direct implications of each system's core logic and its required institutional form.",
+      "section_id": "deea4935-7f14-4bf5-a517-aad7f692fd51",
+      "main_skill_id": "main_skill_002",
+      "normalized_pattern": "Causal Derivation",
+      "source_chunk_ids": [
+        16
+      ],
+      "method_program_example": "The method begins by establishing the fundamental operational logic of a centrally planned society: it requires conscious control over economic activity. The analysis then derives that this control cannot be contingent on wide agreement (the democratic method), as planning decisions are complex and specific. This leads to the causal conclusion that effective large-scale planning necessitates dictatorship, as it is the instrument capable of imposing the required detailed will. The argument is framed by contrasting this causal chain with that of a liberal competitive system, where the restricted scope of collective decision-making is shown to be the very condition that makes democracy and individual freedom possible. The analysis thus proceeds from systemic necessities to their inescapable institutional and normative consequences."
+    },
+    {
+      "name": "Comparative Structural Analysis",
+      "description": "Use when you need to reveal the underlying logic or necessity of a system by contrasting it with an analogous domain that shares surface similarities but differs in a fundamental structural feature.",
+      "abstract_action_chain": [
+        "Select two analogous domains for structural comparison",
+        "Identify and articulate the core structural difference between them",
+        "Deduce the logical implications of this difference for decision-making and authority",
+        "Trace the systemic or institutional consequences that follow from this logical necessity"
+      ],
+      "method_program_summary": "Begin by selecting two domains that are functionally or conceptually analogous, allowing for a meaningful comparison. Analyze and clearly define the core structural difference between them, focusing on features like goal unity versus goal plurality, or centralized versus distributed knowledge. From this identified difference, logically deduce the necessary requirements for decision-making, authority, and expertise within the system under study. Finally, extrapolate the broader, often progressive, consequences this logical necessity imposes on related institutions, governance structures, or social practices, revealing the systemic implications of the initial structural condition.",
+      "section_id": "deea4935-7f14-4bf5-a517-aad7f692fd51",
+      "main_skill_id": "main_skill_002",
+      "normalized_pattern": "Comparative Analysis",
+      "source_chunk_ids": [
+        14
+      ],
+      "method_program_example": "The method begins by establishing a comparison between military command and economic planning, highlighting that the former has a single, defined supreme goal, while the latter inherently involves balancing multiple conflicting ends. From this contrast, the author deduces that economic planning requires knowledge of all facts and value judgments, which logically leads to decision-making by experts imposing their preferences. This deduction is then used to analyze the real reason for delegation of power (not technical detail, but the need for discretionary decisions), and finally, the analysis traces the progressive, systemic consequences of this need for comprehensive planning on democratic institutions, showing how it leads to the relinquishment of legislative power and demands for centralized authority."
+    },
+    {
+      "name": "Conceptual Impossibility Analysis",
+      "description": "This method is used when a concept, theory, or proposed system appears coherent on the surface but contains a fundamental logical or practical flaw that prevents its realization. It is appropriate for analyzing abstract social, political, or philosophical constructs that claim to offer a complete alternative to existing systems.",
+      "abstract_action_chain": [
+        "Isolate the core defining feature or essential characteristic of the concept.",
+        "Derive the necessary logical or practical preconditions required for that feature to function.",
+        "Demonstrate that one or more of these preconditions cannot be satisfied, establishing the concept's impossibility.",
+        "Contrast this logical impasse with the operational principles of a viable alternative system."
+      ],
+      "method_program_summary": "Begin by precisely defining the central, non-negotiable feature of the concept under examination. From this definition, logically deduce the fundamental conditions that must be true in the world for this feature to be implemented or sustained. Systematically evaluate these conditions, showing that at least one is unattainable—due to contradictions, missing knowledge, or insurmountable practical constraints—thereby proving the concept is inherently unrealizable. To solidify the critique, contrast this dead end with the foundational logic of a functioning alternative, highlighting how the latter operates without requiring the impossible preconditions.",
+      "section_id": "deea4935-7f14-4bf5-a517-aad7f692fd51",
+      "main_skill_id": "main_skill_002",
+      "normalized_pattern": "Concept Clarification",
+      "source_chunk_ids": [
+        10
+      ],
+      "method_program_example": "The method begins by clarifying the essential characteristic of collectivism: the organization of all societal resources toward a single, unitary social goal. It then logically derives a necessary precondition for this organization: a complete ethical code capable of ranking all possible human values and needs to guide the plan. The analysis proceeds to demonstrate that such a code does not and cannot exist in a complex society, as individual welfare is multi-dimensional and not reducible to a single scale. Finally, it contrasts this logical impasse with the observed historical trend in liberal civilization, which has moved away from comprehensive rules toward greater individual discretion, thereby framing collectivism as a reversal of this civilizational process."
+    },
+    {
+      "name": "Constraint-Based System Analysis",
+      "description": "This method is used when analyzing a system, institution, or normative framework that appears to be failing or is under theoretical scrutiny. It is triggered by the need to explain limitations, contradictions, or inherent boundaries of action, rather than surface-level inefficiencies.",
+      "abstract_action_chain": [
+        "Establish a foundational constraint or identify a core contradiction within the system.",
+        "Derive a governing principle or logical requirement from that constraint.",
+        "Apply the derived principle to analyze the system's capacity for a specific task or function.",
+        "Demonstrate the necessary limits or structural incompatibility that results.",
+        "Reinforce the conclusion through logical extension or analogical reasoning."
+      ],
+      "method_program_summary": "Begin by identifying an indisputable foundational fact, such as a cognitive limitation or a systemic contradiction, that serves as a fixed constraint. From this constraint, logically derive a core principle or requirement that governs legitimate action or successful functioning. Systematically apply this derived principle to the system in question, analyzing how its inherent logic or decision-making mechanisms interact with the demands of a specific task or goal. The analysis should demonstrate that the constraint imposes necessary and inescapable limits, leading to a conclusion about the system's legitimate scope or fundamental incapacity. Finally, solidify the argument by extending the logic to analogous situations or by showing how alternative structures would be forced by the same constraint.",
+      "section_id": "deea4935-7f14-4bf5-a517-aad7f692fd51",
+      "main_skill_id": "main_skill_002",
+      "normalized_pattern": "Constraint Reasoning",
+      "source_chunk_ids": [
+        11,
+        13
+      ],
+      "method_program_example": "The method proceeds by first positing an indisputable cognitive fact: no single mind can comprehend or weigh the infinite variety of human needs. This fact is treated as a foundational constraint. From this constraint, the author logically derives the core tenet of philosophical individualism: the individual must be the ultimate judge of their own ends. This derived principle then becomes the analytical tool. The author applies it to delineate the permissible sphere of social and state action, arguing that collective action is only legitimate where individual ends coincide, and that the scope of state power is inversely related to the likelihood of such agreement among individuals."
+    },
+    {
+      "name": "Structural Counterexample Refutation",
+      "description": "Use this method when you need to refute a systemic argument by demonstrating its structural failure under realistic operational conditions, particularly when the argument relies on an institutional safeguard that appears plausible in theory but collapses in practice.",
+      "abstract_action_chain": [
+        "Position the target phenomenon as a symptomatic stage within a broader systemic trend",
+        "Establish the phenomenon's progression pattern through comparative historical or contextual illustrations",
+        "Introduce and articulate the key opposing argument that claims to preserve systemic integrity",
+        "Introduce a fundamental conceptual distinction that reveals a hidden structural flaw in the opposing argument",
+        "Construct a detailed operational scenario that serves as a counterexample, demonstrating the argument's functional failure",
+        "Derive the inevitable systemic consequence that logically follows from the demonstrated structural flaw"
+      ],
+      "method_program_summary": "Begin by contextualizing the phenomenon under analysis as a characteristic stage within a larger systemic movement. Substantiate this positioning by illustrating the phenomenon's typical progression pattern through comparative cases, showing its evolution from initial appeal to institutional manifestation. Next, present the core opposing argument that seeks to reconcile the phenomenon with a valued systemic principle, such as democratic control. To refute it, introduce a pivotal conceptual distinction that exposes a hidden structural weakness in the argument's logic. Then, construct a detailed, realistic operational scenario where the system must function under conflicting demands and holistic constraints. Use this scenario as a counterexample to demonstrate that the proposed safeguard becomes functionally powerless in practice. Finally, logically derive the inevitable systemic outcome that results from this structural failure, completing the refutation.",
+      "section_id": "deea4935-7f14-4bf5-a517-aad7f692fd51",
+      "main_skill_id": "main_skill_002",
+      "normalized_pattern": "Counterexample Argument",
+      "source_chunk_ids": [
+        15
+      ],
+      "method_program_example": "The analysis begins by positioning the demand for an 'economic dictator' as a symptomatic stage within the movement toward planning. It then substantiates this claim by tracing the phenomenon's evolution in two historical contexts (England and pre-Hitler Germany), showing how it progresses from intellectual appeal to institutional decay. The core of the method is a rebuttal: the author introduces a pivotal counter-argument used by planners (that ultimate parliamentary control preserves democracy) and then systematically dismantles it. This is done by drawing a fundamental distinction between two types of parliamentary delegation. The author constructs a detailed scenario of planning in action—where ends conflict and plans are holistic—to serve as a counterexample, demonstrating that parliamentary oversight becomes functionally powerless. The method concludes by logically deriving the inevitable systemic outcome (plebiscitarian dictatorship) from this failure of control."
+    }
+  ]
+}

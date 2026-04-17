@@ -65,6 +65,7 @@ def _serialize_job(job: PipelineJob) -> dict[str, Any]:
         "currentStage": job.current_stage,
         "progress": job.progress,
         "errorMessage": job.error_message,
+        "finishedAt": job.finished_at,
         "retryable": job.status in {JobStatus.FAILED.value, JobStatus.CANCELED.value},
         "outputsReady": bool(public_outputs),
     }

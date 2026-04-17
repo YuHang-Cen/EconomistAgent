@@ -41,6 +41,7 @@ class OutputType(StrEnum):
 
     MAIN_SKILL_JSON = "main_skill_json"
     SUB_SKILL_JSON = "sub_skill_json"
+    METHOD_ANALYSIS_JSON = "method_analysis_json"
     ANSWER_JSON = "answer_json"
     MAIN_SKILL_MD = "main_skill_md"
     SUB_SKILLS_MD_ZIP = "sub_skills_md_zip"

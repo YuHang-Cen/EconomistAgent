@@ -1,0 +1,602 @@
+{
+  "chunks": [
+    {
+      "chunk_id": 1,
+      "section_id": "a3a1efa9-0250-43f9-9caf-36106bc362dd",
+      "section_title": "Fifteen: The Prospects of International Order",
+      "paragraph_indexes": [
+        "016-0001",
+        "016-0002",
+        "016-0003",
+        "016-0004",
+        "016-0005",
+        "016-0006",
+        "016-0007",
+        "016-0008"
+      ],
+      "word_count": 623,
+      "analysis": {
+        "methodPatterns": {
+          "raw_pattern": "The author analyzes the problem by identifying a causal chain from the adoption of national economic planning to international conflict, contrasting it with an alternative liberal order, and warning of an inevitable negative future outcome if current trends continue.",
+          "normalized_pattern": "Causal Chain Analysis",
+          "actions": [
+            "Identifying a core causal mechanism (national planning)",
+            "Tracing its sequential effects (economic solidarity -> blocs of interest -> state negotiations -> clashes of power)",
+            "Contrasting with an alternative system (liberal internationalism)",
+            "Projecting the logical endpoint of the chain (a world of conflicting national socialisms)"
+          ],
+          "method_program": "The method begins by establishing a causal premise: independent national economic planning is inherently harmful and friction-producing. It then unfolds this premise into a logical sequence. First, planning fosters a rigid, artificial national economic solidarity. This transforms international relations from interactions between individuals into negotiations between monolithic state bodies. Since these states recognize no superior law and act only in their immediate national interest, their negotiations inevitably become contests of force, replacing the non-violent 'struggle' of market competition. The analysis concludes by projecting this causal chain to its endpoint—a world of totalitarian, nationalist states in recurrent conflict—thereby framing the current historical moment as a critical juncture where the lesson must be learned to avoid this predetermined, negative future."
+        },
+        "methodSignals": {
+          "perspective": "Macro Analysis",
+          "nature": "Normative",
+          "time_orientation": "Dynamic Analysis",
+          "system_scope": "Open System",
+          "equilibrium_view": "Disequilibrium Analysis",
+          "logic": [
+            "Causal Reasoning",
+            "Historical Reasoning"
+          ]
+        }
+      }
+    },
+    {
+      "chunk_id": 2,
+      "section_id": "a3a1efa9-0250-43f9-9caf-36106bc362dd",
+      "section_title": "Fifteen: The Prospects of International Order",
+      "paragraph_indexes": [
+        "016-0009",
+        "016-0010",
+        "016-0011"
+      ],
+      "word_count": 596,
+      "analysis": {
+        "methodPatterns": {
+          "raw_pattern": "The author analyzes the problem by scaling up a known phenomenon (planning) from a smaller, more manageable context to a larger, more complex one, demonstrating how inherent difficulties and conflicts intensify with increased scale and diversity.",
+          "normalized_pattern": "Comparative Analysis",
+          "actions": [
+            "Establishing a baseline phenomenon in a small-scale, familiar context",
+            "Identifying the core mechanisms and conditions that enable the phenomenon at that scale",
+            "Systematically scaling up the context (community, nation, international)",
+            "Analyzing how the enabling conditions (agreement, shared values) diminish with scale",
+            "Deriving the consequences (increased conflict, necessity of coercion) of this diminishment",
+            "Using concrete hypothetical examples to illustrate the logical conclusions at the largest scale"
+          ],
+          "method_program": "The analysis begins by establishing a premise: economic planning faces fewer difficulties in small, homogeneous groups like families or small communities due to shared values and goals. It then scales this scenario up to the national level, noting that agreement on ends decreases and the need for compulsion grows. The core methodological move is to extrapolate this scaling effect further to the international level. The argument demonstrates that the fundamental conflict between planning and freedom becomes exponentially more severe as the scale increases, because the necessary preconditions—common standards, values, and a sense of shared identity—disintegrate. This logical progression is then solidified with vivid, concrete examples of potential international conflicts to make the abstract scaling argument tangible and persuasive."
+        },
+        "methodSignals": {
+          "perspective": "Macro Analysis",
+          "nature": "Positive",
+          "time_orientation": "Static Analysis",
+          "system_scope": "Open System",
+          "equilibrium_view": "Disequilibrium Analysis",
+          "logic": [
+            "Comparative Reasoning",
+            "Constraint-Based Reasoning"
+          ]
+        }
+      }
+    },
+    {
+      "chunk_id": 3,
+      "section_id": "a3a1efa9-0250-43f9-9caf-36106bc362dd",
+      "section_title": "Fifteen: The Prospects of International Order",
+      "paragraph_indexes": [
+        "016-0012",
+        "016-0013",
+        "016-0014"
+      ],
+      "word_count": 695,
+      "analysis": {
+        "methodPatterns": {
+          "raw_pattern": "The author analyzes a proposed system (international economic planning) by logically deriving its necessary operational consequences, particularly the inevitable use of force, from its inherent structural contradictions and constraints.",
+          "normalized_pattern": "Constraint Reasoning",
+          "actions": [
+            "Define the system's core task",
+            "Identify inherent structural contradictions",
+            "Derive necessary operational consequences from constraints",
+            "Apply reasoning to a concrete historical example",
+            "Test the derivation against a counterfactual (idealistic planner)"
+          ],
+          "method_program": "The author begins by defining the core task of the system under analysis: the centralized direction of economic life across diverse peoples. He then identifies the system's inherent structural constraints, primarily the clash of divergent ideals, values, and economic interests. From these constraints, he logically derives the necessary operational consequence: the impossibility of democratic execution and the inevitable resort to force by a dominant group. This derivation is tested and reinforced by applying it to a concrete historical example (German Grossraumwirtschaft) and by considering a counterfactual scenario (an idealistic, unselfish planner) to demonstrate that the coercive outcome is a function of the task's structure, not the actors' morality."
+        },
+        "methodSignals": {
+          "perspective": "Macro Analysis",
+          "nature": "Positive",
+          "time_orientation": "Static Analysis",
+          "system_scope": "Closed System",
+          "equilibrium_view": "Disequilibrium Analysis",
+          "logic": [
+            "Causal Reasoning",
+            "Constraint-Based Reasoning"
+          ]
+        }
+      }
+    },
+    {
+      "chunk_id": 4,
+      "section_id": "a3a1efa9-0250-43f9-9caf-36106bc362dd",
+      "section_title": "Fifteen: The Prospects of International Order",
+      "paragraph_indexes": [
+        "016-0015",
+        "016-0016",
+        "016-0017",
+        "016-0018"
+      ],
+      "word_count": 783,
+      "analysis": {
+        "methodPatterns": {
+          "raw_pattern": "The author analyzes a proposed international planning system by deducing its necessary operational steps and logical consequences, particularly focusing on the inherent conflicts and power dynamics that would arise from centralized prioritization of needs among different nations.",
+          "normalized_pattern": "Causal Derivation",
+          "actions": [
+            "Identify a core proposal or goal (e.g., planning to equalize standards of life)",
+            "Decompose the proposal into its necessary operational steps (e.g., fixing an order of priorities, balancing competing claims)",
+            "Deduce the logical and practical consequences of each step (e.g., creation of winners and losers, need for enforcement)",
+            "Extend the consequences to predict systemic outcomes (e.g., resentment, hatred, international strife)"
+          ],
+          "method_program": "The method begins by isolating a specific normative proposal (international planning for equalization). It then logically unpacks what the implementation of this proposal would necessarily entail: a central authority must rank the competing claims of different groups. From this operational necessity, the author derives the inevitable outcomes: the creation of arbitrary hierarchies, the perception of injustice among those deprioritized, and the consequent need for coercive power to enforce the plan. Finally, the argument extrapolates these outcomes to predict a shift in social conflict from class struggle within nations to international struggle between the working classes of different countries, driven by the centralized allocation of resources."
+        },
+        "methodSignals": {
+          "perspective": "Macro Analysis",
+          "nature": "Normative",
+          "time_orientation": "Static Analysis",
+          "system_scope": "Closed System",
+          "equilibrium_view": "Disequilibrium Analysis",
+          "logic": [
+            "Causal Reasoning",
+            "Constraint-Based Reasoning"
+          ]
+        }
+      }
+    },
+    {
+      "chunk_id": 5,
+      "section_id": "a3a1efa9-0250-43f9-9caf-36106bc362dd",
+      "section_title": "Fifteen: The Prospects of International Order",
+      "paragraph_indexes": [
+        "016-0019",
+        "016-0020",
+        "016-0021",
+        "016-0022"
+      ],
+      "word_count": 759,
+      "analysis": {
+        "methodPatterns": {
+          "raw_pattern": "The author analyzes a proposed solution (international economic planning) by tracing its logical and practical consequences to reveal inherent contradictions and dangers. The method involves identifying a core assumption, unpacking its implications under realistic conditions, and demonstrating how it leads to outcomes opposite of its stated aims.",
+          "normalized_pattern": "Causal Chain Analysis",
+          "actions": [
+            "Identify a proposed solution or belief",
+            "Extract its core operational assumption",
+            "Trace the logical and practical consequences of implementing that assumption",
+            "Demonstrate how these consequences lead to systemic failure or perverse outcomes",
+            "Contrast the outcome with the solution's stated goals"
+          ],
+          "method_program": "The author begins by identifying a widely held belief or proposal—in this case, that international authorities can justly manage economic resources through specific technical powers. The core assumption is that such planning is a neutral, technical task separable from political power. The analysis then unfolds by tracing the causal chain that follows from granting this power: the authority gains exclusive control over essential commodities or services. This control, in practice, translates into far-reaching, unaccountable power because its decisions (e.g., on prices, supply, market access) are justified by 'technical necessities' that outsiders cannot effectively challenge. The author then demonstrates the ultimate consequences: this power allows the authority to dictate the economic fate of entire industries and nations, stifle spontaneous development, and create a system of comprehensive monopolies. The final step contrasts this outcome with the original goal of justice and prosperity, showing that the method of planning inherently corrupts the goal, leading to tyranny and stagnation rather than fair development."
+        },
+        "methodSignals": {
+          "perspective": "Institutional Analysis",
+          "nature": "Normative",
+          "time_orientation": "Static Analysis",
+          "system_scope": "Closed System",
+          "equilibrium_view": "Disequilibrium Analysis",
+          "logic": [
+            "Causal Reasoning",
+            "Constraint-Based Reasoning"
+          ]
+        }
+      }
+    },
+    {
+      "chunk_id": 6,
+      "section_id": "a3a1efa9-0250-43f9-9caf-36106bc362dd",
+      "section_title": "Fifteen: The Prospects of International Order",
+      "paragraph_indexes": [
+        "016-0023",
+        "016-0024",
+        "016-0025",
+        "016-0026"
+      ],
+      "word_count": 718,
+      "analysis": {
+        "methodPatterns": {
+          "raw_pattern": "The author critiques a proposed solution (international economic planning) by exposing its internal contradictions, contrasting it with a more limited alternative (rules-based order), and analyzing the hidden motives and likely consequences of the former.",
+          "normalized_pattern": "Comparative Analysis",
+          "actions": [
+            "Identify a target proposal and its advocates",
+            "Expose internal contradictions in the proposal's logic",
+            "Contrast the proposal with a more limited, feasible alternative",
+            "Analyze the hidden motives and power dynamics behind the proposal",
+            "Predict the negative consequences of implementing the proposal"
+          ],
+          "method_program": "The author begins by identifying a specific policy proposal (international economic planning) and its proponents ('hard-boiled realists'). The core of the method is a comparative analysis that first exposes the internal contradiction in the realists' position: they dismiss a rules-based international order as utopian while advocating for a far more intrusive and power-concentrating system they claim will be used justly. The author then contrasts this flawed proposal with a superior alternative: a limited international authority enforcing negative rules to prevent harm, rather than positive planning. Finally, the analysis probes beneath the surface of the proposal to reveal the hidden motive (great-power hegemony camouflaged as internationalism) and predicts its consequences (subjection of small nations, dissipation of wartime goodwill)."
+        },
+        "methodSignals": {
+          "perspective": "Institutional Analysis",
+          "nature": "Normative",
+          "time_orientation": "Static Analysis",
+          "system_scope": "Open System",
+          "equilibrium_view": "Disequilibrium Analysis",
+          "logic": [
+            "Comparative Reasoning",
+            "Constraint-Based Reasoning"
+          ]
+        }
+      }
+    },
+    {
+      "chunk_id": 7,
+      "section_id": "a3a1efa9-0250-43f9-9caf-36106bc362dd",
+      "section_title": "Fifteen: The Prospects of International Order",
+      "paragraph_indexes": [
+        "016-0027",
+        "016-0028",
+        "016-0029",
+        "016-0030"
+      ],
+      "word_count": 760,
+      "analysis": {
+        "methodPatterns": {
+          "raw_pattern": "The author analyzes the problem by first rejecting a common belief, then proposing a counter-solution, clarifying its nature and limits through historical and conceptual comparison, and finally demonstrating its functional advantages and feasibility.",
+          "normalized_pattern": "Concept Clarification",
+          "actions": [
+            "Rejecting a prevailing belief",
+            "Proposing a counter-solution",
+            "Clarifying the solution's nature and scope via historical analogy",
+            "Distinguishing it from related but flawed concepts",
+            "Demonstrating its functional advantages and feasibility"
+          ],
+          "method_program": "The author begins by directly contradicting a widely held belief about the solution to international conflict. He then posits the true solution—a superior, limited political authority—and proceeds to clarify its essential characteristics by contrasting it with the modern sovereign state and linking it to the historical concept of the ultra-liberal state. He identifies this clarified concept as 'federation,' distinguishes it from centralized world government and mere pious declarations of law, and finally demonstrates how this institutional design functionally resolves the core problem by limiting harmful planning while enabling desirable forms of governance."
+        },
+        "methodSignals": {
+          "perspective": "Institutional Analysis",
+          "nature": "Normative",
+          "time_orientation": "Static Analysis",
+          "system_scope": "Closed System",
+          "equilibrium_view": "Equilibrium Analysis",
+          "logic": [
+            "Conceptual Classification Reasoning",
+            "Constraint-Based Reasoning"
+          ]
+        }
+      }
+    },
+    {
+      "chunk_id": 8,
+      "section_id": "a3a1efa9-0250-43f9-9caf-36106bc362dd",
+      "section_title": "Fifteen: The Prospects of International Order",
+      "paragraph_indexes": [
+        "016-0031",
+        "016-0032",
+        "016-0033"
+      ],
+      "word_count": 752,
+      "analysis": {
+        "methodPatterns": {
+          "raw_pattern": "The author critiques a historical ideal (world federation) by contrasting it with observed realities of political scale, then derives a normative institutional design principle from this contrast, supported by empirical generalizations about small states and decentralization.",
+          "normalized_pattern": "Comparative Analysis",
+          "actions": [
+            "Identify a historical ideal or dominant proposal",
+            "Contrast the ideal with observed empirical realities and outcomes",
+            "Derive a general principle from the contrast (e.g., scale limitations)",
+            "Apply the principle to propose a specific institutional alternative",
+            "Support the alternative with empirical examples and logical safeguards"
+          ],
+          "method_program": "The analysis begins by identifying a historical ideal (world federation) prevalent among 19th-century liberal thinkers. It then contrasts this ideal with 20th-century realities and observed patterns of political success, arguing that large-scale centralization is detrimental to democracy, happiness, and creative impulses. From this contrast, the author derives a core principle: effective political participation and liberty are best preserved at a smaller, comprehensible scale. This principle is then applied to design a normative institutional alternative—a system of international law that limits power rather than consolidates it. The argument is supported by empirical references to small states (Holland, Switzerland) and logical reasoning about power limitation as a safeguard against tyranny."
+        },
+        "methodSignals": {
+          "perspective": "Institutional Analysis",
+          "nature": "Normative",
+          "time_orientation": "Historical Analysis",
+          "system_scope": "Open System",
+          "equilibrium_view": "Process Analysis",
+          "logic": [
+            "Historical Reasoning",
+            "Comparative Reasoning",
+            "Constraint-Based Reasoning"
+          ]
+        }
+      }
+    },
+    {
+      "chunk_id": 9,
+      "section_id": "a3a1efa9-0250-43f9-9caf-36106bc362dd",
+      "section_title": "Fifteen: The Prospects of International Order",
+      "paragraph_indexes": [
+        "016-0034",
+        "016-0035",
+        "016-0036",
+        "016-0037",
+        "016-0038",
+        "016-0039",
+        "016-0040",
+        "006-0001",
+        "006-0002",
+        "006-0003"
+      ],
+      "word_count": 715,
+      "analysis": {
+        "methodPatterns": {
+          "raw_pattern": "The author analyzes the problem by identifying a tension between ideal comprehensive solutions and practical limitations, then proposes a hierarchical approach where limited federations address immediate feasibility while broader associations manage residual risks.",
+          "normalized_pattern": "Constraint Reasoning",
+          "actions": [
+            "Identifies a core tension between ideal goals and practical constraints",
+            "Evaluates historical failure of an overambitious approach",
+            "Proposes a hierarchical solution prioritizing feasible limited association first",
+            "Argues that overextension risks undermining more achievable gains"
+          ],
+          "method_program": "The method begins by acknowledging the potential value of a principle (federal organization) for solving difficult problems. It then immediately introduces a key constraint: the difficulty of application and the danger of overambition. This constraint is analyzed through a historical case (the League of Nations), where overextension (attempting to be world-wide) led to weakness. From this historical constraint analysis, a positive proposal is derived: a tiered approach. A closer, more powerful federation is argued to be feasible among similar nations, while a looser, broader association is acknowledged as necessary for managing residual risks between blocs. The reasoning concludes by asserting that prioritizing the achievable limited sphere is superior to risking total failure by straining for an immediately comprehensive solution."
+        },
+        "methodSignals": {
+          "perspective": "Institutional Analysis",
+          "nature": "Mixed",
+          "time_orientation": "Static Analysis",
+          "system_scope": "Open System",
+          "equilibrium_view": "Process Analysis",
+          "logic": [
+            "Constraint-Based Reasoning",
+            "Historical Reasoning"
+          ]
+        }
+      }
+    },
+    {
+      "chunk_id": 10,
+      "section_id": "deea4935-7f14-4bf5-a517-aad7f692fd51",
+      "section_title": "Five: Planning and Democracy",
+      "paragraph_indexes": [
+        "006-0004",
+        "006-0005",
+        "006-0006",
+        "006-0007",
+        "006-0008",
+        "006-0009"
+      ],
+      "word_count": 739,
+      "analysis": {
+        "methodPatterns": {
+          "raw_pattern": "The author analyzes collectivism by identifying its core feature (unitary social goal), then demonstrates the logical impossibility of implementing it due to the absence of a complete ethical code required to rank all individual needs, and finally contrasts this with the historical evolution of liberal society.",
+          "normalized_pattern": "Concept Clarification",
+          "actions": [
+            "Identify core defining feature of a concept",
+            "Expose logical prerequisites of that feature",
+            "Demonstrate the absence or impossibility of those prerequisites",
+            "Contrast with an alternative system's historical development"
+          ],
+          "method_program": "The method begins by clarifying the essential characteristic of collectivism: the organization of all societal resources toward a single, unitary social goal. It then logically derives a necessary precondition for this organization: a complete ethical code capable of ranking all possible human values and needs to guide the plan. The analysis proceeds to demonstrate that such a code does not and cannot exist in a complex society, as individual welfare is multi-dimensional and not reducible to a single scale. Finally, it contrasts this logical impasse with the observed historical trend in liberal civilization, which has moved away from comprehensive rules toward greater individual discretion, thereby framing collectivism as a reversal of this civilizational process."
+        },
+        "methodSignals": {
+          "perspective": "Macro Analysis",
+          "nature": "Normative",
+          "time_orientation": "Mixed",
+          "system_scope": "Closed System",
+          "equilibrium_view": "Process Analysis",
+          "logic": [
+            "Conceptual Classification Reasoning",
+            "Constraint-Based Reasoning"
+          ]
+        }
+      }
+    },
+    {
+      "chunk_id": 11,
+      "section_id": "deea4935-7f14-4bf5-a517-aad7f692fd51",
+      "section_title": "Five: Planning and Democracy",
+      "paragraph_indexes": [
+        "006-0010",
+        "006-0011",
+        "006-0012",
+        "006-0013"
+      ],
+      "word_count": 711,
+      "analysis": {
+        "methodPatterns": {
+          "raw_pattern": "The author begins by establishing a fundamental cognitive limitation of individuals (inability to comprehend infinite needs/values), derives from this a core principle of individualism (individuals as ultimate judges of their ends), and then uses this principle to logically constrain the scope and legitimacy of collective action and state power.",
+          "normalized_pattern": "Constraint Reasoning",
+          "actions": [
+            "Establishing a foundational cognitive constraint",
+            "Deriving a normative principle from the constraint",
+            "Applying the principle to define the limits of collective action",
+            "Applying the principle to define the limits of state power"
+          ],
+          "method_program": "The method proceeds by first positing an indisputable cognitive fact: no single mind can comprehend or weigh the infinite variety of human needs. This fact is treated as a foundational constraint. From this constraint, the author logically derives the core tenet of philosophical individualism: the individual must be the ultimate judge of their own ends. This derived principle then becomes the analytical tool. The author applies it to delineate the permissible sphere of social and state action, arguing that collective action is only legitimate where individual ends coincide, and that the scope of state power is inversely related to the likelihood of such agreement among individuals."
+        },
+        "methodSignals": {
+          "perspective": "Micro Analysis",
+          "nature": "Mixed",
+          "time_orientation": "Static Analysis",
+          "system_scope": "Closed System",
+          "equilibrium_view": "Process Analysis",
+          "logic": [
+            "Constraint-Based Reasoning",
+            "Conceptual Classification Reasoning"
+          ]
+        }
+      }
+    },
+    {
+      "chunk_id": 12,
+      "section_id": "deea4935-7f14-4bf5-a517-aad7f692fd51",
+      "section_title": "Five: Planning and Democracy",
+      "paragraph_indexes": [
+        "006-0014",
+        "006-0015",
+        "006-0016"
+      ],
+      "word_count": 660,
+      "analysis": {
+        "methodPatterns": {
+          "raw_pattern": "The author analyzes the problem by first establishing a logical relationship between the scale of state control and individual freedom, then deducing the systemic consequences of exceeding a critical threshold, and finally illustrating the resulting political and social contradictions through a concrete analogy and institutional analysis.",
+          "normalized_pattern": "Causal Chain Analysis",
+          "actions": [
+            "Establishing a logical premise",
+            "Identifying a critical threshold",
+            "Deducing systemic consequences",
+            "Illustrating contradictions via analogy",
+            "Analyzing institutional failure"
+          ],
+          "method_program": "The method begins by positing a core principle: voluntary agreement limits state action. It then introduces a causal mechanism where expanding the communal sector beyond a certain point leads to indirect control over the entire system. This causal chain is substantiated with a quantitative example (Germany, 1928). The analysis then shifts to the political sphere, tracing the consequences of this systemic shift: planning without substantive agreement on ends creates an impossible demand for consensus, which is illustrated with the analogy of a journey without a destination. Finally, the method examines the institutional outcome, showing how this contradiction leads to the failure of democratic assemblies and the transfer of power to experts."
+        },
+        "methodSignals": {
+          "perspective": "Macro Analysis",
+          "nature": "Normative",
+          "time_orientation": "Static Analysis",
+          "system_scope": "Closed System",
+          "equilibrium_view": "Disequilibrium Analysis",
+          "logic": [
+            "Causal Reasoning",
+            "Constraint-Based Reasoning"
+          ]
+        }
+      }
+    },
+    {
+      "chunk_id": 13,
+      "section_id": "deea4935-7f14-4bf5-a517-aad7f692fd51",
+      "section_title": "Five: Planning and Democracy",
+      "paragraph_indexes": [
+        "006-0017",
+        "006-0018",
+        "006-0019"
+      ],
+      "word_count": 610,
+      "analysis": {
+        "methodPatterns": {
+          "raw_pattern": "The author identifies a contradiction within a system (parliamentary democracy tasked with comprehensive economic planning), explains why the contradiction leads to failure by analyzing the logic of majority decision-making and the nature of the required plan, and uses analogies to reinforce the impossibility.",
+          "normalized_pattern": "Constraint Reasoning",
+          "actions": [
+            "Identify a core contradiction within a system",
+            "Analyze the inherent logic of the system's decision-making mechanism",
+            "Examine the essential nature of the task assigned",
+            "Demonstrate the incompatibility between the system's logic and the task's requirements",
+            "Use analogical reasoning to reinforce the conclusion"
+          ],
+          "method_program": "The method begins by accepting an observed problem (parliamentary ineffectiveness in economic administration) as a given. It then shifts from blaming institutions or individuals to identifying a fundamental contradiction: the task of comprehensive economic planning requires a unitary, coherent conception, while the parliamentary system of majority decision is suited only for choosing between limited alternatives or agreeing on general principles. The analysis proceeds by logically unpacking why majority decision-making cannot generate a coherent plan, even through incremental voting, because such a plan is a complex whole that cannot be assembled via compromise. Finally, the argument is reinforced by drawing an analogy to military planning, concluding that the task's nature imposes an inescapable constraint that forces delegation away from democratic procedure."
+        },
+        "methodSignals": {
+          "perspective": "Institutional Analysis",
+          "nature": "Positive",
+          "time_orientation": "Static Analysis",
+          "system_scope": "Closed System",
+          "equilibrium_view": "Disequilibrium Analysis",
+          "logic": [
+            "Constraint-Based Reasoning",
+            "Causal Reasoning"
+          ]
+        }
+      }
+    },
+    {
+      "chunk_id": 14,
+      "section_id": "deea4935-7f14-4bf5-a517-aad7f692fd51",
+      "section_title": "Five: Planning and Democracy",
+      "paragraph_indexes": [
+        "006-0020",
+        "006-0021",
+        "006-0022",
+        "006-0023"
+      ],
+      "word_count": 744,
+      "analysis": {
+        "methodPatterns": {
+          "raw_pattern": "The author analyzes the problem by contrasting two domains (military planning vs. economic planning) to reveal a fundamental structural difference, then uses this contrast to deduce the inherent necessity of discretionary power and delegation in economic planning, and finally traces the logical consequences of this necessity for democratic institutions.",
+          "normalized_pattern": "Comparative Analysis",
+          "actions": [
+            "Identify two analogous domains for comparison",
+            "Extract a core structural difference between them",
+            "Deduce the logical implications of this difference for decision-making",
+            "Trace the institutional consequences of this logical necessity"
+          ],
+          "method_program": "The method begins by establishing a comparison between military command and economic planning, highlighting that the former has a single, defined supreme goal, while the latter inherently involves balancing multiple conflicting ends. From this contrast, the author deduces that economic planning requires knowledge of all facts and value judgments, which logically leads to decision-making by experts imposing their preferences. This deduction is then used to analyze the real reason for delegation of power (not technical detail, but the need for discretionary decisions), and finally, the analysis traces the progressive, systemic consequences of this need for comprehensive planning on democratic institutions, showing how it leads to the relinquishment of legislative power and demands for centralized authority."
+        },
+        "methodSignals": {
+          "perspective": "Institutional Analysis",
+          "nature": "Positive",
+          "time_orientation": "Static Analysis",
+          "system_scope": "Closed System",
+          "equilibrium_view": "Process Analysis",
+          "logic": [
+            "Comparative Reasoning",
+            "Causal Reasoning"
+          ]
+        }
+      }
+    },
+    {
+      "chunk_id": 15,
+      "section_id": "deea4935-7f14-4bf5-a517-aad7f692fd51",
+      "section_title": "Five: Planning and Democracy",
+      "paragraph_indexes": [
+        "006-0024",
+        "006-0025",
+        "006-0026",
+        "006-0027"
+      ],
+      "word_count": 588,
+      "analysis": {
+        "methodPatterns": {
+          "raw_pattern": "The author analyzes a political phenomenon by first identifying its characteristic stage, then illustrating its progression through comparative historical examples, and finally dissecting a key counterargument to reveal its fatal logical flaw.",
+          "normalized_pattern": "Counterexample Argument",
+          "actions": [
+            "Identifies a characteristic stage of a broader movement",
+            "Illustrates the progression of the phenomenon with comparative historical cases",
+            "Presents a key opposing argument (reconciliation with democracy)",
+            "Dissects the opposing argument by introducing a vital conceptual distinction",
+            "Constructs a counterexample scenario to demonstrate the argument's failure",
+            "Derives the inevitable systemic consequence from the flawed premise"
+          ],
+          "method_program": "The analysis begins by positioning the demand for an 'economic dictator' as a symptomatic stage within the movement toward planning. It then substantiates this claim by tracing the phenomenon's evolution in two historical contexts (England and pre-Hitler Germany), showing how it progresses from intellectual appeal to institutional decay. The core of the method is a rebuttal: the author introduces a pivotal counter-argument used by planners (that ultimate parliamentary control preserves democracy) and then systematically dismantles it. This is done by drawing a fundamental distinction between two types of parliamentary delegation. The author constructs a detailed scenario of planning in action—where ends conflict and plans are holistic—to serve as a counterexample, demonstrating that parliamentary oversight becomes functionally powerless. The method concludes by logically deriving the inevitable systemic outcome (plebiscitarian dictatorship) from this failure of control."
+        },
+        "methodSignals": {
+          "perspective": "Institutional Analysis",
+          "nature": "Normative",
+          "time_orientation": "Historical Analysis",
+          "system_scope": "Open System",
+          "equilibrium_view": "Disequilibrium Analysis",
+          "logic": [
+            "Historical Reasoning",
+            "Causal Reasoning",
+            "Constraint-Based Reasoning"
+          ]
+        }
+      }
+    },
+    {
+      "chunk_id": 16,
+      "section_id": "deea4935-7f14-4bf5-a517-aad7f692fd51",
+      "section_title": "Five: Planning and Democracy",
+      "paragraph_indexes": [
+        "006-0028",
+        "006-0029",
+        "006-0030",
+        "006-0031",
+        "006-0032"
+      ],
+      "word_count": 767,
+      "analysis": {
+        "methodPatterns": {
+          "raw_pattern": "The author analyzes a political-economic system by identifying its core functional requirements, then deducing the institutional and procedural consequences that follow from adopting a central planning model, contrasting this with the requirements of a liberal competitive system.",
+          "normalized_pattern": "Causal Derivation",
+          "actions": [
+            "Identifies core functional requirement of a system (central planning)",
+            "Deduces necessary institutional form (dictatorship) from that requirement",
+            "Contrasts with functional requirements of an alternative system (liberal competitive order)",
+            "Derives implications for procedural values (democracy, freedom) in each system"
+          ],
+          "method_program": "The method begins by establishing the fundamental operational logic of a centrally planned society: it requires conscious control over economic activity. The analysis then derives that this control cannot be contingent on wide agreement (the democratic method), as planning decisions are complex and specific. This leads to the causal conclusion that effective large-scale planning necessitates dictatorship, as it is the instrument capable of imposing the required detailed will. The argument is framed by contrasting this causal chain with that of a liberal competitive system, where the restricted scope of collective decision-making is shown to be the very condition that makes democracy and individual freedom possible. The analysis thus proceeds from systemic necessities to their inescapable institutional and normative consequences."
+        },
+        "methodSignals": {
+          "perspective": "Institutional Analysis",
+          "nature": "Mixed",
+          "time_orientation": "Static Analysis",
+          "system_scope": "Closed System",
+          "equilibrium_view": "Process Analysis",
+          "logic": [
+            "Causal Reasoning",
+            "Comparative Reasoning"
+          ]
+        }
+      }
+    }
+  ],
+  "errors": []
+}

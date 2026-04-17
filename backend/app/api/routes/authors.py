@@ -34,6 +34,15 @@ def list_authors(request_id: Annotated[str, Depends(get_request_id)]) -> dict[st
     return build_success_response(request_id=request_id, data=authors)
 
 
+@router.delete("/authors/{author_id}")
+def delete_author(
+    author_id: str, request_id: Annotated[str, Depends(get_request_id)]
+) -> dict[str, Any]:
+    """Delete author and related data."""
+    result = author_service.delete_author(author_id=author_id)
+    return build_success_response(request_id=request_id, data=result)
+
+
 @router.post("/authors/{author_id}/documents")
 def upload_document(
     author_id: str,

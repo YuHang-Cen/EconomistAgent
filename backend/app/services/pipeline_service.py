@@ -65,6 +65,16 @@ def _ensure_not_canceled(session: Session, job: PipelineJob) -> None:
         raise PipelineCanceledError("job canceled")
 
 
+def _persist_stage_progress(session: Session, job: PipelineJob, stage: Stage, progress: int) -> None:
+    """Persist stage updates immediately so polling APIs can observe live progress."""
+    job.status = JobStatus.RUNNING.value
+    job.current_stage = stage.value
+    job.progress = progress
+    job.updated_at = _now_iso()
+    session.flush()
+    session.commit()
+
+
 def _load_author_segments(session: Session, author_id: str) -> list[dict[str, Any]]:
     """读取作者 active 文档中未软删章节段落。"""
     documents = session.execute(
@@ -118,12 +128,16 @@ def _load_author_segments(session: Session, author_id: str) -> list[dict[str, An
 def _store_author_skill_artifacts(
     author_id: str,
     snapshot_id: str,
+    method_analysis: dict[str, Any],
     main_skill_json: dict[str, Any],
     sub_skill_json: dict[str, Any],
     rendered: dict[str, Any],
 ) -> dict[str, str]:
     """落盘作者快照产物并返回 artifact_type -> uri。"""
     snapshot_dir = storage.snapshot_root(author_id=author_id, snapshot_id=snapshot_id)
+    method_analysis_json_uri = storage.write_json(
+        snapshot_dir / "method_analysis.json", method_analysis
+    )
     main_skill_json_uri = storage.write_json(snapshot_dir / "main_skill.json", main_skill_json)
     sub_skill_json_uri = storage.write_json(snapshot_dir / "sub_skill.json", sub_skill_json)
     main_skill_md_uri = storage.write_text(
@@ -145,6 +159,7 @@ def _store_author_skill_artifacts(
     )
 
     return {
+        OutputType.METHOD_ANALYSIS_JSON.value: method_analysis_json_uri,
         OutputType.MAIN_SKILL_JSON.value: main_skill_json_uri,
         OutputType.SUB_SKILL_JSON.value: sub_skill_json_uri,
         OutputType.MAIN_SKILL_MD.value: main_skill_md_uri,
@@ -167,11 +182,7 @@ def run_author_skills(session: Session, job: PipelineJob) -> None:
     if author is None:
         raise ValueError("author not found for author_skills")
 
-    job.status = JobStatus.RUNNING.value
-    job.current_stage = Stage.ANALYZE.value
-    job.progress = 35
-    job.updated_at = _now_iso()
-    session.flush()
+    _persist_stage_progress(session=session, job=job, stage=Stage.ANALYZE, progress=35)
     _ensure_not_canceled(session, job)
 
     segments = _load_author_segments(session=session, author_id=job.author_id)
@@ -180,21 +191,15 @@ def run_author_skills(session: Session, job: PipelineJob) -> None:
     method_analysis = run_analyze_method_chunks(segments=segments)
 
     _ensure_not_canceled(session, job)
-    job.current_stage = Stage.MAIN_SKILL.value
-    job.progress = 55
-    job.updated_at = _now_iso()
+    _persist_stage_progress(session=session, job=job, stage=Stage.MAIN_SKILL, progress=55)
     main_skill_json = run_main_skill(method_analysis=method_analysis)
 
     _ensure_not_canceled(session, job)
-    job.current_stage = Stage.SUB_SKILL.value
-    job.progress = 70
-    job.updated_at = _now_iso()
+    _persist_stage_progress(session=session, job=job, stage=Stage.SUB_SKILL, progress=70)
     sub_skill_json = run_sub_skill(main_skill_json=main_skill_json, method_analysis=method_analysis)
 
     _ensure_not_canceled(session, job)
-    job.current_stage = Stage.RENDER.value
-    job.progress = 85
-    job.updated_at = _now_iso()
+    _persist_stage_progress(session=session, job=job, stage=Stage.RENDER, progress=85)
     rendered = run_render(main_skill_json=main_skill_json, sub_skill_json=sub_skill_json)
 
     _ensure_not_canceled(session, job)
@@ -202,6 +207,7 @@ def run_author_skills(session: Session, job: PipelineJob) -> None:
     outputs = _store_author_skill_artifacts(
         author_id=job.author_id,
         snapshot_id=snapshot_id,
+        method_analysis=method_analysis,
         main_skill_json=main_skill_json,
         sub_skill_json=sub_skill_json,
         rendered=rendered,
@@ -233,6 +239,8 @@ def run_author_skills(session: Session, job: PipelineJob) -> None:
     job.progress = 100
     job.updated_at = now
     job.finished_at = now
+    session.flush()
+    session.commit()
 
 
 def run_author_answer(session: Session, job: PipelineJob) -> None:
