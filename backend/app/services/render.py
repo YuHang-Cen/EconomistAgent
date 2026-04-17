@@ -1,4 +1,4 @@
-"""执行渲染阶段，将技能 JSON 转换为主技能与子技能 Markdown。"""
+"""Render stage: convert skill JSON into main/sub skill markdown artifacts."""
 
 from __future__ import annotations
 
@@ -17,7 +17,7 @@ FIXED_USAGE_INSTRUCTIONS = """When answering a question with this skill:
 - Treat the first step as the evaluative or conceptual baseline.
 - Use the middle steps to trace development, identify contradictions, and diagnose internal failure mechanisms.
 - Use the final step to connect the internal mechanism to concrete historical or systemic outcomes.
-- Do not merely summarize events; explain how transformation or crisis emerges from the system’s own development.
+- Do not merely summarize events; explain how transformation or crisis emerges from the system's own development.
 - If a step requires finer expansion, call an appropriate sub-skill."""
 
 FIXED_OUTPUT_GUIDANCE = """Your response should:
@@ -70,7 +70,7 @@ class SubSkillData:
 
 
 def _yaml_quote(value: str) -> str:
-    """使用 JSON 字符串语法保证 frontmatter 转义安全。"""
+    """Use JSON string syntax to keep frontmatter escaping safe."""
     return json.dumps(value, ensure_ascii=False)
 
 
@@ -187,7 +187,7 @@ def _normalize_pattern_flow(pattern_flow: list[str]) -> str:
 
 
 def _render_main_skill_md(main_skill: dict[str, Any]) -> str:
-    """渲染单个主技能 Markdown。"""
+    """Render one main-skill markdown document."""
     skill = _validate_and_normalize_main_skill(main_skill)
 
     lines: list[str] = [
@@ -309,7 +309,7 @@ def _validate_and_normalize_sub_skill(raw_skill: Any, index: int) -> SubSkillDat
 
 
 def _render_sub_skill_md(sub_skill: dict[str, Any], index: int) -> str:
-    """渲染单个子技能 Markdown。"""
+    """Render one sub-skill markdown document."""
     skill = _validate_and_normalize_sub_skill(sub_skill, index)
     chunk_ids_text = ", ".join(str(item) for item in skill.source_chunk_ids)
 
@@ -360,7 +360,7 @@ def _sanitize_filename(name: str) -> str:
 
 
 def run_render(main_skill_json: dict[str, Any], sub_skill_json: dict[str, Any]) -> dict[str, Any]:
-    """渲染主技能与子技能 Markdown 产物。"""
+    """Render main/sub skill markdown artifacts."""
     main_skills = main_skill_json.get("main_skills", [])
     sub_skills = sub_skill_json.get("sub_skills", [])
     if not isinstance(main_skills, list):
@@ -369,20 +369,55 @@ def run_render(main_skill_json: dict[str, Any], sub_skill_json: dict[str, Any]) 
         sub_skills = []
 
     main_docs: list[str] = []
+    main_skill_files: list[dict[str, str]] = []
+    used_main_names: set[str] = set()
     for skill in main_skills:
         if not isinstance(skill, dict):
             continue
-        main_docs.append(_render_main_skill_md(skill))
+        rendered_main = _render_main_skill_md(skill)
+        main_docs.append(rendered_main)
+
+        pattern_summary = skill.get("pattern_summary", {})
+        if not isinstance(pattern_summary, dict):
+            pattern_summary = {}
+        skill_name = str(pattern_summary.get("name", "")).strip()
+        section_id = str(skill.get("section_id", "")).strip()
+        section_title = str(skill.get("section_title", "")).strip()
+        main_skill_id = str(skill.get("main_skill_id", "")).strip()
+
+        stem = _sanitize_filename(
+            f"{main_skill_id}_{section_title or skill_name or 'main_skill'}"
+        )
+        main_filename = f"{stem}.md"
+        counter = 2
+        while main_filename in used_main_names:
+            main_filename = f"{stem}_{counter}.md"
+            counter += 1
+        used_main_names.add(main_filename)
+
+        main_skill_files.append(
+            {
+                "main_skill_id": main_skill_id,
+                "section_id": section_id,
+                "section_title": section_title,
+                "name": skill_name,
+                "file_name": main_filename,
+                "markdown": rendered_main,
+            }
+        )
     main_skill_md = "\n\n\n".join(main_docs).strip()
 
-    sub_skill_files: list[dict[str, str]] = []
+    sub_skill_files: list[dict[str, Any]] = []
     used_names: set[str] = set()
     for index, skill in enumerate(sub_skills, start=1):
         if not isinstance(skill, dict):
             continue
 
+        normalized = _validate_and_normalize_sub_skill(skill, index=index)
         rendered = _render_sub_skill_md(skill, index=index)
-        safe_name = _sanitize_filename(str(skill.get("name", f"sub_skill_{index}")))
+        safe_name = _sanitize_filename(
+            f"{normalized.main_skill_id}_{normalized.name or f'sub_skill_{index}'}"
+        )
         filename = f"{safe_name}.md"
         counter = 2
         while filename in used_names:
@@ -392,12 +427,22 @@ def run_render(main_skill_json: dict[str, Any], sub_skill_json: dict[str, Any]) 
 
         sub_skill_files.append(
             {
+                # Legacy fields kept for zip packaging compatibility.
                 "name": filename,
                 "content": rendered,
+                # Structured fields for direct LLM-readable outputs.
+                "file_name": filename,
+                "skill_name": normalized.name,
+                "main_skill_id": normalized.main_skill_id,
+                "section_id": normalized.section_id,
+                "normalized_pattern": normalized.normalized_pattern,
+                "markdown": rendered,
             }
         )
 
     return {
         "main_skill_md": main_skill_md,
+        "main_skill_files": main_skill_files,
         "sub_skill_files": sub_skill_files,
     }
+

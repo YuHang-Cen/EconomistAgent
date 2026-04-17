@@ -1,4 +1,4 @@
-"""定义任务状态、阶段与产物类型枚举。"""
+"""Task statuses, stages, and output type enums."""
 
 from __future__ import annotations
 
@@ -6,7 +6,7 @@ from enum import StrEnum
 
 
 class JobStatus(StrEnum):
-    """定义任务生命周期状态。"""
+    """Task lifecycle status."""
 
     QUEUED = "queued"
     RUNNING = "running"
@@ -16,7 +16,7 @@ class JobStatus(StrEnum):
 
 
 class JobType(StrEnum):
-    """定义后端支持的任务类型。"""
+    """Supported pipeline job types."""
 
     AUTHOR_SKILLS = "author_skills"
     DOCUMENT_RELOAD = "document_reload"
@@ -24,7 +24,7 @@ class JobType(StrEnum):
 
 
 class Stage(StrEnum):
-    """定义流水线阶段标识。"""
+    """Pipeline stage identifiers."""
 
     EXTRACT = "extract"
     SEGMENT_SYNC = "segment_sync"
@@ -37,11 +37,13 @@ class Stage(StrEnum):
 
 
 class OutputType(StrEnum):
-    """定义对外产物类型枚举。"""
+    """Public output artifact types."""
 
     MAIN_SKILL_JSON = "main_skill_json"
     SUB_SKILL_JSON = "sub_skill_json"
     METHOD_ANALYSIS_JSON = "method_analysis_json"
     ANSWER_JSON = "answer_json"
     MAIN_SKILL_MD = "main_skill_md"
+    MAIN_SKILLS_MD_JSON = "main_skills_md_json"
     SUB_SKILLS_MD_ZIP = "sub_skills_md_zip"
+    SUB_SKILLS_MD_JSON = "sub_skills_md_json"

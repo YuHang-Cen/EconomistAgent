@@ -1,4 +1,4 @@
-"""协调 author_skills、document_reload、author_answer 三类流水线任务执行。"""
+"""    ?author_skills   ocument_reload   uthor_answer                       ?"""
 
 from __future__ import annotations
 
@@ -29,16 +29,16 @@ from sqlalchemy.orm import Session
 
 
 class PipelineCanceledError(RuntimeError):
-    """表示任务在阶段边界被取消。"""
+    """                            ?"""
 
 
 def _now_iso() -> str:
-    """返回 UTC ISO 8601 时间字符串。"""
+    """    ?UTC ISO 8601               ?"""
     return datetime.now(tz=UTC).isoformat()
 
 
 def _parse_outputs(outputs_json: str) -> dict[str, Any]:
-    """解析 outputs_json，失败时返回空字典。"""
+    """    ?outputs_json                      ?"""
     try:
         parsed = json.loads(outputs_json or "{}")
         if isinstance(parsed, dict):
@@ -49,7 +49,7 @@ def _parse_outputs(outputs_json: str) -> dict[str, Any]:
 
 
 def _read_uri_content(uri: str) -> Any:
-    """根据 URI 读取 JSON 或文本内容。"""
+    """    ?URI     ?JSON               ?"""
     path = storage.resolve_storage_uri(uri)
     if not path.exists():
         return None
@@ -59,7 +59,7 @@ def _read_uri_content(uri: str) -> Any:
 
 
 def _ensure_not_canceled(session: Session, job: PipelineJob) -> None:
-    """在阶段边界检查任务是否已取消。"""
+    """                                 ?"""
     session.refresh(job, attribute_names=["status"])
     if job.status == JobStatus.CANCELED.value:
         raise PipelineCanceledError("job canceled")
@@ -76,7 +76,7 @@ def _persist_stage_progress(session: Session, job: PipelineJob, stage: Stage, pr
 
 
 def _load_author_segments(session: Session, author_id: str) -> list[dict[str, Any]]:
-    """读取作者 active 文档中未软删章节段落。"""
+    """         ?active                         ?"""
     documents = session.execute(
         select(AuthorDocument).where(
             AuthorDocument.author_id == author_id,
@@ -133,7 +133,7 @@ def _store_author_skill_artifacts(
     sub_skill_json: dict[str, Any],
     rendered: dict[str, Any],
 ) -> dict[str, str]:
-    """落盘作者快照产物并返回 artifact_type -> uri。"""
+    """                         ?artifact_type -> uri ?"""
     snapshot_dir = storage.snapshot_root(author_id=author_id, snapshot_id=snapshot_id)
     method_analysis_json_uri = storage.write_json(
         snapshot_dir / "method_analysis.json", method_analysis
@@ -143,19 +143,76 @@ def _store_author_skill_artifacts(
     main_skill_md_uri = storage.write_text(
         snapshot_dir / "main_skill.md", rendered["main_skill_md"]
     )
+    main_skill_files = rendered.get("main_skill_files", [])
+    main_skills_md_records: list[dict[str, str]] = []
+    if isinstance(main_skill_files, list):
+        for item in main_skill_files:
+            if not isinstance(item, dict):
+                continue
+            main_skill_id = item.get("main_skill_id")
+            section_id = item.get("section_id")
+            section_title = item.get("section_title")
+            name = item.get("name")
+            file_name = item.get("file_name")
+            markdown = item.get("markdown")
+            if not all(
+                isinstance(value, str)
+                for value in [main_skill_id, section_id, section_title, name, file_name, markdown]
+            ):
+                continue
+            main_skills_md_records.append(
+                {
+                    "main_skill_id": main_skill_id,
+                    "section_id": section_id,
+                    "section_title": section_title,
+                    "name": name,
+                    "file_name": file_name,
+                    "markdown": markdown,
+                }
+            )
+    main_skills_md_json_uri = storage.write_json(
+        snapshot_dir / "main_skills_md.json", main_skills_md_records
+    )
 
     sub_skill_files = rendered.get("sub_skill_files", [])
     zip_files: list[tuple[str, str]] = []
+    sub_skills_md_records: list[dict[str, str]] = []
     if isinstance(sub_skill_files, list):
         for item in sub_skill_files:
             if not isinstance(item, dict):
                 continue
-            name = item.get("name")
-            content = item.get("content")
-            if isinstance(name, str) and isinstance(content, str):
-                zip_files.append((name, content))
+            file_name = item.get("name")
+            if not isinstance(file_name, str):
+                file_name = item.get("file_name")
+            markdown = item.get("content")
+            if not isinstance(markdown, str):
+                markdown = item.get("markdown")
+            if isinstance(file_name, str) and isinstance(markdown, str):
+                zip_files.append((file_name, markdown))
+
+            main_skill_id = item.get("main_skill_id")
+            section_id = item.get("section_id")
+            skill_name = item.get("skill_name")
+            normalized_pattern = item.get("normalized_pattern")
+            if all(
+                isinstance(value, str)
+                for value in [main_skill_id, section_id, skill_name, normalized_pattern]
+            ) and isinstance(file_name, str) and isinstance(markdown, str):
+                sub_skills_md_records.append(
+                    {
+                        "main_skill_id": main_skill_id,
+                        "section_id": section_id,
+                        "name": skill_name,
+                        "normalized_pattern": normalized_pattern,
+                        "file_name": file_name,
+                        "markdown": markdown,
+                    }
+                )
     sub_skills_md_zip_uri = storage.write_zip_from_files(
         snapshot_dir / "sub_skills_md.zip", zip_files
+    )
+    sub_skills_md_json_uri = storage.write_json(
+        snapshot_dir / "sub_skills_md.json", sub_skills_md_records
     )
 
     return {
@@ -163,21 +220,23 @@ def _store_author_skill_artifacts(
         OutputType.MAIN_SKILL_JSON.value: main_skill_json_uri,
         OutputType.SUB_SKILL_JSON.value: sub_skill_json_uri,
         OutputType.MAIN_SKILL_MD.value: main_skill_md_uri,
+        OutputType.MAIN_SKILLS_MD_JSON.value: main_skills_md_json_uri,
         OutputType.SUB_SKILLS_MD_ZIP.value: sub_skills_md_zip_uri,
+        OutputType.SUB_SKILLS_MD_JSON.value: sub_skills_md_json_uri,
     }
 
 
 def _store_answer_artifact(
     author_id: str, job_id: str, answer_json: dict[str, Any]
 ) -> dict[str, str]:
-    """落盘作者问答产物并返回 artifact_type -> uri。"""
+    """                           artifact_type -> uri ?"""
     answer_dir = storage.answer_root(author_id=author_id, job_id=job_id)
     answer_json_uri = storage.write_json(answer_dir / "answer.json", answer_json)
     return {OutputType.ANSWER_JSON.value: answer_json_uri}
 
 
 def run_author_skills(session: Session, job: PipelineJob) -> None:
-    """执行 author_skills 闭环并写入 author_skill_snapshots。"""
+    """     author_skills           ?author_skill_snapshots ?"""
     author = session.get(Author, job.author_id)
     if author is None:
         raise ValueError("author not found for author_skills")
@@ -244,7 +303,7 @@ def run_author_skills(session: Session, job: PipelineJob) -> None:
 
 
 def run_author_answer(session: Session, job: PipelineJob) -> None:
-    """执行 author_answer 闭环并产出 answer_json。"""
+    """     author_answer           ?answer_json ?"""
     if not job.query:
         raise ValueError("author_answer requires non-empty query")
 
@@ -277,6 +336,16 @@ def run_author_answer(session: Session, job: PipelineJob) -> None:
         OutputType.MAIN_SKILL_JSON.value: main_skill_json,
         OutputType.SUB_SKILL_JSON.value: sub_skill_json,
     }
+    main_skills_md_uri = snapshot_output_uris.get(OutputType.MAIN_SKILLS_MD_JSON.value)
+    if isinstance(main_skills_md_uri, str):
+        main_skills_md_json = _read_uri_content(main_skills_md_uri)
+        if isinstance(main_skills_md_json, list):
+            snapshot_outputs[OutputType.MAIN_SKILLS_MD_JSON.value] = main_skills_md_json
+    sub_skills_md_uri = snapshot_output_uris.get(OutputType.SUB_SKILLS_MD_JSON.value)
+    if isinstance(sub_skills_md_uri, str):
+        sub_skills_md_json = _read_uri_content(sub_skills_md_uri)
+        if isinstance(sub_skills_md_json, list):
+            snapshot_outputs[OutputType.SUB_SKILLS_MD_JSON.value] = sub_skills_md_json
 
     job.status = JobStatus.RUNNING.value
     job.current_stage = Stage.SELECT_SKILLS.value
@@ -313,7 +382,7 @@ def run_author_answer(session: Session, job: PipelineJob) -> None:
 def _upsert_chapters_and_segments(
     session: Session, document_id: str, extracted_rows: list[dict[str, Any]]
 ) -> None:
-    """执行 segment_sync：按章节与 chunk_id 写入段落并保留软删除约束。"""
+    """     segment_sync          ?chunk_id                             ?"""
     existing_chapters = session.execute(
         select(DocumentChapter).where(DocumentChapter.document_id == document_id)
     ).scalars()
@@ -398,7 +467,7 @@ def _upsert_chapters_and_segments(
 
 
 def run_document_reload(session: Session, job: PipelineJob) -> None:
-    """执行 document_reload 链路：extract -> segment_sync。"""
+    """     document_reload         tract -> segment_sync ?"""
     if not job.document_id:
         raise ValueError("document_reload requires document_id")
 

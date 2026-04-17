@@ -71,7 +71,9 @@ def test_author_skills_job_creates_snapshot_and_outputs(
         "main_skill_json",
         "sub_skill_json",
         "main_skill_md",
+        "main_skills_md_json",
         "sub_skills_md_zip",
+        "sub_skills_md_json",
     }.issubset(output_types)
 
     method_output_response = client.get(f"/api/jobs/{job_id}/outputs/method_analysis_json")
@@ -80,6 +82,29 @@ def test_author_skills_job_creates_snapshot_and_outputs(
     assert isinstance(method_output, dict)
     assert "chunks" in method_output
     assert "errors" in method_output
+
+    main_md_output_response = client.get(f"/api/jobs/{job_id}/outputs/main_skills_md_json")
+    main_md_output = main_md_output_response.json()["data"]["content"]
+    assert main_md_output_response.status_code == 200
+    assert isinstance(main_md_output, list)
+    if main_md_output:
+        first_main = main_md_output[0]
+        assert "main_skill_id" in first_main
+        assert "section_id" in first_main
+        assert "file_name" in first_main
+        assert "markdown" in first_main
+
+    sub_md_output_response = client.get(f"/api/jobs/{job_id}/outputs/sub_skills_md_json")
+    sub_md_output = sub_md_output_response.json()["data"]["content"]
+    assert sub_md_output_response.status_code == 200
+    assert isinstance(sub_md_output, list)
+    if sub_md_output:
+        first_sub = sub_md_output[0]
+        assert "main_skill_id" in first_sub
+        assert "section_id" in first_sub
+        assert "name" in first_sub
+        assert "file_name" in first_sub
+        assert "markdown" in first_sub
 
 
 def test_author_answer_job_generates_answer_json(
