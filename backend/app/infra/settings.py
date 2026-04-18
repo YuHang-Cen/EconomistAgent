@@ -28,7 +28,9 @@ class Settings(BaseSettings):
     storage_root: str = Field(default="storage")
     celery_task_always_eager: bool = Field(default=False)
     celery_task_eager_propagates: bool = Field(default=True)
-    method_chunk_max_words: int = Field(default=800)
+    method_chunk_max_words: int = Field(default=1200)
+    skills_batch_size: int = Field(default=2)
+    skills_max_main_skills: int = Field(default=6)
 
     model_config = SettingsConfigDict(
         env_file=str(ENV_FILE),

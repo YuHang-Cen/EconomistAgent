@@ -399,7 +399,9 @@ def _drop_low_confidence(items: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return [item for index, item in enumerate(items) if index not in drop_indexes]
 
 
-def run_main_skill(method_analysis: dict[str, Any]) -> dict[str, Any]:
+def run_main_skill(
+    method_analysis: dict[str, Any], *, drop_low_confidence: bool = True
+) -> dict[str, Any]:
     """从 method_analysis 聚合生成章节主技能。"""
     if not isinstance(method_analysis, dict):
         return {"main_skills": []}
@@ -430,5 +432,7 @@ def run_main_skill(method_analysis: dict[str, Any]) -> dict[str, Any]:
             }
         )
 
-    filtered = _drop_low_confidence(main_skills)
-    return {"main_skills": filtered}
+    if drop_low_confidence:
+        filtered = _drop_low_confidence(main_skills)
+        return {"main_skills": filtered}
+    return {"main_skills": main_skills}

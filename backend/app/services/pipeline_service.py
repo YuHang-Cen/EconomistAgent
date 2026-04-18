@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import json
+import random
+import re
 import uuid
 from datetime import UTC, datetime
 from typing import Any
@@ -17,6 +19,7 @@ from app.domain.models import (
     PipelineJob,
 )
 from app.infra import storage
+from app.infra.settings import get_settings
 from app.services.analyze_method_chunks import run_analyze_method_chunks
 from app.services.answer_with_skills import run_answer_with_skills
 from app.services.extract_paragraphs import run_extract_paragraphs
@@ -26,6 +29,8 @@ from app.services.select_skills import run_select_skills
 from app.services.sub_skill import run_sub_skill
 from sqlalchemy import select
 from sqlalchemy.orm import Session
+
+MAIN_SKILL_ID_PATTERN = re.compile(r"^main_skill_(\d+)$")
 
 
 class PipelineCanceledError(RuntimeError):
@@ -125,6 +130,196 @@ def _load_author_segments(session: Session, author_id: str) -> list[dict[str, An
             }
         )
     return result
+
+
+def _safe_main_skills(main_skill_json: dict[str, Any]) -> list[dict[str, Any]]:
+    main_skills = main_skill_json.get("main_skills", [])
+    if not isinstance(main_skills, list):
+        return []
+    return [item for item in main_skills if isinstance(item, dict)]
+
+
+def _safe_sub_skills(sub_skill_json: dict[str, Any]) -> list[dict[str, Any]]:
+    sub_skills = sub_skill_json.get("sub_skills", [])
+    if not isinstance(sub_skills, list):
+        return []
+    return [item for item in sub_skills if isinstance(item, dict)]
+
+
+def _load_latest_snapshot(session: Session, author_id: str) -> AuthorSkillSnapshot | None:
+    return (
+        session.execute(
+            select(AuthorSkillSnapshot)
+            .where(
+                AuthorSkillSnapshot.author_id == author_id,
+                AuthorSkillSnapshot.is_latest.is_(True),
+            )
+            .order_by(AuthorSkillSnapshot.created_at.desc())
+        )
+        .scalars()
+        .first()
+    )
+
+
+def _load_snapshot_skill_payloads(
+    snapshot: AuthorSkillSnapshot,
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    outputs = _parse_outputs(snapshot.outputs_json)
+    main_skill_uri = outputs.get(OutputType.MAIN_SKILL_JSON.value)
+    sub_skill_uri = outputs.get(OutputType.SUB_SKILL_JSON.value)
+    main_skill_json = _read_uri_content(main_skill_uri) if isinstance(main_skill_uri, str) else None
+    sub_skill_json = _read_uri_content(sub_skill_uri) if isinstance(sub_skill_uri, str) else None
+
+    main_skills = (
+        _safe_main_skills(main_skill_json)
+        if isinstance(main_skill_json, dict)
+        else []
+    )
+    sub_skills = (
+        _safe_sub_skills(sub_skill_json)
+        if isinstance(sub_skill_json, dict)
+        else []
+    )
+    return main_skills, sub_skills
+
+
+def _load_generated_section_history(session: Session, author_id: str) -> set[str]:
+    snapshots = session.execute(
+        select(AuthorSkillSnapshot)
+        .where(AuthorSkillSnapshot.author_id == author_id)
+        .order_by(AuthorSkillSnapshot.created_at.asc())
+    ).scalars()
+
+    generated: set[str] = set()
+    for snapshot in snapshots:
+        main_skills, _sub_skills = _load_snapshot_skill_payloads(snapshot)
+        for item in main_skills:
+            section_id = str(item.get("section_id", "")).strip()
+            if section_id:
+                generated.add(section_id)
+    return generated
+
+
+def _collect_sections_from_segments(segments: list[dict[str, Any]]) -> dict[str, str]:
+    section_titles: dict[str, str] = {}
+    for item in segments:
+        section_id = str(item.get("chapter_id", "")).strip()
+        section_title = str(item.get("chapter_title", "")).strip()
+        if section_id and section_id not in section_titles:
+            section_titles[section_id] = section_title
+    return section_titles
+
+
+def _sample_sections_for_generation(
+    remaining_section_ids: list[str], batch_size: int
+) -> set[str]:
+    if len(remaining_section_ids) <= batch_size:
+        return set(remaining_section_ids)
+    sampled = random.sample(remaining_section_ids, batch_size)
+    return set(sampled)
+
+
+def _filter_segments_by_sections(
+    segments: list[dict[str, Any]], selected_section_ids: set[str]
+) -> list[dict[str, Any]]:
+    return [
+        item
+        for item in segments
+        if str(item.get("chapter_id", "")).strip() in selected_section_ids
+    ]
+
+
+def _parse_main_skill_index(main_skill_id: str) -> int | None:
+    matched = MAIN_SKILL_ID_PATTERN.match(main_skill_id)
+    if matched is None:
+        return None
+    return int(matched.group(1))
+
+
+def _assign_new_main_skill_ids(
+    existing_main_skills: list[dict[str, Any]],
+    new_main_skills: list[dict[str, Any]],
+) -> tuple[list[dict[str, Any]], dict[str, str]]:
+    max_index = 0
+    for item in existing_main_skills:
+        main_skill_id = str(item.get("main_skill_id", "")).strip()
+        parsed = _parse_main_skill_index(main_skill_id)
+        if parsed is not None:
+            max_index = max(max_index, parsed)
+
+    mapping: dict[str, str] = {}
+    rewritten: list[dict[str, Any]] = []
+    for item in new_main_skills:
+        copied = dict(item)
+        old_main_skill_id = str(item.get("main_skill_id", "")).strip()
+        max_index += 1
+        new_main_skill_id = f"main_skill_{max_index:03d}"
+        copied["main_skill_id"] = new_main_skill_id
+        if old_main_skill_id:
+            mapping[old_main_skill_id] = new_main_skill_id
+        rewritten.append(copied)
+    return rewritten, mapping
+
+
+def _remap_sub_skill_main_ids(
+    sub_skills: list[dict[str, Any]], main_skill_id_mapping: dict[str, str]
+) -> list[dict[str, Any]]:
+    rewritten: list[dict[str, Any]] = []
+    for item in sub_skills:
+        copied = dict(item)
+        old_main_skill_id = str(item.get("main_skill_id", "")).strip()
+        new_main_skill_id = main_skill_id_mapping.get(old_main_skill_id)
+        if new_main_skill_id:
+            copied["main_skill_id"] = new_main_skill_id
+        rewritten.append(copied)
+    return rewritten
+
+
+def _confidence_value(item: dict[str, Any]) -> float:
+    value = item.get("confidence", 0.0)
+    if isinstance(value, bool):
+        return 0.0
+    if isinstance(value, (int, float)):
+        return float(value)
+    return 0.0
+
+
+def _merge_and_trim_main_skills(
+    existing_main_skills: list[dict[str, Any]],
+    new_main_skills: list[dict[str, Any]],
+    max_main_skills: int,
+) -> list[dict[str, Any]]:
+    annotated: list[tuple[int, int, dict[str, Any]]] = []
+    for index, item in enumerate(existing_main_skills):
+        annotated.append((0, index, item))
+    for index, item in enumerate(new_main_skills):
+        annotated.append((1, index, item))
+
+    ranked = sorted(
+        annotated,
+        key=lambda pair: (-_confidence_value(pair[2]), pair[0], pair[1]),
+    )
+    kept = ranked[:max_main_skills]
+    return [item for _source_priority, _order_index, item in kept]
+
+
+def _filter_sub_skills_by_main_ids(
+    sub_skills: list[dict[str, Any]], allowed_main_skill_ids: set[str]
+) -> list[dict[str, Any]]:
+    filtered: list[dict[str, Any]] = []
+    for item in sub_skills:
+        main_skill_id = str(item.get("main_skill_id", "")).strip()
+        if main_skill_id and main_skill_id in allowed_main_skill_ids:
+            filtered.append(item)
+    return filtered
+
+
+def _run_main_skill_without_drop(method_analysis: dict[str, Any]) -> dict[str, Any]:
+    try:
+        return run_main_skill(method_analysis=method_analysis, drop_low_confidence=False)
+    except TypeError:
+        # Compatibility path for monkeypatched test doubles without the new argument.
+        return run_main_skill(method_analysis=method_analysis)
 
 
 def _store_author_skill_artifacts(
@@ -252,6 +447,9 @@ def run_author_skills(session: Session, job: PipelineJob) -> None:
     author = session.get(Author, job.author_id)
     if author is None:
         raise ValueError("author not found for author_skills")
+    settings = get_settings()
+    batch_size = max(1, int(getattr(settings, "skills_batch_size", 2)))
+    max_main_skills = max(1, int(getattr(settings, "skills_max_main_skills", 6)))
 
     _persist_stage_progress(session=session, job=job, stage=Stage.ANALYZE, progress=35)
     _ensure_not_canceled(session, job)
@@ -259,19 +457,91 @@ def run_author_skills(session: Session, job: PipelineJob) -> None:
     segments = _load_author_segments(session=session, author_id=job.author_id)
     if not segments:
         raise ValueError("no active segments found for author_skills")
-    method_analysis = run_analyze_method_chunks(segments=segments)
+
+    current_sections = _collect_sections_from_segments(segments)
+    if not current_sections:
+        raise ValueError("no available sections found for author_skills")
+    generated_history = _load_generated_section_history(session=session, author_id=job.author_id)
+    remaining_section_ids = sorted(set(current_sections.keys()) - generated_history)
+    latest_snapshot = _load_latest_snapshot(session=session, author_id=job.author_id)
+
+    if not remaining_section_ids:
+        if latest_snapshot is None:
+            raise ValueError("no latest snapshot found while no remaining sections")
+        now = _now_iso()
+        job.snapshot_id = latest_snapshot.snapshot_id
+        job.outputs_json = latest_snapshot.outputs_json
+        job.current_stage = Stage.RENDER.value
+        job.status = JobStatus.SUCCESS.value
+        job.progress = 100
+        job.updated_at = now
+        job.finished_at = now
+        session.flush()
+        session.commit()
+        return
+
+    selected_section_ids = _sample_sections_for_generation(
+        remaining_section_ids=remaining_section_ids,
+        batch_size=batch_size,
+    )
+    selected_segments = _filter_segments_by_sections(
+        segments=segments, selected_section_ids=selected_section_ids
+    )
+    if not selected_segments:
+        raise ValueError("no selected segments found for author_skills")
+
+    method_analysis = run_analyze_method_chunks(segments=selected_segments)
 
     _ensure_not_canceled(session, job)
     _persist_stage_progress(session=session, job=job, stage=Stage.MAIN_SKILL, progress=55)
-    main_skill_json = run_main_skill(method_analysis=method_analysis)
+    new_main_skill_json = _run_main_skill_without_drop(method_analysis=method_analysis)
+    new_main_skills = _safe_main_skills(new_main_skill_json)
 
     _ensure_not_canceled(session, job)
     _persist_stage_progress(session=session, job=job, stage=Stage.SUB_SKILL, progress=70)
-    sub_skill_json = run_sub_skill(main_skill_json=main_skill_json, method_analysis=method_analysis)
+    new_sub_skill_json = run_sub_skill(
+        main_skill_json={"main_skills": new_main_skills},
+        method_analysis=method_analysis,
+    )
+    new_sub_skills = _safe_sub_skills(new_sub_skill_json)
+
+    existing_main_skills: list[dict[str, Any]] = []
+    existing_sub_skills: list[dict[str, Any]] = []
+    if latest_snapshot is not None:
+        existing_main_skills, existing_sub_skills = _load_snapshot_skill_payloads(latest_snapshot)
+
+    remapped_new_main_skills, main_skill_id_mapping = _assign_new_main_skill_ids(
+        existing_main_skills=existing_main_skills,
+        new_main_skills=new_main_skills,
+    )
+    remapped_new_sub_skills = _remap_sub_skill_main_ids(
+        sub_skills=new_sub_skills,
+        main_skill_id_mapping=main_skill_id_mapping,
+    )
+
+    merged_main_skills = _merge_and_trim_main_skills(
+        existing_main_skills=existing_main_skills,
+        new_main_skills=remapped_new_main_skills,
+        max_main_skills=max_main_skills,
+    )
+    allowed_main_skill_ids = {
+        str(item.get("main_skill_id", "")).strip()
+        for item in merged_main_skills
+        if str(item.get("main_skill_id", "")).strip()
+    }
+    merged_sub_skills = _filter_sub_skills_by_main_ids(
+        sub_skills=[*existing_sub_skills, *remapped_new_sub_skills],
+        allowed_main_skill_ids=allowed_main_skill_ids,
+    )
+    merged_main_skill_json = {"main_skills": merged_main_skills}
+    merged_sub_skill_json = {"sub_skills": merged_sub_skills}
 
     _ensure_not_canceled(session, job)
     _persist_stage_progress(session=session, job=job, stage=Stage.RENDER, progress=85)
-    rendered = run_render(main_skill_json=main_skill_json, sub_skill_json=sub_skill_json)
+    rendered = run_render(
+        main_skill_json=merged_main_skill_json,
+        sub_skill_json=merged_sub_skill_json,
+    )
 
     _ensure_not_canceled(session, job)
     snapshot_id = str(uuid.uuid4())
@@ -281,8 +551,8 @@ def run_author_skills(session: Session, job: PipelineJob) -> None:
         snapshot_id=snapshot_id,
         created_at=now,
         method_analysis=method_analysis,
-        main_skill_json=main_skill_json,
-        sub_skill_json=sub_skill_json,
+        main_skill_json=merged_main_skill_json,
+        sub_skill_json=merged_sub_skill_json,
         rendered=rendered,
     )
 
