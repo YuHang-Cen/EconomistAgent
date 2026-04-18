@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+import contextlib
 import json
 import re
+from contextvars import ContextVar
 from pathlib import Path
 from typing import Any
 
@@ -12,6 +14,56 @@ from langchain_openai import ChatOpenAI
 from pydantic import SecretStr
 
 PROMPT_DIR = Path(__file__).resolve().parents[1] / "prompts"
+_MODEL_CONFIG_OVERRIDE: ContextVar[dict[str, str] | None] = ContextVar(
+    "model_config_override", default=None
+)
+
+
+def _normalize_model_config(raw: dict[str, Any] | None) -> dict[str, str]:
+    """Normalize request-level model config into internal snake_case keys."""
+    if not isinstance(raw, dict):
+        return {}
+
+    def _read_key(*names: str) -> str:
+        for name in names:
+            value = raw.get(name)
+            if isinstance(value, str) and value.strip():
+                return value.strip()
+        return ""
+
+    normalized = {
+        "provider": _read_key("provider"),
+        "model_name": _read_key("model_name", "modelName"),
+        "api_base": _read_key("api_base", "apiBase"),
+        "api_key": _read_key("api_key", "apiKey"),
+    }
+    return {key: value for key, value in normalized.items() if value}
+
+
+@contextlib.contextmanager
+def model_config_override_scope(model_config: dict[str, Any] | None):
+    """Temporarily apply request-level model config for downstream LLM builders."""
+    token = _MODEL_CONFIG_OVERRIDE.set(_normalize_model_config(model_config))
+    try:
+        yield
+    finally:
+        _MODEL_CONFIG_OVERRIDE.reset(token)
+
+
+def get_effective_model_config() -> dict[str, str]:
+    """Resolve effective model config: override first, fallback to settings."""
+    settings = get_settings()
+    override = _MODEL_CONFIG_OVERRIDE.get() or {}
+    provider = (override.get("provider") or settings.provider or "deepseek").strip()
+    model_name = (override.get("model_name") or settings.model_name or "deepseek-chat").strip()
+    api_base = (override.get("api_base") or settings.api_base or "https://api.deepseek.com").strip()
+    api_key = (override.get("api_key") or settings.deepseek_api_key or "").strip()
+    return {
+        "provider": provider,
+        "model_name": model_name,
+        "api_base": api_base,
+        "api_key": api_key,
+    }
 
 
 def load_prompt(prompt_filename: str, required_placeholders: list[str] | None = None) -> str:
@@ -36,21 +88,29 @@ def render_prompt(template: str, mapping: dict[str, str]) -> str:
 
 def build_optional_llm() -> ChatOpenAI | None:
     """按配置构建 LLM 客户端，缺少密钥时返回 None。"""
-    settings = get_settings()
-    api_key = settings.deepseek_api_key.strip()
+    effective = get_effective_model_config()
+    api_key = effective["api_key"]
     if not api_key:
         return None
-    api_base = settings.api_base.rstrip("/")
+    api_base = effective["api_base"].rstrip("/")
     if api_base.endswith("/v1"):
         base_url = api_base
     else:
         base_url = f"{api_base}/v1"
     return ChatOpenAI(
-        model=settings.model_name,
+        model=effective["model_name"],
         api_key=SecretStr(api_key),
         base_url=base_url,
         temperature=0,
     )
+
+
+def build_required_llm() -> ChatOpenAI:
+    """Build LLM client or raise when key is missing."""
+    llm = build_optional_llm()
+    if llm is None:
+        raise RuntimeError("missing model api key for current request")
+    return llm
 
 
 def normalize_message_content(content: Any) -> str:

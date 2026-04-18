@@ -23,6 +23,7 @@ from app.infra.settings import get_settings
 from app.services.analyze_method_chunks import run_analyze_method_chunks
 from app.services.answer_with_skills import run_answer_with_skills
 from app.services.extract_paragraphs import run_extract_paragraphs
+from app.services.llm_utils import model_config_override_scope
 from app.services.main_skill import run_main_skill
 from app.services.render import run_render
 from app.services.select_skills import run_select_skills
@@ -322,6 +323,19 @@ def _run_main_skill_without_drop(method_analysis: dict[str, Any]) -> dict[str, A
         return run_main_skill(method_analysis=method_analysis)
 
 
+def _load_job_model_config(job: PipelineJob) -> dict[str, Any]:
+    raw = getattr(job, "model_config_json", "{}")
+    if not isinstance(raw, str):
+        return {}
+    try:
+        parsed = json.loads(raw or "{}")
+    except json.JSONDecodeError:
+        return {}
+    if not isinstance(parsed, dict):
+        return {}
+    return parsed
+
+
 def _store_author_skill_artifacts(
     author_id: str,
     snapshot_id: str,
@@ -486,20 +500,22 @@ def run_author_skills(session: Session, job: PipelineJob) -> None:
     if not selected_segments:
         raise ValueError("no selected segments found for author_skills")
 
-    method_analysis = run_analyze_method_chunks(segments=selected_segments)
+    model_config = _load_job_model_config(job)
+    with model_config_override_scope(model_config):
+        method_analysis = run_analyze_method_chunks(segments=selected_segments)
 
-    _ensure_not_canceled(session, job)
-    _persist_stage_progress(session=session, job=job, stage=Stage.MAIN_SKILL, progress=55)
-    new_main_skill_json = _run_main_skill_without_drop(method_analysis=method_analysis)
-    new_main_skills = _safe_main_skills(new_main_skill_json)
+        _ensure_not_canceled(session, job)
+        _persist_stage_progress(session=session, job=job, stage=Stage.MAIN_SKILL, progress=55)
+        new_main_skill_json = _run_main_skill_without_drop(method_analysis=method_analysis)
+        new_main_skills = _safe_main_skills(new_main_skill_json)
 
-    _ensure_not_canceled(session, job)
-    _persist_stage_progress(session=session, job=job, stage=Stage.SUB_SKILL, progress=70)
-    new_sub_skill_json = run_sub_skill(
-        main_skill_json={"main_skills": new_main_skills},
-        method_analysis=method_analysis,
-    )
-    new_sub_skills = _safe_sub_skills(new_sub_skill_json)
+        _ensure_not_canceled(session, job)
+        _persist_stage_progress(session=session, job=job, stage=Stage.SUB_SKILL, progress=70)
+        new_sub_skill_json = run_sub_skill(
+            main_skill_json={"main_skills": new_main_skills},
+            method_analysis=method_analysis,
+        )
+        new_sub_skills = _safe_sub_skills(new_sub_skill_json)
 
     existing_main_skills: list[dict[str, Any]] = []
     existing_sub_skills: list[dict[str, Any]] = []
@@ -633,18 +649,21 @@ def run_author_answer(session: Session, job: PipelineJob) -> None:
     session.flush()
     _ensure_not_canceled(session, job)
 
-    selection = run_select_skills(snapshot_outputs=snapshot_outputs, query=job.query)
+    model_config = _load_job_model_config(job)
+    with model_config_override_scope(model_config):
+        selection = run_select_skills(snapshot_outputs=snapshot_outputs, query=job.query)
     if not selection.get("selected_section_id"):
         raise ValueError("no available skill selected for author_answer")
 
     _ensure_not_canceled(session, job)
     job.current_stage = Stage.ANSWER.value
     job.updated_at = _now_iso()
-    answer_json = run_answer_with_skills(
-        query=job.query,
-        selected=selection,
-        snapshot_outputs=snapshot_outputs,
-    )
+    with model_config_override_scope(model_config):
+        answer_json = run_answer_with_skills(
+            query=job.query,
+            selected=selection,
+            snapshot_outputs=snapshot_outputs,
+        )
 
     outputs = _store_answer_artifact(
         author_id=job.author_id, job_id=job.job_id, answer_json=answer_json

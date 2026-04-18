@@ -3,15 +3,12 @@
 from __future__ import annotations
 
 import json
-import os
 import re
 from dataclasses import dataclass
 from typing import Any
 
-from langchain_openai import ChatOpenAI
-
 from app.infra.settings import get_settings
-from app.services.llm_utils import load_prompt, render_prompt
+from app.services.llm_utils import build_required_llm, load_prompt, render_prompt
 
 PROMPT_PLACEHOLDER = "{{CHUNK_TEXT}}"
 
@@ -133,27 +130,10 @@ def _create_chunks(paragraphs: list[ParagraphRecord], max_words: int) -> list[Ch
     return chunks
 
 
-def _build_llm(settings: Any) -> ChatOpenAI:
-    """初始化 LangChain ChatOpenAI 客户端。"""
-    provider = str(getattr(settings, "provider", os.getenv("PROVIDER", "deepseek"))).strip()
-    model_name = str(getattr(settings, "model_name", os.getenv("MODEL_NAME", "deepseek-chat"))).strip()
-    api_base = str(
-        getattr(settings, "api_base", os.getenv("API_BASE", "https://api.deepseek.com"))
-    ).strip()
-
-    if provider.lower() != "deepseek":
-        raise RuntimeError(f"unsupported provider for analyze stage: {provider}")
-
-    api_key = os.getenv("DEEPSEEK_API_KEY", "").strip()
-    if not api_key:
-        raise RuntimeError("missing environment variable DEEPSEEK_API_KEY")
-
-    return ChatOpenAI(
-        model=model_name,
-        api_key=api_key,
-        base_url=api_base,
-        temperature=0,
-    )
+def _build_llm(settings: Any) -> Any:
+    """Initialize model client based on effective request/runtime config."""
+    _ = settings
+    return build_required_llm()
 
 
 def _normalize_message_content(content: Any) -> str:

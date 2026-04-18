@@ -95,6 +95,7 @@ class PipelineJob(Base):
     current_stage: Mapped[str | None] = mapped_column(String(32), nullable=True)
     progress: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     query: Mapped[str | None] = mapped_column(Text, nullable=True)
+    model_config_json: Mapped[str] = mapped_column(Text, nullable=False, default="{}")
     snapshot_id: Mapped[str | None] = mapped_column(String(64), nullable=True)
     outputs_json: Mapped[str] = mapped_column(Text, nullable=False, default="{}")
     error_message: Mapped[str | None] = mapped_column(Text, nullable=True)

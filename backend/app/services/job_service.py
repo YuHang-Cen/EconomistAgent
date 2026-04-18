@@ -14,6 +14,7 @@ from app.infra import storage
 from app.infra.db import session_scope
 from app.services import pipeline_service
 from fastapi import HTTPException
+from sqlalchemy import and_, desc, or_, select
 
 
 def _now_iso() -> str:
@@ -64,11 +65,40 @@ def _serialize_job(job: PipelineJob) -> dict[str, Any]:
         "status": job.status,
         "currentStage": job.current_stage,
         "progress": job.progress,
+        "query": job.query,
         "errorMessage": job.error_message,
+        "createdAt": job.created_at,
+        "updatedAt": job.updated_at,
         "finishedAt": job.finished_at,
         "retryable": job.status in {JobStatus.FAILED.value, JobStatus.CANCELED.value},
         "outputsReady": bool(public_outputs),
     }
+
+
+def _normalize_model_config(model_config: dict[str, Any] | None) -> dict[str, str]:
+    if not isinstance(model_config, dict):
+        return {}
+    normalized: dict[str, str] = {}
+    for key in ["provider", "modelName", "model_name", "apiBase", "api_base", "apiKey", "api_key"]:
+        value = model_config.get(key)
+        if isinstance(value, str) and value.strip():
+            normalized[key] = value.strip()
+    return normalized
+
+
+def _encode_cursor(created_at: str, job_id: str) -> str:
+    return f"{created_at}|{job_id}"
+
+
+def _decode_cursor(cursor: str) -> tuple[str, str]:
+    if "|" not in cursor:
+        raise HTTPException(status_code=422, detail="invalid cursor")
+    created_at, job_id = cursor.split("|", 1)
+    created_at = created_at.strip()
+    job_id = job_id.strip()
+    if not created_at or not job_id:
+        raise HTTPException(status_code=422, detail="invalid cursor")
+    return created_at, job_id
 
 
 def _dispatch_job(job_id: str, job_type: str) -> None:
@@ -107,6 +137,7 @@ def create_document_reload_job(
             current_stage=Stage.EXTRACT.value,
             progress=0,
             query=None,
+            model_config_json="{}",
             snapshot_id=None,
             outputs_json="{}",
             error_message=None,
@@ -161,7 +192,11 @@ def execute_document_reload_job(job_id: str) -> None:
                     document.updated_at = now
 
 
-def create_author_skills_job(author_id: str, auto_run: bool = True) -> dict[str, Any]:
+def create_author_skills_job(
+    author_id: str,
+    auto_run: bool = True,
+    model_config: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     """创建 author_skills 任务并自动入队。"""
     now = _now_iso()
     with session_scope() as session:
@@ -177,6 +212,7 @@ def create_author_skills_job(author_id: str, auto_run: bool = True) -> dict[str,
             current_stage=Stage.ANALYZE.value,
             progress=0,
             query=None,
+            model_config_json=json.dumps(_normalize_model_config(model_config)),
             snapshot_id=None,
             outputs_json="{}",
             error_message=None,
@@ -221,7 +257,12 @@ def execute_author_skills_job(job_id: str) -> None:
             job.finished_at = now
 
 
-def create_author_answer_job(author_id: str, query: str, auto_run: bool = True) -> dict[str, Any]:
+def create_author_answer_job(
+    author_id: str,
+    query: str,
+    auto_run: bool = True,
+    model_config: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     """创建 author_answer 任务并自动入队。"""
     if not query.strip():
         raise HTTPException(status_code=422, detail="query is required")
@@ -239,6 +280,7 @@ def create_author_answer_job(author_id: str, query: str, auto_run: bool = True) 
             current_stage=Stage.SELECT_SKILLS.value,
             progress=0,
             query=query,
+            model_config_json=json.dumps(_normalize_model_config(model_config)),
             snapshot_id=None,
             outputs_json="{}",
             error_message=None,
@@ -376,3 +418,51 @@ def cancel_job(job_id: str) -> dict[str, Any]:
         job.updated_at = now
         job.finished_at = now
         return _serialize_job(job)
+
+
+def list_author_jobs(
+    author_id: str,
+    job_type: str | None = None,
+    status: str | None = None,
+    limit: int = 20,
+    cursor: str | None = None,
+) -> dict[str, Any]:
+    """List jobs for one author with filters and cursor-based pagination."""
+    if job_type and job_type not in {item.value for item in JobType}:
+        raise HTTPException(status_code=422, detail="invalid jobType")
+    if status and status not in {item.value for item in JobStatus}:
+        raise HTTPException(status_code=422, detail="invalid status")
+
+    with session_scope() as session:
+        author = session.get(Author, author_id)
+        if author is None:
+            raise HTTPException(status_code=404, detail="author not found")
+
+        stmt = select(PipelineJob).where(PipelineJob.author_id == author_id)
+        if job_type:
+            stmt = stmt.where(PipelineJob.job_type == job_type)
+        if status:
+            stmt = stmt.where(PipelineJob.status == status)
+        if cursor:
+            cursor_created_at, cursor_job_id = _decode_cursor(cursor)
+            stmt = stmt.where(
+                or_(
+                    PipelineJob.created_at < cursor_created_at,
+                    and_(
+                        PipelineJob.created_at == cursor_created_at,
+                        PipelineJob.job_id < cursor_job_id,
+                    ),
+                )
+            )
+
+        stmt = stmt.order_by(desc(PipelineJob.created_at), desc(PipelineJob.job_id)).limit(limit + 1)
+        rows = list(session.execute(stmt).scalars())
+
+    has_more = len(rows) > limit
+    items = rows[:limit]
+    next_cursor = None
+    if has_more and items:
+        last = items[-1]
+        next_cursor = _encode_cursor(last.created_at, last.job_id)
+
+    return {"items": [_serialize_job(item) for item in items], "nextCursor": next_cursor}

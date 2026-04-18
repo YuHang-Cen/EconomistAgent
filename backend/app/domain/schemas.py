@@ -115,7 +115,23 @@ class ReloadJobResponse(CamelModel):
     reload_job_id: str
 
 
+class ModelConfigRequest(CamelModel):
+    """Optional per-job model config passed from frontend settings."""
+
+    provider: str | None = Field(default=None, min_length=1, max_length=64)
+    model_name: str | None = Field(default=None, min_length=1, max_length=128)
+    api_base: str | None = Field(default=None, min_length=1, max_length=1024)
+    api_key: str | None = Field(default=None, min_length=1, max_length=2048)
+
+
+class AuthorSkillsRequest(CamelModel):
+    """Author skills job creation request."""
+
+    model_cfg: ModelConfigRequest | None = Field(default=None, alias="modelConfig")
+
+
 class AuthorAnswerRequest(CamelModel):
     """作者问答请求体。"""
 
     query: str = Field(min_length=1)
+    model_cfg: ModelConfigRequest | None = Field(default=None, alias="modelConfig")

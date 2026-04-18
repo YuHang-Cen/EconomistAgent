@@ -9,10 +9,8 @@ from collections import OrderedDict
 from dataclasses import dataclass
 from typing import Any
 
-from langchain_openai import ChatOpenAI
-
 from app.infra.settings import get_settings
-from app.services.llm_utils import load_prompt, render_prompt
+from app.services.llm_utils import build_required_llm, load_prompt, render_prompt
 
 PROMPT_PLACEHOLDER = "{{MAIN_SKILL_INPUT_JSON}}"
 DEFAULT_SINGLE_SECTION_TITLE = "Full Book"
@@ -154,35 +152,10 @@ def _build_intermediate_payload(records: list[ChunkMethodRecord]) -> dict[str, A
     }
 
 
-def _build_llm(settings: Any) -> ChatOpenAI:
-    """Build DeepSeek-compatible LLM client via ChatOpenAI."""
-    api_key = _normalize_text(getattr(settings, "deepseek_api_key", None))
-    if not api_key:
-        api_key = _normalize_text(getattr(settings, "DEEPSEEK_API_KEY", None))
-    if not api_key:
-        import os
-
-        api_key = os.getenv("DEEPSEEK_API_KEY", "").strip()
-    if not api_key:
-        raise RuntimeError("Missing environment variable: DEEPSEEK_API_KEY")
-
-    model_name = (
-        _normalize_text(getattr(settings, "model_name", None))
-        or _normalize_text(getattr(settings, "MODEL_NAME", None))
-        or "deepseek-chat"
-    )
-    api_base = (
-        _normalize_text(getattr(settings, "api_base", None))
-        or _normalize_text(getattr(settings, "API_BASE", None))
-        or "https://api.deepseek.com"
-    )
-
-    return ChatOpenAI(
-        model=model_name,
-        api_key=api_key,
-        base_url=api_base,
-        temperature=0,
-    )
+def _build_llm(settings: Any) -> Any:
+    """Build LLM client from effective runtime config."""
+    _ = settings
+    return build_required_llm()
 
 
 def _normalize_message_content(content: Any) -> str:
