@@ -346,9 +346,6 @@ def _store_author_skill_artifacts(
     )
     main_skill_json_uri = storage.write_json(snapshot_dir / "main_skill.json", main_skill_json)
     sub_skill_json_uri = storage.write_json(snapshot_dir / "sub_skill.json", sub_skill_json)
-    main_skill_md_uri = storage.write_text(
-        snapshot_dir / "main_skill.md", rendered["main_skill_md"]
-    )
     main_skill_files = rendered.get("main_skill_files", [])
     main_skills_md_records: list[dict[str, str]] = []
     if isinstance(main_skill_files, list):
@@ -426,7 +423,6 @@ def _store_author_skill_artifacts(
         OutputType.METHOD_ANALYSIS_JSON.value: method_analysis_json_uri,
         OutputType.MAIN_SKILL_JSON.value: main_skill_json_uri,
         OutputType.SUB_SKILL_JSON.value: sub_skill_json_uri,
-        OutputType.MAIN_SKILL_MD.value: main_skill_md_uri,
         OutputType.MAIN_SKILLS_MD_JSON.value: main_skills_md_json_uri,
         OutputType.SUB_SKILLS_MD_ZIP.value: sub_skills_md_zip_uri,
         OutputType.SUB_SKILLS_MD_JSON.value: sub_skills_md_json_uri,

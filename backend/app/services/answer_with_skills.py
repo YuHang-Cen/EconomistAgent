@@ -56,6 +56,89 @@ def _read_sub_skill_name(item: dict[str, Any]) -> str:
     return ""
 
 
+def _read_main_skill_name(item: dict[str, Any]) -> str:
+    name = item.get("name")
+    if isinstance(name, str) and name.strip():
+        return name.strip()
+    pattern_summary = item.get("pattern_summary")
+    if isinstance(pattern_summary, dict):
+        pattern_name = pattern_summary.get("name")
+        if isinstance(pattern_name, str) and pattern_name.strip():
+            return pattern_name.strip()
+    return ""
+
+
+def _dedupe_preserve_order(items: list[str]) -> list[str]:
+    seen: set[str] = set()
+    deduped: list[str] = []
+    for item in items:
+        if item in seen:
+            continue
+        seen.add(item)
+        deduped.append(item)
+    return deduped
+
+
+def _resolve_selected_skill_names(
+    snapshot_outputs: dict[str, Any],
+    selected_section_id: str | None,
+) -> tuple[str | None, list[str]]:
+    if not selected_section_id:
+        return None, []
+
+    main_name: str | None = None
+    main_md_items = snapshot_outputs.get(MAIN_SKILLS_MD_KEY)
+    if isinstance(main_md_items, list):
+        for item in main_md_items:
+            if not isinstance(item, dict):
+                continue
+            if str(item.get("section_id", "")).strip() != selected_section_id:
+                continue
+            name = _read_main_skill_name(item)
+            if name:
+                main_name = name
+                break
+
+    if main_name is None:
+        main_json_items = snapshot_outputs.get("main_skill_json", {}).get("main_skills", [])
+        if isinstance(main_json_items, list):
+            for item in main_json_items:
+                if not isinstance(item, dict):
+                    continue
+                if str(item.get("section_id", "")).strip() != selected_section_id:
+                    continue
+                name = _read_main_skill_name(item)
+                if name:
+                    main_name = name
+                    break
+
+    sub_names: list[str] = []
+    sub_md_items = snapshot_outputs.get(SUB_SKILLS_MD_KEY)
+    if isinstance(sub_md_items, list):
+        for item in sub_md_items:
+            if not isinstance(item, dict):
+                continue
+            if str(item.get("section_id", "")).strip() != selected_section_id:
+                continue
+            name = _read_sub_skill_name(item)
+            if name:
+                sub_names.append(name)
+
+    if not sub_names:
+        sub_json_items = snapshot_outputs.get("sub_skill_json", {}).get("sub_skills", [])
+        if isinstance(sub_json_items, list):
+            for item in sub_json_items:
+                if not isinstance(item, dict):
+                    continue
+                if str(item.get("section_id", "")).strip() != selected_section_id:
+                    continue
+                name = _read_sub_skill_name(item)
+                if name:
+                    sub_names.append(name)
+
+    return main_name, _dedupe_preserve_order(sub_names)
+
+
 def _validate_answer_schema(value: Any) -> dict[str, str] | None:
     """Validate answer payload against the strict JSON schema."""
     if not isinstance(value, dict):
@@ -231,6 +314,10 @@ def run_answer_with_skills(
     selected_section_id = _normalize_selected_section_id(selected.get("selected_section_id"))
     selection_mode = _normalize_selection_mode(selected.get("selection_mode"))
     selection_warning = _normalize_selection_warning(selected.get("selection_warning"))
+    selected_main_skill_name, selected_sub_skill_names = _resolve_selected_skill_names(
+        snapshot_outputs=snapshot_outputs,
+        selected_section_id=selected_section_id,
+    )
 
     context = _build_context(
         snapshot_outputs=snapshot_outputs,
@@ -266,6 +353,8 @@ def run_answer_with_skills(
         "query": query,
         "selected_skill_index": selected_skill_index,
         "selected_section_id": selected_section_id,
+        "selected_main_skill_name": selected_main_skill_name,
+        "selected_sub_skill_names": selected_sub_skill_names,
         "selection_mode": selection_mode,
         "selection_warning": selection_warning,
         "answer": answer_payload,

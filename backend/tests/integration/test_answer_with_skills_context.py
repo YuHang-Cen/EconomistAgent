@@ -82,6 +82,8 @@ def test_answer_prefers_markdown_outputs_when_available(monkeypatch: object) -> 
     )
 
     markdown = result["answer"]["markdown"]
+    assert result["selected_main_skill_name"] == "Main Skill One"
+    assert result["selected_sub_skill_names"] == ["Chosen Sub", "Other Sub"]
     assert "MAIN_MARKER_ABC" in markdown
     assert "SUB_MARKER_XYZ" in markdown
     assert "SHOULD_NOT_APPEAR" in markdown
@@ -136,5 +138,7 @@ def test_answer_falls_back_to_json_when_markdown_outputs_missing(monkeypatch: ob
     )
 
     markdown = result["answer"]["markdown"]
+    assert result["selected_main_skill_name"] == "JSON_ONLY_MAIN_NAME"
+    assert result["selected_sub_skill_names"] == ["JSON_ONLY_SUB"]
     assert "JSON_ONLY_MAIN_NAME" in markdown
     assert "JSON_ONLY_SUB" in markdown

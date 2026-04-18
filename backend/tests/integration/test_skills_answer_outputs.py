@@ -70,11 +70,16 @@ def test_author_skills_job_creates_snapshot_and_outputs(
         "method_analysis_json",
         "main_skill_json",
         "sub_skill_json",
-        "main_skill_md",
         "main_skills_md_json",
         "sub_skills_md_zip",
         "sub_skills_md_json",
     }.issubset(output_types)
+    assert "main_skill_md" not in output_types
+
+    removed_main_md_response = client.get(f"/api/jobs/{job_id}/outputs/main_skill_md")
+    removed_main_md_payload: dict[str, Any] = removed_main_md_response.json()
+    assert removed_main_md_response.status_code == 404
+    assert removed_main_md_payload["error"]["code"] == "NOT_FOUND"
 
     method_output_response = client.get(f"/api/jobs/{job_id}/outputs/method_analysis_json")
     method_output = method_output_response.json()["data"]["content"]
@@ -135,6 +140,8 @@ def test_author_answer_job_generates_answer_json(
     assert answer_output["query"] == "analyze policy mechanism and outcomes"
     assert isinstance(answer_output.get("selected_skill_index"), int)
     assert answer_output.get("selected_section_id")
+    assert "selected_main_skill_name" in answer_output
+    assert isinstance(answer_output.get("selected_sub_skill_names"), list)
     assert answer_output.get("selection_mode") in {"llm", "fallback_rule"}
     assert "answer" in answer_output
 
