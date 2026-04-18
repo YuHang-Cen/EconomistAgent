@@ -1,6 +1,4 @@
-import { Author } from '../types';
-
-export const AUTHORS: Author[] = [
+export const AUTHORS = [
   {
     id: 'adam-smith',
     name: 'Adam Smith',

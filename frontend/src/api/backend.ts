@@ -53,6 +53,24 @@ export function uploadDocument(input: {
   );
 }
 
+export async function uploadDocumentFile(input: {
+  authorId: string;
+  bookTitle: string;
+  file: File;
+}): Promise<{ documentId: string; reloadJobId: string }> {
+  const formData = new FormData();
+  formData.set("bookTitle", input.bookTitle);
+  formData.set("file", input.file);
+  return apiRequest<{ documentId: string; reloadJobId: string }>(
+    `/authors/${input.authorId}/documents/upload`,
+    {
+      method: "POST",
+      body: formData,
+      headers: {},
+    }
+  );
+}
+
 export function reloadDocument(
   authorId: string,
   documentId: string

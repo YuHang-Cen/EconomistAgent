@@ -42,7 +42,8 @@ export function parseAnswerJson(content: unknown): AnswerVM {
     throw new Error("answer_json.answer is invalid");
   }
 
-  const selectedSubSkillNamesRaw = content.selectedSubSkillNames;
+  const selectedSubSkillNamesRaw =
+    content.selectedSubSkillNames ?? content.selected_sub_skill_names;
   const selectedSubSkillNames = Array.isArray(selectedSubSkillNamesRaw)
     ? selectedSubSkillNamesRaw.filter((item): item is string => typeof item === "string")
     : [];
@@ -50,14 +51,17 @@ export function parseAnswerJson(content: unknown): AnswerVM {
   return {
     query: asString(content.query) || "",
     selectedSkillIndex:
-      typeof content.selectedSkillIndex === "number"
-        ? content.selectedSkillIndex
+      typeof (content.selectedSkillIndex ?? content.selected_skill_index) === "number"
+        ? (content.selectedSkillIndex ?? content.selected_skill_index) as number
         : null,
-    selectedSectionId: asString(content.selectedSectionId),
-    selectedMainSkillName: asString(content.selectedMainSkillName),
+    selectedSectionId: asString(content.selectedSectionId ?? content.selected_section_id),
+    selectedMainSkillName: asString(
+      content.selectedMainSkillName ?? content.selected_main_skill_name
+    ),
     selectedSubSkillNames,
-    selectionMode: asString(content.selectionMode) || "fallback_rule",
-    selectionWarning: asString(content.selectionWarning),
+    selectionMode:
+      asString(content.selectionMode ?? content.selection_mode) || "fallback_rule",
+    selectionWarning: asString(content.selectionWarning ?? content.selection_warning),
     answer: {
       title: asString(answer.title) || "",
       topic: asString(answer.topic) || "",

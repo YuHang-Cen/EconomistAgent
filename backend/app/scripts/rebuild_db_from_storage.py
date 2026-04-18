@@ -83,8 +83,47 @@ def rebuild_from_storage(storage_root: Path) -> RebuildSummary:
     created_segments = 0
     created_snapshots = 0
 
+    storage_author_dirs = sorted([p for p in authors_dir.iterdir() if p.is_dir()])
+    storage_author_ids = {path.name for path in storage_author_dirs}
+
     with session_scope() as session:
-        for author_dir in sorted([p for p in authors_dir.iterdir() if p.is_dir()]):
+        # Keep DB aligned with storage as source of truth.
+        if storage_author_ids:
+            stale_author_ids = list(
+                session.execute(
+                    select(Author.author_id).where(Author.author_id.not_in(storage_author_ids))
+                ).scalars()
+            )
+            if stale_author_ids:
+                stale_document_ids = list(
+                    session.execute(
+                        select(AuthorDocument.document_id).where(
+                            AuthorDocument.author_id.in_(stale_author_ids)
+                        )
+                    ).scalars()
+                )
+                if stale_document_ids:
+                    session.execute(
+                        delete(DocumentSegment).where(
+                            DocumentSegment.document_id.in_(stale_document_ids)
+                        )
+                    )
+                    session.execute(
+                        delete(DocumentChapter).where(
+                            DocumentChapter.document_id.in_(stale_document_ids)
+                        )
+                    )
+                session.execute(
+                    delete(AuthorSkillSnapshot).where(
+                        AuthorSkillSnapshot.author_id.in_(stale_author_ids)
+                    )
+                )
+                session.execute(
+                    delete(AuthorDocument).where(AuthorDocument.author_id.in_(stale_author_ids))
+                )
+                session.execute(delete(Author).where(Author.author_id.in_(stale_author_ids)))
+
+        for author_dir in storage_author_dirs:
             author_id = author_dir.name
             author_meta_path = author_dir / "author_meta.json"
             author_meta = _safe_load_json(author_meta_path) if author_meta_path.exists() else None
@@ -347,4 +386,3 @@ def main(argv: list[str] | None = None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

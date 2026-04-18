@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 import uuid
+from pathlib import Path
 from datetime import UTC, datetime
 
 from app.domain.enums import JobStatus
@@ -32,6 +33,66 @@ logger = logging.getLogger(__name__)
 def _now_iso() -> str:
     """Return current UTC timestamp as ISO-8601 string."""
     return datetime.now(tz=UTC).isoformat()
+
+
+def _create_document_with_reload_job(author_id: str, book_title: str, pdf_uri: str) -> dict[str, str]:
+    """Create one document record and enqueue reload job."""
+    now = _now_iso()
+    document = AuthorDocument(
+        document_id=str(uuid.uuid4()),
+        author_id=author_id,
+        book_title=book_title,
+        pdf_uri=pdf_uri,
+        status="processing",
+        created_at=now,
+        updated_at=now,
+    )
+    with session_scope() as session:
+        author = session.get(Author, author_id)
+        if author is None:
+            raise HTTPException(status_code=404, detail="author not found")
+        session.add(document)
+        session.flush()
+        document_id = document.document_id
+        author_manifest = {
+            "author_id": author.author_id,
+            "author_name": author.author_name,
+            "school": author.school,
+            "avatar_url": author.avatar_url,
+            "created_at": author.created_at,
+            "updated_at": author.updated_at,
+        }
+
+    from app.services import job_service
+
+    job = job_service.create_document_reload_job(
+        author_id=author_id, document_id=document_id, auto_run=True
+    )
+    try:
+        storage.write_json(
+            storage.document_root(author_id=author_id, document_id=document_id) / "document_meta.json",
+            {
+                "document_id": document_id,
+                "author_id": author_id,
+                "book_title": document.book_title,
+                "pdf_uri": document.pdf_uri,
+                "status": document.status,
+                "created_at": document.created_at,
+                "updated_at": document.updated_at,
+            },
+        )
+        storage.write_json(
+            storage.author_root(author_id=author_id) / "author_meta.json",
+            author_manifest,
+        )
+    except OSError as exc:
+        logger.warning(
+            "failed to write document/author manifest: author_id=%s, document_id=%s, error=%s",
+            author_id,
+            document_id,
+            exc,
+        )
+    return {"document_id": document_id, "reload_job_id": str(job["jobId"])}
 
 
 def create_author(payload: AuthorCreateRequest) -> AuthorResponse:
@@ -105,12 +166,36 @@ def list_authors() -> list[AuthorResponse]:
 
 def upload_document(author_id: str, payload: AuthorDocumentUploadRequest) -> dict[str, str]:
     """Upload a document and enqueue a document_reload job."""
-    now = _now_iso()
-    document = AuthorDocument(
-        document_id=str(uuid.uuid4()),
+    return _create_document_with_reload_job(
         author_id=author_id,
         book_title=payload.book_title,
         pdf_uri=payload.pdf_uri,
+    )
+
+
+def upload_document_file(author_id: str, book_title: str, filename: str, content: bytes) -> dict[str, str]:
+    """Upload one PDF file from multipart payload, persist it, and enqueue reload job."""
+    if not filename.lower().endswith(".pdf"):
+        raise HTTPException(status_code=422, detail="uploaded file must end with .pdf")
+
+    # Ensure author exists before writing storage files.
+    with session_scope() as session:
+        author = session.get(Author, author_id)
+        if author is None:
+            raise HTTPException(status_code=404, detail="author not found")
+
+    document_id = str(uuid.uuid4())
+    document_dir = storage.document_root(author_id=author_id, document_id=document_id)
+    source_path = document_dir / "source.pdf"
+    source_path.write_bytes(content)
+    stored_pdf_uri = str(Path(source_path).resolve())
+
+    now = _now_iso()
+    document = AuthorDocument(
+        document_id=document_id,
+        author_id=author_id,
+        book_title=book_title,
+        pdf_uri=stored_pdf_uri,
         status="processing",
         created_at=now,
         updated_at=now,
@@ -121,7 +206,6 @@ def upload_document(author_id: str, payload: AuthorDocumentUploadRequest) -> dic
             raise HTTPException(status_code=404, detail="author not found")
         session.add(document)
         session.flush()
-        document_id = document.document_id
         author_manifest = {
             "author_id": author.author_id,
             "author_name": author.author_name,
@@ -155,7 +239,7 @@ def upload_document(author_id: str, payload: AuthorDocumentUploadRequest) -> dic
         )
     except OSError as exc:
         logger.warning(
-            "failed to write document/author manifest: author_id=%s, document_id=%s, error=%s",
+            "failed to write uploaded document manifest: author_id=%s, document_id=%s, error=%s",
             author_id,
             document_id,
             exc,

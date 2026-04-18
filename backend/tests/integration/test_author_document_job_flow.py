@@ -76,6 +76,75 @@ def test_upload_document_creates_reload_job(
     assert final_payload["progress"] == 100
 
 
+def test_multipart_upload_document_creates_reload_job(
+    client: TestClient,
+    create_test_pdf: Callable[[str, list[str] | None], str],
+) -> None:
+    """Uploading a PDF file via multipart should create and complete reload job."""
+    create_author_response = client.post(
+        "/api/authors",
+        json={"authorName": "Multipart Author", "school": "Test", "avatarUrl": ""},
+    )
+    author_id = create_author_response.json()["data"]["authorId"]
+    pdf_uri = create_test_pdf("multipart-upload.pdf")
+    pdf_path = Path(pdf_uri)
+    pdf_bytes = pdf_path.read_bytes()
+
+    upload_response = client.post(
+        f"/api/authors/{author_id}/documents/upload",
+        data={"bookTitle": "Multipart Book"},
+        files={"file": ("multipart-upload.pdf", pdf_bytes, "application/pdf")},
+    )
+    payload = upload_response.json()
+    assert upload_response.status_code == 200
+    assert payload["success"] is True
+    assert payload["data"]["documentId"]
+    assert payload["data"]["reloadJobId"]
+
+    job_id = payload["data"]["reloadJobId"]
+    final_payload = _wait_job_status(client=client, job_id=job_id, expected="success")
+    assert final_payload["status"] == "success"
+    assert final_payload["progress"] == 100
+
+
+def test_multipart_upload_rejects_non_pdf(client: TestClient) -> None:
+    """Multipart upload should reject non-pdf file extension."""
+    create_author_response = client.post(
+        "/api/authors",
+        json={"authorName": "Multipart Bad Suffix", "school": "Test", "avatarUrl": ""},
+    )
+    author_id = create_author_response.json()["data"]["authorId"]
+
+    upload_response = client.post(
+        f"/api/authors/{author_id}/documents/upload",
+        data={"bookTitle": "Bad Upload"},
+        files={"file": ("not_pdf.txt", b"plain-text", "text/plain")},
+    )
+    payload = upload_response.json()
+    assert upload_response.status_code == 422
+    assert payload["error"]["code"] == "INVALID_ARGUMENT"
+    assert "must end with .pdf" in payload["error"]["message"]
+
+
+def test_multipart_upload_returns_404_when_author_missing(
+    client: TestClient,
+    create_test_pdf: Callable[[str, list[str] | None], str],
+) -> None:
+    """Multipart upload should return 404 for missing author."""
+    pdf_uri = create_test_pdf("missing-author-upload.pdf")
+    pdf_bytes = Path(pdf_uri).read_bytes()
+
+    upload_response = client.post(
+        "/api/authors/not-found-author/documents/upload",
+        data={"bookTitle": "Missing Author Book"},
+        files={"file": ("missing-author-upload.pdf", pdf_bytes, "application/pdf")},
+    )
+    payload = upload_response.json()
+    assert upload_response.status_code == 404
+    assert payload["error"]["code"] == "NOT_FOUND"
+    assert payload["error"]["message"] == "author not found"
+
+
 def test_poll_job_status_contract(
     client: TestClient,
     create_test_pdf: Callable[[str, list[str] | None], str],

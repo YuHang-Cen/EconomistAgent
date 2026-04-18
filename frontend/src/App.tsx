@@ -1,211 +1,539 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
+import { AnimatePresence, motion } from "motion/react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import {
+  createAnswerJob,
+  createAuthor,
+  createSkillsJob,
+  deleteAuthor,
+  deleteChapter,
+  deleteSegment,
+  getOutput,
+  listAuthorJobs,
+  listAuthors,
+  listChapters,
+  listDocuments,
+  listOutputs,
+  listSegments,
+  mapApiErrorToUi,
+  pollJob,
+  reloadDocument,
+  uploadDocumentFile,
+} from "./api";
+import type { AnswerVM, Author, Chapter, Job, ModelConfig, Segment } from "./types";
+import { parseAnswerJson } from "./api/outputParser";
+import AnalysisSidebar from "./components/AnalysisSidebar";
+import AnalysisView from "./components/AnalysisView";
+import AuthorSection from "./components/AuthorSection";
+import CreateAuthorModal from "./components/CreateAuthorModal";
+import LandingPage from "./components/LandingPage";
+import MethodologySidebar from "./components/MethodologySidebar";
+import MethodologyView from "./components/MethodologyView";
+import Navbar from "./components/Navbar";
+import SegmentSidebar from "./components/SegmentSidebar";
+import SegmentView from "./components/SegmentView";
+import SettingsModal, { RuntimeSettingsState } from "./components/SettingsModal";
+import Sidebar from "./components/Sidebar";
 
-import { useState } from 'react';
-import Navbar from './components/Navbar';
-import Sidebar from './components/Sidebar';
-import AuthorSection from './components/AuthorSection';
-import CreateAuthorModal from './components/CreateAuthorModal';
-import SegmentSidebar from './components/SegmentSidebar';
-import SegmentView from './components/SegmentView';
-import MethodologySidebar from './components/MethodologySidebar';
-import MethodologyView from './components/MethodologyView';
-import AnalysisSidebar from './components/AnalysisSidebar';
-import AnalysisView from './components/AnalysisView';
-import LandingPage from './components/LandingPage';
-import SettingsModal from './components/SettingsModal';
-import { AUTHORS } from './data/mockData';
-import { motion, AnimatePresence } from 'motion/react';
-import { useCallback } from 'react';
+type Tab = "archive" | "analysis" | "methodology" | "answer" | "landing";
 
-const INITIAL_SEGMENTS = [
-  {
-    id: '01',
-    title: 'Segment: Propensity to Exchange',
-    content: 'This division of labour, from which so many advantages are derived, is not originally the effect of any human wisdom, which foresees and intends that general opulence to which it gives occasion. It is the necessary, though very slow and gradual consequence of a certain propensity in human nature which has in view no such extensive utility; the propensity to truck, barter, and exchange one thing for another.'
-  },
-  {
-    id: '02',
-    title: 'Segment: Human Uniqueness',
-    content: 'Whether this propensity be one of those original principles in human nature of which no further account can be given; or whether, as seems more probable, it be the necessary consequence of the faculties of reason and speech, it belongs not to our present subject to inquire. It is common to all men, and to be found in no other race of animals, which seem to know neither this nor any other species of contracts.'
-  },
-  {
-    id: '03',
-    title: 'Segment: Self-Interest Principle',
-    content: 'Man has almost constant occasion for the help of his brethren, and it is in vain for him to expect it from their benevolence only. He will be more likely to prevail if he can interest their self-love in his favour, and show them that it is for their own advantage to do for him what he requires of them.'
-  },
-  {
-    id: '04',
-    title: 'Segment: The Butcher\'s Interest',
-    content: 'It is not from the benevolence of the butcher, the brewer, or the baker that we expect our dinner, but from their regard to their own interest. We address ourselves, not to their humanity but to their self-love, and never talk to them of our own necessities but of their advantages.'
-  }
-];
-
-interface SegmentState {
-  authors: typeof AUTHORS;
-  segments: typeof INITIAL_SEGMENTS;
+interface SkillOutputs {
+  mainSkillJson: Record<string, unknown> | null;
+  subSkillJson: Record<string, unknown> | null;
+  mainSkillsMdJson: Array<Record<string, unknown>>;
+  subSkillsMdJson: Array<Record<string, unknown>>;
 }
 
-type Tab = 'archive' | 'analysis' | 'methodology' | 'answer' | 'landing';
+interface SegmentSnapshot {
+  chapters: Chapter[];
+  segments: Segment[];
+}
+
+const EMPTY_SETTINGS: RuntimeSettingsState = {
+  skillsModel: {
+    provider: "",
+    modelName: "",
+    apiBase: "",
+    apiKey: "",
+  },
+  answerModel: {
+    provider: "",
+    modelName: "",
+    apiBase: "",
+    apiKey: "",
+  },
+};
+
+function toModelConfigOrUndefined(model: RuntimeSettingsState["skillsModel"]): ModelConfig | undefined {
+  const next: ModelConfig = {};
+  if (model.provider.trim()) next.provider = model.provider.trim();
+  if (model.modelName.trim()) next.modelName = model.modelName.trim();
+  if (model.apiBase.trim()) next.apiBase = model.apiBase.trim();
+  if (model.apiKey.trim()) next.apiKey = model.apiKey.trim();
+  return Object.keys(next).length > 0 ? next : undefined;
+}
+
+function getJobById(history: Record<string, Job[]>, authorId: string | null, jobId: string | null): Job | null {
+  if (!authorId || !jobId) return null;
+  const jobs = history[authorId] || [];
+  return jobs.find((item) => item.jobId === jobId) || null;
+}
 
 export default function App() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<Tab>('landing');
+  const [activeTab, setActiveTab] = useState<Tab>("landing");
+  const [isCreateAuthorOpen, setCreateAuthorOpen] = useState(false);
+  const [isSettingsOpen, setSettingsOpen] = useState(false);
+  const [runtimeSettings, setRuntimeSettings] = useState<RuntimeSettingsState>(EMPTY_SETTINGS);
 
-  // Segment state with history (Primary source for authors and segments)
-  const [segmentState, setSegmentState] = useState<SegmentState>({
-    authors: AUTHORS,
-    segments: INITIAL_SEGMENTS
-  });
-  const [segmentHistory, setSegmentHistory] = useState<SegmentState[]>([{
-    authors: AUTHORS,
-    segments: INITIAL_SEGMENTS
-  }]);
+  const [authors, setAuthors] = useState<Author[]>([]);
+  const [documentsByAuthor, setDocumentsByAuthor] = useState<Record<string, Array<any>>>({});
+  const [loadingDocumentsByAuthor, setLoadingDocumentsByAuthor] = useState<Record<string, boolean>>({});
+
+  const [creatingAuthor, setCreatingAuthor] = useState(false);
+  const [deletingAuthorId, setDeletingAuthorId] = useState<string | null>(null);
+  const [uploadingDocument, setUploadingDocument] = useState(false);
+  const [reloadingDocumentId, setReloadingDocumentId] = useState<string | null>(null);
+  const [globalError, setGlobalError] = useState<string | null>(null);
+
+  const [selectedArchiveAuthorId, setSelectedArchiveAuthorId] = useState<string | null>(null);
+
+  const [selectedSegmentAuthorId, setSelectedSegmentAuthorId] = useState<string | null>(null);
+  const [selectedSegmentDocumentId, setSelectedSegmentDocumentId] = useState<string | null>(null);
+  const [selectedSegmentChapterId, setSelectedSegmentChapterId] = useState<string | null>(null);
+  const [chaptersByDocument, setChaptersByDocument] = useState<Record<string, Chapter[]>>({});
+  const [segments, setSegments] = useState<Segment[]>([]);
+  const [segmentHistory, setSegmentHistory] = useState<SegmentSnapshot[]>([{ chapters: [], segments: [] }]);
   const [segmentHistoryIndex, setSegmentHistoryIndex] = useState(0);
-  
-  // Analysis selection state
-  const [analysisSelection, setAnalysisSelection] = useState({
-    author: 'Adam Smith',
-    book: 'The Wealth of Nations',
-    chapter: 'Chapter 2: The Principle of Exchange'
-  });
 
-  const [methodologySelection, setMethodologySelection] = useState('Adam Smith');
-  
-  // Answer selection state
-  const [answerSelection, setAnswerSelection] = useState<string | null>(null);
+  const [selectedMethodologyAuthorId, setSelectedMethodologyAuthorId] = useState<string | null>(null);
+  const [methodologyRunningJob, setMethodologyRunningJob] = useState<Job | null>(null);
+  const [methodologyOutputs, setMethodologyOutputs] = useState<SkillOutputs | null>(null);
+  const [methodologyGenerating, setMethodologyGenerating] = useState(false);
 
-  const handleAnalysisSelect = (author: string, book: string, chapter: string) => {
-    setAnalysisSelection({ author, book, chapter });
+  const [selectedAnalysisAuthorId, setSelectedAnalysisAuthorId] = useState<string | null>(null);
+  const [analysisHistoryByAuthor, setAnalysisHistoryByAuthor] = useState<Record<string, Job[]>>({});
+  const [analysisLoadingByAuthor, setAnalysisLoadingByAuthor] = useState<Record<string, boolean>>({});
+  const [selectedAnswerJobId, setSelectedAnswerJobId] = useState<string | null>(null);
+  const [answersByJob, setAnswersByJob] = useState<Record<string, AnswerVM>>({});
+  const [answerQuery, setAnswerQuery] = useState("");
+  const [answerCreating, setAnswerCreating] = useState(false);
+
+  const currentSegmentAuthor = useMemo(
+    () => authors.find((item) => item.authorId === selectedSegmentAuthorId) || null,
+    [authors, selectedSegmentAuthorId]
+  );
+  const currentSegmentDocument = useMemo(() => {
+    if (!selectedSegmentAuthorId || !selectedSegmentDocumentId) return null;
+    return (documentsByAuthor[selectedSegmentAuthorId] || []).find(
+      (item) => item.documentId === selectedSegmentDocumentId
+    ) || null;
+  }, [documentsByAuthor, selectedSegmentAuthorId, selectedSegmentDocumentId]);
+  const currentSegmentChapters = useMemo(
+    () => (selectedSegmentDocumentId ? chaptersByDocument[selectedSegmentDocumentId] || [] : []),
+    [chaptersByDocument, selectedSegmentDocumentId]
+  );
+  const currentSegmentChapter = useMemo(
+    () => currentSegmentChapters.find((item) => item.chapterId === selectedSegmentChapterId) || null,
+    [currentSegmentChapters, selectedSegmentChapterId]
+  );
+
+  const selectedMethodologyAuthor = useMemo(
+    () => authors.find((item) => item.authorId === selectedMethodologyAuthorId) || null,
+    [authors, selectedMethodologyAuthorId]
+  );
+  const selectedAnalysisAuthor = useMemo(
+    () => authors.find((item) => item.authorId === selectedAnalysisAuthorId) || null,
+    [authors, selectedAnalysisAuthorId]
+  );
+  const selectedAnswer = selectedAnswerJobId ? answersByJob[selectedAnswerJobId] || null : null;
+  const selectedAnswerJob = getJobById(analysisHistoryByAuthor, selectedAnalysisAuthorId, selectedAnswerJobId);
+
+  const handleError = useCallback((error: unknown) => {
+    const ui = mapApiErrorToUi(error);
+    setGlobalError(`${ui.title}: ${ui.message}`);
+  }, []);
+
+  const resetSegmentHistory = useCallback((chapters: Chapter[], nextSegments: Segment[]) => {
+    setSegmentHistory([{ chapters, segments: nextSegments }]);
+    setSegmentHistoryIndex(0);
+  }, []);
+
+  const pushSegmentHistory = useCallback((chapters: Chapter[], nextSegments: Segment[]) => {
+    setSegmentHistory((prev) => {
+      const sliced = prev.slice(0, segmentHistoryIndex + 1);
+      sliced.push({ chapters, segments: nextSegments });
+      return sliced;
+    });
+    setSegmentHistoryIndex((prev) => prev + 1);
+  }, [segmentHistoryIndex]);
+
+  const refreshAuthors = useCallback(async () => {
+    const items = await listAuthors();
+    setAuthors(items);
+    if (!selectedArchiveAuthorId && items[0]) setSelectedArchiveAuthorId(items[0].authorId);
+    if (!selectedSegmentAuthorId && items[0]) setSelectedSegmentAuthorId(items[0].authorId);
+    if (!selectedMethodologyAuthorId && items[0]) setSelectedMethodologyAuthorId(items[0].authorId);
+    if (!selectedAnalysisAuthorId && items[0]) setSelectedAnalysisAuthorId(items[0].authorId);
+  }, [selectedArchiveAuthorId, selectedSegmentAuthorId, selectedMethodologyAuthorId, selectedAnalysisAuthorId]);
+
+  const ensureDocumentsLoaded = useCallback(
+    async (authorId: string, force = false) => {
+      if (!force && documentsByAuthor[authorId]) return;
+      if (loadingDocumentsByAuthor[authorId]) return;
+      setLoadingDocumentsByAuthor((prev) => ({ ...prev, [authorId]: true }));
+      try {
+        const docs = await listDocuments(authorId);
+        setDocumentsByAuthor((prev) => ({ ...prev, [authorId]: docs }));
+      } finally {
+        setLoadingDocumentsByAuthor((prev) => ({ ...prev, [authorId]: false }));
+      }
+    },
+    [documentsByAuthor, loadingDocumentsByAuthor]
+  );
+
+  const syncSegmentView = useCallback(
+    async (authorId: string, documentId: string, preferredChapterId?: string | null) => {
+      const chapters = await listChapters(authorId, documentId);
+      setChaptersByDocument((prev) => ({ ...prev, [documentId]: chapters }));
+      const chapterId =
+        preferredChapterId && chapters.some((item) => item.chapterId === preferredChapterId)
+          ? preferredChapterId
+          : chapters[0]?.chapterId || null;
+      setSelectedSegmentChapterId(chapterId);
+      if (!chapterId) {
+        setSegments([]);
+        resetSegmentHistory(chapters, []);
+        return;
+      }
+      const nextSegments = await listSegments(authorId, documentId, chapterId);
+      setSegments(nextSegments);
+      resetSegmentHistory(chapters, nextSegments);
+    },
+    [resetSegmentHistory]
+  );
+
+  const fetchSkillsOutputs = useCallback(async (jobId: string): Promise<SkillOutputs> => {
+    const outputs = await listOutputs(jobId);
+    const types = new Set(outputs.map((item) => item.type));
+
+    async function fetchJson(type: string): Promise<any | null> {
+      if (!types.has(type)) return null;
+      try {
+        const output = await getOutput(jobId, type);
+        return output.content;
+      } catch {
+        return null;
+      }
+    }
+
+    const mainSkillJson = await fetchJson("main_skill_json");
+    const subSkillJson = await fetchJson("sub_skill_json");
+    const mainSkillsMdJson = (await fetchJson("main_skills_md_json")) || [];
+    const subSkillsMdJson = (await fetchJson("sub_skills_md_json")) || [];
+
+    return {
+      mainSkillJson: mainSkillJson && typeof mainSkillJson === "object" ? mainSkillJson : null,
+      subSkillJson: subSkillJson && typeof subSkillJson === "object" ? subSkillJson : null,
+      mainSkillsMdJson: Array.isArray(mainSkillsMdJson) ? mainSkillsMdJson : [],
+      subSkillsMdJson: Array.isArray(subSkillsMdJson) ? subSkillsMdJson : [],
+    };
+  }, []);
+
+  const loadLatestSkills = useCallback(
+    async (authorId: string) => {
+      const result = await listAuthorJobs({
+        authorId,
+        jobType: "author_skills",
+        status: "success",
+        limit: 1,
+      });
+      const latest = result.items[0] || null;
+      setMethodologyRunningJob(latest);
+      if (!latest || !latest.outputsReady) {
+        setMethodologyOutputs(null);
+        return;
+      }
+      const outputs = await fetchSkillsOutputs(latest.jobId);
+      setMethodologyOutputs(outputs);
+    },
+    [fetchSkillsOutputs]
+  );
+
+  const ensureAnalysisHistory = useCallback(
+    async (authorId: string, force = false) => {
+      if (!force && analysisHistoryByAuthor[authorId]) return;
+      setAnalysisLoadingByAuthor((prev) => ({ ...prev, [authorId]: true }));
+      try {
+        const result = await listAuthorJobs({
+          authorId,
+          jobType: "author_answer",
+          limit: 50,
+        });
+        setAnalysisHistoryByAuthor((prev) => ({ ...prev, [authorId]: result.items }));
+      } finally {
+        setAnalysisLoadingByAuthor((prev) => ({ ...prev, [authorId]: false }));
+      }
+    },
+    [analysisHistoryByAuthor]
+  );
+
+  const loadAnswerByJobId = useCallback(async (jobId: string) => {
+    const output = await getOutput(jobId, "answer_json");
+    const answer = parseAnswerJson(output.content);
+    setAnswersByJob((prev) => ({ ...prev, [jobId]: answer }));
+  }, []);
+
+  useEffect(() => {
+    refreshAuthors().catch(handleError);
+  }, [refreshAuthors, handleError]);
+
+  useEffect(() => {
+    if (activeTab !== "archive") return;
+    authors.forEach((author) => {
+      ensureDocumentsLoaded(author.authorId).catch(handleError);
+    });
+  }, [activeTab, authors, ensureDocumentsLoaded, handleError]);
+
+  useEffect(() => {
+    if (!selectedSegmentAuthorId) return;
+    ensureDocumentsLoaded(selectedSegmentAuthorId)
+      .then(() => {
+        const docs = documentsByAuthor[selectedSegmentAuthorId] || [];
+        if (!selectedSegmentDocumentId && docs[0]) {
+          setSelectedSegmentDocumentId(docs[0].documentId);
+        }
+      })
+      .catch(handleError);
+  }, [selectedSegmentAuthorId, selectedSegmentDocumentId, ensureDocumentsLoaded, documentsByAuthor, handleError]);
+
+  useEffect(() => {
+    if (!selectedSegmentAuthorId || !selectedSegmentDocumentId) return;
+    syncSegmentView(selectedSegmentAuthorId, selectedSegmentDocumentId, selectedSegmentChapterId).catch(handleError);
+  }, [selectedSegmentAuthorId, selectedSegmentDocumentId]); // intentionally exclude chapter to avoid loop
+
+  useEffect(() => {
+    if (activeTab !== "methodology" || !selectedMethodologyAuthorId) return;
+    loadLatestSkills(selectedMethodologyAuthorId).catch(handleError);
+  }, [activeTab, selectedMethodologyAuthorId, loadLatestSkills, handleError]);
+
+  useEffect(() => {
+    if (activeTab !== "answer" || !selectedAnalysisAuthorId) return;
+    ensureAnalysisHistory(selectedAnalysisAuthorId).catch(handleError);
+  }, [activeTab, selectedAnalysisAuthorId, ensureAnalysisHistory, handleError]);
+
+  const handleCreateAuthor = async (payload: { authorName: string; school?: string; avatarUrl?: string }) => {
+    try {
+      setCreatingAuthor(true);
+      await createAuthor(payload);
+      await refreshAuthors();
+      setCreateAuthorOpen(false);
+    } catch (error) {
+      handleError(error);
+    } finally {
+      setCreatingAuthor(false);
+    }
   };
 
-  const handleMethodologySelect = (economist: string) => {
-    setMethodologySelection(economist);
+  const handleUploadDocument = async (payload: { authorId: string; bookTitle: string; file: File }) => {
+    try {
+      setUploadingDocument(true);
+      const created = await uploadDocumentFile(payload);
+      const finalJob = await pollJob(created.reloadJobId);
+      if (finalJob.status !== "success") {
+        throw new Error(finalJob.errorMessage || `reload failed: ${finalJob.status}`);
+      }
+      await ensureDocumentsLoaded(payload.authorId, true);
+    } catch (error) {
+      handleError(error);
+    } finally {
+      setUploadingDocument(false);
+    }
   };
 
-  const handleAnswerSelect = (id: string) => {
-    setAnswerSelection(id);
+  const handleReloadDocument = async (authorId: string, documentId: string) => {
+    try {
+      setReloadingDocumentId(documentId);
+      const created = await reloadDocument(authorId, documentId);
+      const finalJob = await pollJob(created.reloadJobId);
+      if (finalJob.status !== "success") {
+        throw new Error(finalJob.errorMessage || `reload failed: ${finalJob.status}`);
+      }
+      await ensureDocumentsLoaded(authorId, true);
+      if (selectedSegmentDocumentId === documentId && selectedSegmentAuthorId === authorId) {
+        await syncSegmentView(authorId, documentId, selectedSegmentChapterId);
+      }
+    } catch (error) {
+      handleError(error);
+    } finally {
+      setReloadingDocumentId(null);
+    }
   };
 
-  const handleNewAnalysis = () => {
-    setAnswerSelection(null);
+  const handleDeleteAuthor = async (authorId: string) => {
+    try {
+      setDeletingAuthorId(authorId);
+      await deleteAuthor(authorId);
+      setDocumentsByAuthor((prev) => {
+        const next = { ...prev };
+        delete next[authorId];
+        return next;
+      });
+      await refreshAuthors();
+    } catch (error) {
+      handleError(error);
+    } finally {
+      setDeletingAuthorId(null);
+    }
   };
 
-  const handleGenerate = () => {
-    // Simulate generation by selecting the mock article
-    setAnswerSelection('as-3');
+  const handleDeleteChapter = async (authorId: string, documentId: string, chapterId: string) => {
+    const currentChapters = chaptersByDocument[documentId] || [];
+    const nextChapters = currentChapters.filter((item) => item.chapterId !== chapterId);
+    const nextChapterId =
+      selectedSegmentChapterId === chapterId ? nextChapters[0]?.chapterId || null : selectedSegmentChapterId;
+    const nextSegments = selectedSegmentChapterId === chapterId ? [] : segments;
+
+    setChaptersByDocument((prev) => ({ ...prev, [documentId]: nextChapters }));
+    setSelectedSegmentChapterId(nextChapterId);
+    setSegments(nextSegments);
+    pushSegmentHistory(nextChapters, nextSegments);
+
+    try {
+      await deleteChapter(authorId, documentId, chapterId);
+    } catch (error) {
+      handleError(error);
+    } finally {
+      await syncSegmentView(authorId, documentId, nextChapterId).catch(handleError);
+    }
   };
 
-  const updateSegmentState = useCallback((newState: SegmentState) => {
-    const newHistory = segmentHistory.slice(0, segmentHistoryIndex + 1);
-    newHistory.push(newState);
-    setSegmentHistory(newHistory);
-    setSegmentHistoryIndex(newHistory.length - 1);
-    setSegmentState(newState);
-  }, [segmentHistory, segmentHistoryIndex]);
+  const handleDeleteSegment = async (segmentId: string) => {
+    if (!selectedSegmentAuthorId || !selectedSegmentDocumentId) return;
+    const currentChapters = chaptersByDocument[selectedSegmentDocumentId] || [];
+    const nextSegments = segments.filter((item) => item.segmentId !== segmentId);
+    setSegments(nextSegments);
+    pushSegmentHistory(currentChapters, nextSegments);
+
+    try {
+      await deleteSegment(selectedSegmentAuthorId, selectedSegmentDocumentId, segmentId);
+    } catch (error) {
+      handleError(error);
+    } finally {
+      await syncSegmentView(
+        selectedSegmentAuthorId,
+        selectedSegmentDocumentId,
+        selectedSegmentChapterId
+      ).catch(handleError);
+    }
+  };
 
   const handleUndoSegment = () => {
-    if (segmentHistoryIndex > 0) {
-      const prevIndex = segmentHistoryIndex - 1;
-      setSegmentHistoryIndex(prevIndex);
-      setSegmentState(segmentHistory[prevIndex]);
-    }
+    if (segmentHistoryIndex <= 0 || !selectedSegmentDocumentId) return;
+    const index = segmentHistoryIndex - 1;
+    const snapshot = segmentHistory[index];
+    setSegmentHistoryIndex(index);
+    setChaptersByDocument((prev) => ({ ...prev, [selectedSegmentDocumentId]: snapshot.chapters }));
+    setSegments(snapshot.segments);
   };
 
   const handleRedoSegment = () => {
-    if (segmentHistoryIndex < segmentHistory.length - 1) {
-      const nextIndex = segmentHistoryIndex + 1;
-      setSegmentHistoryIndex(nextIndex);
-      setSegmentState(segmentHistory[nextIndex]);
+    if (segmentHistoryIndex >= segmentHistory.length - 1 || !selectedSegmentDocumentId) return;
+    const index = segmentHistoryIndex + 1;
+    const snapshot = segmentHistory[index];
+    setSegmentHistoryIndex(index);
+    setChaptersByDocument((prev) => ({ ...prev, [selectedSegmentDocumentId]: snapshot.chapters }));
+    setSegments(snapshot.segments);
+  };
+
+  const handleRefreshSegments = async () => {
+    if (!selectedSegmentAuthorId || !selectedSegmentDocumentId) return;
+    await syncSegmentView(selectedSegmentAuthorId, selectedSegmentDocumentId, selectedSegmentChapterId).catch(
+      handleError
+    );
+  };
+
+  const handleGenerateSkills = async () => {
+    if (!selectedMethodologyAuthorId) return;
+    try {
+      setMethodologyGenerating(true);
+      const created = await createSkillsJob(
+        selectedMethodologyAuthorId,
+        toModelConfigOrUndefined(runtimeSettings.skillsModel)
+      );
+      const finalJob = await pollJob(created.jobId, {
+        onProgress(job) {
+          setMethodologyRunningJob(job);
+        },
+      });
+      setMethodologyRunningJob(finalJob);
+      if (finalJob.status !== "success") {
+        throw new Error(finalJob.errorMessage || `skills failed: ${finalJob.status}`);
+      }
+      await loadLatestSkills(selectedMethodologyAuthorId);
+    } catch (error) {
+      handleError(error);
+    } finally {
+      setMethodologyGenerating(false);
     }
   };
 
-  const handleDeleteChapter = (authorId: string, bookId: string, chapterId: string) => {
-    const newAuthors = segmentState.authors.map(author => {
-      if (author.id === authorId) {
-        return {
-          ...author,
-          books: author.books.map(book => {
-            if (book.id === bookId) {
-              return {
-                ...book,
-                chapters: book.chapters.filter(c => c.id !== chapterId)
-              };
-            }
-            return book;
-          })
-        };
+  const handleRefreshMethodology = async () => {
+    if (!selectedMethodologyAuthorId) return;
+    await loadLatestSkills(selectedMethodologyAuthorId).catch(handleError);
+  };
+
+  const handleSelectAnswerJob = async (jobId: string) => {
+    setSelectedAnswerJobId(jobId);
+    if (answersByJob[jobId]) return;
+    await loadAnswerByJobId(jobId).catch(handleError);
+  };
+
+  const handleGenerateAnswer = async () => {
+    if (!selectedAnalysisAuthorId || !answerQuery.trim()) return;
+    try {
+      setAnswerCreating(true);
+      const created = await createAnswerJob({
+        authorId: selectedAnalysisAuthorId,
+        query: answerQuery.trim(),
+        modelConfig: toModelConfigOrUndefined(runtimeSettings.answerModel),
+      });
+      const finalJob = await pollJob(created.jobId);
+      if (finalJob.status !== "success") {
+        throw new Error(finalJob.errorMessage || `answer failed: ${finalJob.status}`);
       }
-      return author;
-    });
-    updateSegmentState({ ...segmentState, authors: newAuthors });
-  };
-
-  const handleDeleteSegment = (id: string) => {
-    const newSegments = segmentState.segments.filter(s => s.id !== id);
-    updateSegmentState({ ...segmentState, segments: newSegments });
-  };
-
-  const handleRefreshSegments = () => {
-    updateSegmentState({ ...segmentState, segments: INITIAL_SEGMENTS });
-  };
-
-  const handleRemoveManuscript = (authorId: string, manuscriptId: string) => {
-    const newAuthors = segmentState.authors.map(author => {
-      if (author.id === authorId) {
-        const manuscript = author.manuscripts.find(m => m.id === manuscriptId);
-        // Try to match book title with manuscript title (ignoring year in parentheses)
-        const manuscriptTitle = manuscript?.title.split(' (')[0];
-
-        return {
-          ...author,
-          manuscripts: author.manuscripts.filter(m => m.id !== manuscriptId),
-          manuscriptsCount: author.manuscriptsCount - 1,
-          books: author.books.filter(book => book.title !== manuscriptTitle)
-        };
-      }
-      return author;
-    });
-    updateSegmentState({ ...segmentState, authors: newAuthors });
-  };
-
-  const handleDeleteAuthor = (authorId: string) => {
-    const newAuthors = segmentState.authors.filter(author => author.id !== authorId);
-    updateSegmentState({ ...segmentState, authors: newAuthors });
+      await ensureAnalysisHistory(selectedAnalysisAuthorId, true);
+      setSelectedAnswerJobId(created.jobId);
+      await loadAnswerByJobId(created.jobId);
+    } catch (error) {
+      handleError(error);
+    } finally {
+      setAnswerCreating(false);
+    }
   };
 
   return (
     <div className="min-h-screen bg-background text-on-background font-body flex flex-col">
-      <Navbar 
-        activeTab={activeTab} 
-        onTabChange={setActiveTab} 
-        onSettingsOpen={() => setIsSettingsOpen(true)}
-      />
-      
+      <Navbar activeTab={activeTab} onTabChange={setActiveTab} onSettingsOpen={() => setSettingsOpen(true)} />
+
       <AnimatePresence mode="wait">
-        {activeTab === 'landing' && (
-          <LandingPage onStart={() => setActiveTab('archive')} />
-        )}
+        {activeTab === "landing" && <LandingPage onStart={() => setActiveTab("archive")} />}
       </AnimatePresence>
 
       <main className="pt-20 flex-grow flex flex-col">
-        {activeTab === 'archive' ? (
+        {globalError && (
+          <div className="mx-8 mt-4 mb-2 px-4 py-3 bg-error/10 border border-error/30 rounded-sm text-sm text-error">
+            {globalError}
+          </div>
+        )}
+
+        {activeTab === "archive" ? (
           <div className="max-w-7xl mx-auto px-12 py-12 w-full">
-            {/* Header Section */}
             <header className="flex flex-col md:flex-row justify-between items-start md:items-end mb-16 gap-6">
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.5 }}
-              >
+              <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }}>
                 <h1 className="font-headline text-5xl font-medium tracking-tight text-on-background mb-4">
                   Textual Archive
                 </h1>
                 <p className="font-body text-secondary text-lg max-w-xl leading-relaxed">
-                  Manage the foundational manuscripts of the economic lexicon. Import new source material and organize research by author and school of thought.
+                  Manage authors and documents from backend data.
                 </p>
               </motion.div>
               <motion.button
@@ -213,7 +541,7 @@ export default function App() {
                 animate={{ opacity: 1, scale: 1 }}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                onClick={() => setIsModalOpen(true)}
+                onClick={() => setCreateAuthorOpen(true)}
                 className="bg-primary text-on-primary px-8 py-3 rounded-sm font-label text-sm font-semibold tracking-wide hover:bg-primary-dim transition-all shadow-md active:translate-y-px"
               >
                 Create New Author
@@ -221,37 +549,67 @@ export default function App() {
             </header>
 
             <div className="grid grid-cols-12 gap-8">
-              {/* Sidebar */}
-              <Sidebar authors={segmentState.authors} />
+              <Sidebar
+                authors={authors}
+                selectedAuthorId={selectedArchiveAuthorId}
+                uploading={uploadingDocument}
+                onAuthorChange={(authorId) => {
+                  setSelectedArchiveAuthorId(authorId);
+                  ensureDocumentsLoaded(authorId).catch(handleError);
+                }}
+                onUpload={handleUploadDocument}
+              />
 
-              {/* Main Content */}
               <section className="col-span-12 lg:col-span-8 space-y-12">
-                {segmentState.authors.map((author) => (
-                  <AuthorSection 
-                    key={author.id} 
-                    author={author} 
-                    onRemoveManuscript={(manuscriptId) => handleRemoveManuscript(author.id, manuscriptId)}
-                    onRemoveAuthor={() => handleDeleteAuthor(author.id)}
+                {authors.map((author) => (
+                  <AuthorSection
+                    key={author.authorId}
+                    author={author}
+                    documents={documentsByAuthor[author.authorId] || []}
+                    reloadingDocumentId={reloadingDocumentId}
+                    deletingAuthor={deletingAuthorId === author.authorId}
+                    onReloadDocument={(documentId) => handleReloadDocument(author.authorId, documentId)}
+                    onDeleteAuthor={() => handleDeleteAuthor(author.authorId)}
                   />
                 ))}
               </section>
             </div>
           </div>
-        ) : activeTab === 'analysis' ? (
+        ) : activeTab === "analysis" ? (
           <div className="flex flex-1 overflow-hidden">
-            <SegmentSidebar 
-              authors={segmentState.authors}
-              selectedAuthor={analysisSelection.author}
-              selectedBook={analysisSelection.book}
-              selectedChapter={analysisSelection.chapter}
-              onSelect={handleAnalysisSelect}
+            <SegmentSidebar
+              authors={authors}
+              documentsByAuthor={documentsByAuthor}
+              chaptersByDocument={chaptersByDocument}
+              selectedAuthorId={selectedSegmentAuthorId}
+              selectedDocumentId={selectedSegmentDocumentId}
+              selectedChapterId={selectedSegmentChapterId}
+              onExpandAuthor={(authorId) => ensureDocumentsLoaded(authorId).catch(handleError)}
+              onSelectAuthor={(authorId) => setSelectedSegmentAuthorId(authorId)}
+              onSelectDocument={async (authorId, documentId) => {
+                setSelectedSegmentAuthorId(authorId);
+                setSelectedSegmentDocumentId(documentId);
+                await syncSegmentView(authorId, documentId, null).catch(handleError);
+              }}
+              onSelectChapter={async (authorId, documentId, chapterId) => {
+                setSelectedSegmentAuthorId(authorId);
+                setSelectedSegmentDocumentId(documentId);
+                setSelectedSegmentChapterId(chapterId);
+                try {
+                  const chapterSegments = await listSegments(authorId, documentId, chapterId);
+                  setSegments(chapterSegments);
+                  resetSegmentHistory(chaptersByDocument[documentId] || [], chapterSegments);
+                } catch (error) {
+                  handleError(error);
+                }
+              }}
               onDeleteChapter={handleDeleteChapter}
             />
-            <SegmentView 
-              selectedAuthor={analysisSelection.author}
-              selectedBook={analysisSelection.book}
-              selectedChapter={analysisSelection.chapter}
-              segments={segmentState.segments}
+            <SegmentView
+              selectedAuthorName={currentSegmentAuthor?.authorName || ""}
+              selectedBookTitle={currentSegmentDocument?.bookTitle || ""}
+              selectedChapterTitle={currentSegmentChapter?.chapterTitle || ""}
+              segments={segments}
               onDeleteSegment={handleDeleteSegment}
               onUndo={handleUndoSegment}
               onRedo={handleRedoSegment}
@@ -260,62 +618,80 @@ export default function App() {
               historyLength={segmentHistory.length}
             />
           </div>
-        ) : activeTab === 'methodology' ? (
+        ) : activeTab === "methodology" ? (
           <div className="flex flex-1 overflow-hidden">
-            <MethodologySidebar 
-              authors={segmentState.authors}
-              selectedEconomist={methodologySelection}
-              onSelect={handleMethodologySelect}
+            <MethodologySidebar
+              authors={authors}
+              selectedAuthorId={selectedMethodologyAuthorId}
+              onSelect={(authorId) => setSelectedMethodologyAuthorId(authorId)}
             />
-            <MethodologyView 
-              selectedEconomist={methodologySelection}
+            <MethodologyView
+              selectedAuthor={selectedMethodologyAuthor}
+              runningJob={methodologyRunningJob}
+              outputs={methodologyOutputs}
+              generating={methodologyGenerating}
+              onGenerate={handleGenerateSkills}
+              onRefresh={handleRefreshMethodology}
             />
           </div>
-        ) : activeTab === 'answer' ? (
+        ) : activeTab === "answer" ? (
           <div className="flex flex-1 overflow-hidden">
-            <AnalysisSidebar 
-              authors={segmentState.authors}
-              selectedId={answerSelection}
-              onSelect={handleAnswerSelect}
-              onNewAnalysis={handleNewAnalysis}
+            <AnalysisSidebar
+              authors={authors}
+              selectedAuthorId={selectedAnalysisAuthorId}
+              selectedJobId={selectedAnswerJobId}
+              historyByAuthor={analysisHistoryByAuthor}
+              loadingByAuthor={analysisLoadingByAuthor}
+              onExpandAuthor={(authorId) => ensureAnalysisHistory(authorId).catch(handleError)}
+              onSelectAuthor={(authorId) => setSelectedAnalysisAuthorId(authorId)}
+              onSelectJob={(jobId) => handleSelectAnswerJob(jobId).catch(handleError)}
+              onNewAnalysis={() => setSelectedAnswerJobId(null)}
             />
-            <AnalysisView 
-              authors={segmentState.authors}
-              selectedId={answerSelection}
-              onGenerate={handleGenerate}
+            <AnalysisView
+              authors={authors}
+              selectedAuthorId={selectedAnalysisAuthorId}
+              query={answerQuery}
+              creating={answerCreating}
+              selectedAnswer={selectedAnswer}
+              selectedJob={selectedAnswerJob}
+              onSelectAuthor={(authorId) => {
+                setSelectedAnalysisAuthorId(authorId);
+                ensureAnalysisHistory(authorId).catch(handleError);
+              }}
+              onQueryChange={setAnswerQuery}
+              onGenerate={handleGenerateAnswer}
             />
           </div>
         ) : (
-          <div className="flex-1 flex items-center justify-center text-secondary italic">
-            View coming soon...
-          </div>
+          <div className="flex-1 flex items-center justify-center text-secondary italic">View coming soon...</div>
         )}
       </main>
 
-      {/* Footer */}
       <footer className="py-12 px-12 border-t border-outline-variant/10 bg-surface-container-low/30 mt-auto">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] font-label uppercase tracking-[0.2em] text-outline-variant">
-          <span>The Lexicon Project • Archive Node Alpha</span>
-          <span>Est. 2024 • Academic Modern Collective</span>
+          <span>The Lexicon Project - Archive Node Alpha</span>
+          <span>Est. 2024 - Academic Modern Collective</span>
         </div>
       </footer>
 
-      {/* Modals */}
       <AnimatePresence>
-        {isModalOpen && (
-          <CreateAuthorModal 
-            isOpen={isModalOpen} 
-            onClose={() => setIsModalOpen(false)} 
+        {isCreateAuthorOpen && (
+          <CreateAuthorModal
+            isOpen={isCreateAuthorOpen}
+            submitting={creatingAuthor}
+            onClose={() => setCreateAuthorOpen(false)}
+            onCreate={handleCreateAuthor}
           />
         )}
         {isSettingsOpen && (
-          <SettingsModal 
-            isOpen={isSettingsOpen} 
-            onClose={() => setIsSettingsOpen(false)} 
+          <SettingsModal
+            isOpen={isSettingsOpen}
+            value={runtimeSettings}
+            onClose={() => setSettingsOpen(false)}
+            onSave={(next) => setRuntimeSettings(next)}
           />
         )}
       </AnimatePresence>
     </div>
   );
 }
-

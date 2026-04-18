@@ -13,7 +13,7 @@ from app.domain.schemas import (
     build_success_response,
 )
 from app.services import author_service
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, File, Form, UploadFile
 
 router = APIRouter(tags=["authors"], dependencies=[Depends(verify_api_key)])
 
@@ -51,6 +51,25 @@ def upload_document(
 ) -> dict[str, Any]:
     """上传作者文档并自动触发 document_reload 任务接口。"""
     result = author_service.upload_document(author_id=author_id, payload=payload)
+    response = AuthorDocumentUploadResponse.model_validate(result).model_dump(by_alias=True)
+    return build_success_response(request_id=request_id, data=response)
+
+
+@router.post("/authors/{author_id}/documents/upload")
+async def upload_document_file(
+    author_id: str,
+    request_id: Annotated[str, Depends(get_request_id)],
+    book_title: str = Form(..., alias="bookTitle"),
+    file: UploadFile = File(...),
+) -> dict[str, Any]:
+    """Upload PDF via multipart/form-data and trigger document_reload."""
+    content = await file.read()
+    result = author_service.upload_document_file(
+        author_id=author_id,
+        book_title=book_title,
+        filename=file.filename or "",
+        content=content,
+    )
     response = AuthorDocumentUploadResponse.model_validate(result).model_dump(by_alias=True)
     return build_success_response(request_id=request_id, data=response)
 

@@ -1,34 +1,34 @@
-import { X, Eye, EyeOff, Globe, Cpu, Zap, ShieldCheck } from 'lucide-react';
-import { useState } from 'react';
-import { motion } from 'motion/react';
+import { Eye, EyeOff, Settings as SettingsIcon, X } from "lucide-react";
+import { motion } from "motion/react";
+import { useState } from "react";
+
+export interface RuntimeModelSettings {
+  provider: string;
+  modelName: string;
+  apiBase: string;
+  apiKey: string;
+}
+
+export interface RuntimeSettingsState {
+  skillsModel: RuntimeModelSettings;
+  answerModel: RuntimeModelSettings;
+}
 
 interface SettingsModalProps {
   isOpen: boolean;
+  value: RuntimeSettingsState;
   onClose: () => void;
+  onSave: (next: RuntimeSettingsState) => void;
 }
 
-export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
+export default function SettingsModal({ isOpen, value, onClose, onSave }: SettingsModalProps) {
   const [showSkillApiKey, setShowSkillApiKey] = useState(false);
   const [showAnswerApiKey, setShowAnswerApiKey] = useState(false);
-  const [settings, setSettings] = useState({
-    language: 'zh-CN',
-    skillModel: {
-      provider: 'OpenAI',
-      apiKey: '',
-      modelName: 'gpt-4o',
-      apiBase: 'https://api.openai.com/v1'
-    },
-    answerModel: {
-      provider: 'OpenAI',
-      apiKey: '',
-      modelName: 'gpt-4o',
-      apiBase: 'https://api.openai.com/v1'
-    }
-  });
+  const [draft, setDraft] = useState<RuntimeSettingsState>(value);
 
   if (!isOpen) return null;
 
-  const providers = ['OpenAI', 'Google', 'Anthropic', 'DeepSeek'];
+  const providers = ["deepseek", "openai", "anthropic", "google"];
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
@@ -45,18 +45,19 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
         className="relative bg-background w-full max-w-2xl rounded-sm shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
       >
-        {/* Header */}
         <div className="px-8 py-6 border-b border-outline-variant/10 flex justify-between items-center bg-surface-container-low">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-primary/10 rounded-sm">
-              <Zap className="w-5 h-5 text-primary" />
+              <SettingsIcon className="w-5 h-5 text-primary" />
             </div>
             <div>
-              <h2 className="text-xl font-headline font-bold text-on-background">System Settings</h2>
-              <p className="text-[10px] font-label text-secondary uppercase tracking-widest">Configure your AI environment</p>
+              <h2 className="text-xl font-headline font-bold text-on-background">Runtime Model Settings</h2>
+              <p className="text-[10px] font-label text-secondary uppercase tracking-widest">
+                In-memory only
+              </p>
             </div>
           </div>
-          <button 
+          <button
             onClick={onClose}
             className="p-2 hover:bg-surface-container-high rounded-sm transition-colors text-secondary hover:text-on-background"
           >
@@ -64,189 +65,154 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
           </button>
         </div>
 
-        {/* Content */}
-        <div className="flex-1 overflow-y-auto p-8 space-y-12 custom-scrollbar">
-          {/* General Settings */}
-          <section className="space-y-6">
-            <div className="flex items-center gap-2 mb-4">
-              <Globe className="w-4 h-4 text-primary" />
-              <h3 className="text-xs font-label font-bold uppercase tracking-[0.2em] text-primary">General</h3>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <label className="text-xs font-label font-bold text-secondary uppercase tracking-wider">Language</label>
-                <select 
-                  value={settings.language}
-                  onChange={(e) => setSettings({...settings, language: e.target.value})}
-                  className="w-full bg-surface-container-low border border-outline-variant/20 rounded-sm px-4 py-2.5 text-sm focus:ring-1 focus:ring-primary outline-none transition-all"
+        <div className="flex-1 overflow-y-auto p-8 space-y-10 custom-scrollbar">
+          <section className="space-y-4">
+            <h3 className="text-xs font-label font-bold uppercase tracking-[0.2em] text-primary">
+              Skills Model
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <select
+                value={draft.skillsModel.provider}
+                onChange={(event) =>
+                  setDraft({
+                    ...draft,
+                    skillsModel: { ...draft.skillsModel, provider: event.target.value },
+                  })
+                }
+                className="bg-surface-container-low border border-outline-variant/20 rounded-sm px-3 py-2"
+              >
+                {providers.map((item) => (
+                  <option key={item} value={item}>
+                    {item}
+                  </option>
+                ))}
+              </select>
+              <input
+                value={draft.skillsModel.modelName}
+                onChange={(event) =>
+                  setDraft({
+                    ...draft,
+                    skillsModel: { ...draft.skillsModel, modelName: event.target.value },
+                  })
+                }
+                placeholder="model name"
+                className="bg-surface-container-low border border-outline-variant/20 rounded-sm px-3 py-2"
+              />
+              <input
+                value={draft.skillsModel.apiBase}
+                onChange={(event) =>
+                  setDraft({
+                    ...draft,
+                    skillsModel: { ...draft.skillsModel, apiBase: event.target.value },
+                  })
+                }
+                placeholder="api base"
+                className="md:col-span-2 bg-surface-container-low border border-outline-variant/20 rounded-sm px-3 py-2"
+              />
+              <div className="md:col-span-2 relative">
+                <input
+                  type={showSkillApiKey ? "text" : "password"}
+                  value={draft.skillsModel.apiKey}
+                  onChange={(event) =>
+                    setDraft({
+                      ...draft,
+                      skillsModel: { ...draft.skillsModel, apiKey: event.target.value },
+                    })
+                  }
+                  placeholder="api key"
+                  className="w-full bg-surface-container-low border border-outline-variant/20 rounded-sm px-3 py-2 pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowSkillApiKey(!showSkillApiKey)}
+                  className="absolute right-3 top-2.5 text-outline-variant hover:text-primary"
                 >
-                  <option value="zh-CN">简体中文 (Chinese Simplified)</option>
-                  <option value="en-US">English (United States)</option>
-                </select>
+                  {showSkillApiKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
               </div>
             </div>
           </section>
 
-          {/* Skills Generation Model */}
-          <section className="space-y-6">
-            <div className="flex items-center gap-2 mb-4">
-              <Cpu className="w-4 h-4 text-primary" />
-              <h3 className="text-xs font-label font-bold uppercase tracking-[0.2em] text-primary">Skills Generation</h3>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <label className="text-xs font-label font-bold text-secondary uppercase tracking-wider">Provider</label>
-                <select 
-                  value={settings.skillModel.provider}
-                  onChange={(e) => setSettings({
-                    ...settings, 
-                    skillModel: { ...settings.skillModel, provider: e.target.value }
-                  })}
-                  className="w-full bg-surface-container-low border border-outline-variant/20 rounded-sm px-4 py-2.5 text-sm focus:ring-1 focus:ring-primary outline-none transition-all"
+          <section className="space-y-4">
+            <h3 className="text-xs font-label font-bold uppercase tracking-[0.2em] text-primary">
+              Answer Model
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <select
+                value={draft.answerModel.provider}
+                onChange={(event) =>
+                  setDraft({
+                    ...draft,
+                    answerModel: { ...draft.answerModel, provider: event.target.value },
+                  })
+                }
+                className="bg-surface-container-low border border-outline-variant/20 rounded-sm px-3 py-2"
+              >
+                {providers.map((item) => (
+                  <option key={item} value={item}>
+                    {item}
+                  </option>
+                ))}
+              </select>
+              <input
+                value={draft.answerModel.modelName}
+                onChange={(event) =>
+                  setDraft({
+                    ...draft,
+                    answerModel: { ...draft.answerModel, modelName: event.target.value },
+                  })
+                }
+                placeholder="model name"
+                className="bg-surface-container-low border border-outline-variant/20 rounded-sm px-3 py-2"
+              />
+              <input
+                value={draft.answerModel.apiBase}
+                onChange={(event) =>
+                  setDraft({
+                    ...draft,
+                    answerModel: { ...draft.answerModel, apiBase: event.target.value },
+                  })
+                }
+                placeholder="api base"
+                className="md:col-span-2 bg-surface-container-low border border-outline-variant/20 rounded-sm px-3 py-2"
+              />
+              <div className="md:col-span-2 relative">
+                <input
+                  type={showAnswerApiKey ? "text" : "password"}
+                  value={draft.answerModel.apiKey}
+                  onChange={(event) =>
+                    setDraft({
+                      ...draft,
+                      answerModel: { ...draft.answerModel, apiKey: event.target.value },
+                    })
+                  }
+                  placeholder="api key"
+                  className="w-full bg-surface-container-low border border-outline-variant/20 rounded-sm px-3 py-2 pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowAnswerApiKey(!showAnswerApiKey)}
+                  className="absolute right-3 top-2.5 text-outline-variant hover:text-primary"
                 >
-                  {providers.map(p => <option key={p} value={p}>{p}</option>)}
-                </select>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-xs font-label font-bold text-secondary uppercase tracking-wider">Model Name</label>
-                <input 
-                  type="text"
-                  value={settings.skillModel.modelName}
-                  onChange={(e) => setSettings({
-                    ...settings, 
-                    skillModel: { ...settings.skillModel, modelName: e.target.value }
-                  })}
-                  placeholder="e.g. gpt-4o"
-                  className="w-full bg-surface-container-low border border-outline-variant/20 rounded-sm px-4 py-2.5 text-sm focus:ring-1 focus:ring-primary outline-none transition-all"
-                />
-              </div>
-
-              <div className="space-y-2 md:col-span-2">
-                <label className="text-xs font-label font-bold text-secondary uppercase tracking-wider">API Key</label>
-                <div className="relative">
-                  <input 
-                    type={showSkillApiKey ? "text" : "password"}
-                    value={settings.skillModel.apiKey}
-                    onChange={(e) => setSettings({
-                      ...settings, 
-                      skillModel: { ...settings.skillModel, apiKey: e.target.value }
-                    })}
-                    placeholder="sk-..."
-                    className="w-full bg-surface-container-low border border-outline-variant/20 rounded-sm px-4 py-2.5 text-sm focus:ring-1 focus:ring-primary outline-none transition-all pr-12"
-                  />
-                  <button 
-                    onClick={() => setShowSkillApiKey(!showSkillApiKey)}
-                    className="absolute right-3 top-2.5 text-outline-variant hover:text-primary transition-colors"
-                  >
-                    {showSkillApiKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
-                </div>
-              </div>
-
-              <div className="space-y-2 md:col-span-2">
-                <label className="text-xs font-label font-bold text-secondary uppercase tracking-wider">API Base URL</label>
-                <input 
-                  type="text"
-                  value={settings.skillModel.apiBase}
-                  onChange={(e) => setSettings({
-                    ...settings, 
-                    skillModel: { ...settings.skillModel, apiBase: e.target.value }
-                  })}
-                  placeholder="https://api.openai.com/v1"
-                  className="w-full bg-surface-container-low border border-outline-variant/20 rounded-sm px-4 py-2.5 text-sm focus:ring-1 focus:ring-primary outline-none transition-all"
-                />
-              </div>
-            </div>
-          </section>
-
-          {/* Final Answer Model */}
-          <section className="space-y-6">
-            <div className="flex items-center gap-2 mb-4">
-              <ShieldCheck className="w-4 h-4 text-primary" />
-              <h3 className="text-xs font-label font-bold uppercase tracking-[0.2em] text-primary">Analysis Engine</h3>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <label className="text-xs font-label font-bold text-secondary uppercase tracking-wider">Provider</label>
-                <select 
-                  value={settings.answerModel.provider}
-                  onChange={(e) => setSettings({
-                    ...settings, 
-                    answerModel: { ...settings.answerModel, provider: e.target.value }
-                  })}
-                  className="w-full bg-surface-container-low border border-outline-variant/20 rounded-sm px-4 py-2.5 text-sm focus:ring-1 focus:ring-primary outline-none transition-all"
-                >
-                  {providers.map(p => <option key={p} value={p}>{p}</option>)}
-                </select>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-xs font-label font-bold text-secondary uppercase tracking-wider">Model Name</label>
-                <input 
-                  type="text"
-                  value={settings.answerModel.modelName}
-                  onChange={(e) => setSettings({
-                    ...settings, 
-                    answerModel: { ...settings.answerModel, modelName: e.target.value }
-                  })}
-                  placeholder="e.g. gpt-4o"
-                  className="w-full bg-surface-container-low border border-outline-variant/20 rounded-sm px-4 py-2.5 text-sm focus:ring-1 focus:ring-primary outline-none transition-all"
-                />
-              </div>
-
-              <div className="space-y-2 md:col-span-2">
-                <label className="text-xs font-label font-bold text-secondary uppercase tracking-wider">API Key</label>
-                <div className="relative">
-                  <input 
-                    type={showAnswerApiKey ? "text" : "password"}
-                    value={settings.answerModel.apiKey}
-                    onChange={(e) => setSettings({
-                      ...settings, 
-                      answerModel: { ...settings.answerModel, apiKey: e.target.value }
-                    })}
-                    placeholder="sk-..."
-                    className="w-full bg-surface-container-low border border-outline-variant/20 rounded-sm px-4 py-2.5 text-sm focus:ring-1 focus:ring-primary outline-none transition-all pr-12"
-                  />
-                  <button 
-                    onClick={() => setShowAnswerApiKey(!showAnswerApiKey)}
-                    className="absolute right-3 top-2.5 text-outline-variant hover:text-primary transition-colors"
-                  >
-                    {showAnswerApiKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
-                </div>
-              </div>
-
-              <div className="space-y-2 md:col-span-2">
-                <label className="text-xs font-label font-bold text-secondary uppercase tracking-wider">API Base URL</label>
-                <input 
-                  type="text"
-                  value={settings.answerModel.apiBase}
-                  onChange={(e) => setSettings({
-                    ...settings, 
-                    answerModel: { ...settings.answerModel, apiBase: e.target.value }
-                  })}
-                  placeholder="https://api.openai.com/v1"
-                  className="w-full bg-surface-container-low border border-outline-variant/20 rounded-sm px-4 py-2.5 text-sm focus:ring-1 focus:ring-primary outline-none transition-all"
-                />
+                  {showAnswerApiKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
               </div>
             </div>
           </section>
         </div>
 
-        {/* Footer */}
         <div className="px-8 py-6 border-t border-outline-variant/10 bg-surface-container-low flex justify-end gap-4">
-          <button 
+          <button
             onClick={onClose}
             className="px-6 py-2 rounded-sm font-label text-xs font-bold uppercase tracking-widest text-secondary hover:text-on-background transition-colors"
           >
             Cancel
           </button>
-          <button 
-            onClick={onClose}
+          <button
+            onClick={() => {
+              onSave(draft);
+              onClose();
+            }}
             className="bg-primary text-on-primary px-8 py-2 rounded-sm font-label text-xs font-bold uppercase tracking-widest hover:bg-primary-dim transition-all shadow-md"
           >
             Save Changes

@@ -1,125 +1,114 @@
-import { ChevronDown, CheckCircle2, Sparkles, ChevronRight } from 'lucide-react';
-import { motion } from 'motion/react';
-import { ARTICLES } from '../data/articles';
-import { Author } from '../types';
+import { CheckCircle2, ChevronDown, Sparkles } from "lucide-react";
+import { motion } from "motion/react";
+import type { AnswerVM, Author, Job } from "../types";
 
 interface AnalysisViewProps {
   authors: Author[];
-  selectedId: string | null;
-  onGenerate: () => void;
+  selectedAuthorId: string | null;
+  query: string;
+  creating: boolean;
+  selectedAnswer: AnswerVM | null;
+  selectedJob: Job | null;
+  onSelectAuthor: (authorId: string) => void;
+  onQueryChange: (value: string) => void;
+  onGenerate: () => Promise<void> | void;
 }
 
-export default function AnalysisView({ authors, selectedId, onGenerate }: AnalysisViewProps) {
-  const article = selectedId ? ARTICLES[selectedId] : null;
-
-  if (article) {
+export default function AnalysisView({
+  authors,
+  selectedAuthorId,
+  query,
+  creating,
+  selectedAnswer,
+  selectedJob,
+  onSelectAuthor,
+  onQueryChange,
+  onGenerate,
+}: AnalysisViewProps) {
+  if (selectedAnswer) {
     return (
       <main className="flex-grow bg-surface overflow-y-auto custom-scrollbar">
         <div className="px-12 py-12">
-          {/* Breadcrumb */}
           <nav className="mb-12">
             <ol className="flex items-center gap-2 font-label text-[10px] tracking-[0.2em] text-secondary font-semibold uppercase">
               <li>Analysis</li>
-              <li className="text-outline-variant opacity-50">›</li>
-              <li className="text-primary">{article.author}</li>
+              <li className="text-outline-variant opacity-50">/</li>
+              <li className="text-primary">{selectedAnswer.answer.topic || "Answer"}</li>
             </ol>
           </nav>
 
-          {/* Article Header */}
           <header className="mb-16">
-            <h1 className="font-headline text-6xl font-bold text-on-surface mb-12 tracking-tight leading-[1.1]">
-              {article.title}
+            <h1 className="font-headline text-5xl font-bold text-on-surface mb-8 tracking-tight leading-[1.1]">
+              {selectedAnswer.answer.title || "Generated Answer"}
             </h1>
-            
-            <div className="grid grid-cols-3 gap-12 pt-8 border-t border-outline-variant/10">
-              <div>
-                <span className="block font-label text-[10px] uppercase tracking-widest text-outline-variant mb-2">Author</span>
-                <span className="font-body text-sm font-semibold text-on-surface">{article.author}</span>
-              </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6 border-t border-outline-variant/10">
               <div>
                 <span className="block font-label text-[10px] uppercase tracking-widest text-outline-variant mb-2">Topic</span>
-                <span className="font-body text-sm font-semibold text-on-surface">{article.topic}</span>
+                <span className="font-body text-sm font-semibold text-on-surface">
+                  {selectedAnswer.answer.topic}
+                </span>
               </div>
               <div>
-                <span className="block font-label text-[10px] uppercase tracking-widest text-outline-variant mb-2">Generation Date</span>
-                <span className="font-body text-sm font-semibold text-on-surface">{article.date}</span>
+                <span className="block font-label text-[10px] uppercase tracking-widest text-outline-variant mb-2">Selection Mode</span>
+                <span className="font-body text-sm font-semibold text-on-surface">
+                  {selectedAnswer.selectionMode}
+                </span>
+              </div>
+              <div>
+                <span className="block font-label text-[10px] uppercase tracking-widest text-outline-variant mb-2">Job Status</span>
+                <span className="font-body text-sm font-semibold text-on-surface">
+                  {selectedJob?.status || "success"}
+                </span>
               </div>
             </div>
           </header>
 
-          {/* Research Query Card */}
-          {article.query && (
-            <motion.div 
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mb-16 bg-surface-container-low border-l-4 border-primary p-8 rounded-sm editorial-shadow"
-            >
-              <span className="block font-label text-[10px] uppercase tracking-widest text-primary mb-3 font-bold">Research Inquiry</span>
-              <p className="font-headline text-2xl italic text-on-background leading-relaxed">
-                "{article.query}"
-              </p>
-            </motion.div>
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-10 bg-surface-container-low border-l-4 border-primary p-8 rounded-sm editorial-shadow">
+            <span className="block font-label text-[10px] uppercase tracking-widest text-primary mb-3 font-bold">
+              Research Query
+            </span>
+            <p className="font-headline text-2xl italic text-on-background leading-relaxed">
+              "{selectedAnswer.query}"
+            </p>
+          </motion.div>
+
+          {selectedAnswer.selectionWarning && (
+            <div className="mb-8 p-4 bg-amber-50 border border-amber-300 rounded-sm text-sm text-amber-800">
+              fallback 声明: {selectedAnswer.selectionWarning}
+            </div>
           )}
 
-          {/* Article Content */}
           <article className="prose prose-slate max-w-none">
-            {article.content.map((block, idx) => {
-              if (block.type === 'heading') {
-                return (
-                  <h2 key={idx} className="font-headline text-3xl font-bold text-primary mt-12 mb-8">
-                    {block.text}
-                  </h2>
-                );
-              }
-              return (
-                <p key={idx} className="font-body text-lg text-secondary leading-relaxed mb-8 first-letter:text-7xl first-letter:font-headline first-letter:float-left first-letter:mr-3 first-letter:mt-2 first-letter:text-primary">
-                  {block.text}
-                </p>
-              );
-            })}
+            <p className="font-body text-lg text-secondary leading-relaxed whitespace-pre-wrap">
+              {selectedAnswer.answer.summary}
+            </p>
+            <pre className="mt-8 p-6 bg-surface-container-low rounded-sm whitespace-pre-wrap text-sm font-body">
+              {selectedAnswer.answer.markdown}
+            </pre>
           </article>
 
-          {/* Methodological Footprint */}
-          {(article.mainSkill || article.subSkills) && (
-            <section className="mt-20 pt-12 border-t-2 border-primary/10">
-              <div className="flex items-center gap-3 mb-8">
-                <Sparkles className="w-5 h-5 text-primary" />
-                <h3 className="font-label text-xs font-bold uppercase tracking-[0.2em] text-primary">
-                  Methodological Footprint
-                </h3>
+          <section className="mt-16 pt-8 border-t border-outline-variant/10">
+            <h3 className="font-label text-xs font-bold uppercase tracking-[0.2em] text-primary mb-4">
+              Methodological Footprint
+            </h3>
+            <div className="space-y-3 text-sm">
+              <div>
+                <span className="font-semibold">Main Skill:</span>{" "}
+                {selectedAnswer.selectedMainSkillName || "-"}
               </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                {article.mainSkill && (
-                  <div className="md:col-span-1">
-                    <span className="block font-label text-[10px] uppercase tracking-widest text-outline-variant mb-3">Main Skill</span>
-                    <div className="bg-primary/5 border border-primary/10 p-4 rounded-sm">
-                      <span className="font-headline text-lg font-bold text-primary block mb-1">{article.mainSkill}</span>
-                      <span className="text-[10px] font-label text-primary/60 uppercase font-bold tracking-tighter">Main Skill Applied</span>
-                    </div>
-                  </div>
-                )}
-                
-                {article.subSkills && article.subSkills.length > 0 && (
-                  <div className="md:col-span-2">
-                    <span className="block font-label text-[10px] uppercase tracking-widest text-outline-variant mb-3">Sub Skills</span>
-                    <div className="flex flex-wrap gap-3">
-                      {article.subSkills.map((skill, index) => (
-                        <div key={index} className="bg-surface-container-high/50 border border-outline-variant/20 px-4 py-3 rounded-sm flex items-center gap-3">
-                          <div className="w-1.5 h-1.5 rounded-full bg-primary/40" />
-                          <span className="font-body text-sm font-medium text-secondary">{skill}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
+              <div>
+                <span className="font-semibold">Sub Skills:</span>{" "}
+                {selectedAnswer.selectedSubSkillNames.length > 0
+                  ? selectedAnswer.selectedSubSkillNames.join(", ")
+                  : "-"}
               </div>
-              
-              <p className="mt-10 text-[10px] font-body text-outline-variant italic leading-relaxed max-w-2xl">
-                Note: This synthesis was constructed by mapping the research topic against the identified theoretical patterns and execution skeletons derived from the author's primary textual archive.
-              </p>
-            </section>
-          )}
+              <div>
+                <span className="font-semibold">Selected Section:</span>{" "}
+                {selectedAnswer.selectedSectionId || "-"} (index:{" "}
+                {selectedAnswer.selectedSkillIndex ?? "-"})
+              </div>
+            </div>
+          </section>
         </div>
       </main>
     );
@@ -128,61 +117,55 @@ export default function AnalysisView({ authors, selectedId, onGenerate }: Analys
   return (
     <main className="flex-grow bg-surface overflow-y-auto custom-scrollbar">
       <div className="px-12 py-12">
-        {/* Breadcrumb */}
-        <nav className="mb-12">
-          <ol className="flex items-center gap-2 font-label text-[10px] tracking-[0.2em] text-secondary font-semibold uppercase">
-            <li>Analysis</li>
-            <li className="text-outline-variant opacity-50">›</li>
-            <li className="text-primary">New Analysis</li>
-          </ol>
-        </nav>
-
-        {/* Hero Header */}
         <header className="mb-16">
           <h1 className="font-headline text-5xl font-light text-on-surface mb-6 tracking-tight leading-tight">
             Synthesize an economic <span className="italic">perspective</span> through academic rigor.
           </h1>
           <p className="font-body text-lg text-secondary max-w-2xl leading-relaxed">
-            Consult the digital archives and prompt the system to generate a comprehensive synthesis based on historical economic schools of thought.
+            Trigger backend answer jobs and read `answer_json` outputs with selected skill traceability.
           </p>
         </header>
 
-        {/* Input Section */}
         <div className="bg-surface-container-low p-10 rounded-sm editorial-shadow">
-          <div className="space-y-12">
-            {/* Economist Selector */}
+          <div className="space-y-10">
             <div className="space-y-4">
               <label className="block font-label text-xs font-bold text-on-surface-variant uppercase tracking-widest">
-                Select Academic Persona
+                Select Author
               </label>
               <div className="relative group">
-                <select className="w-full appearance-none bg-surface-container-lowest border-b border-outline-variant/20 focus:border-primary px-4 py-4 pr-10 outline-none font-headline text-2xl transition-all cursor-pointer">
+                <select
+                  value={selectedAuthorId || ""}
+                  onChange={(event) => onSelectAuthor(event.target.value)}
+                  className="w-full appearance-none bg-surface-container-lowest border-b border-outline-variant/20 focus:border-primary px-4 py-4 pr-10 outline-none font-headline text-2xl transition-all cursor-pointer"
+                >
+                  <option value="" disabled>
+                    Select an author
+                  </option>
                   {authors.map((author) => (
-                    <option key={author.id}>{author.name}</option>
+                    <option key={author.authorId} value={author.authorId}>
+                      {author.authorName}
+                    </option>
                   ))}
                 </select>
-                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-secondary pointer-events-none group-focus-within:rotate-180 transition-transform w-6 h-6" />
+                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-secondary pointer-events-none w-6 h-6" />
               </div>
-              <p className="font-body text-sm text-secondary italic">
-                Your inquiry will be processed through the specific theoretical framework of the chosen economist.
-              </p>
             </div>
 
-            {/* Research Topic Input */}
             <div className="space-y-4">
               <label className="block font-label text-xs font-bold text-on-surface-variant uppercase tracking-widest">
-                Define the Research Topic
+                Define Query
               </label>
               <div className="bg-surface-container-lowest p-8 border-b-2 border-outline-variant/15 focus-within:border-primary transition-colors">
-                <textarea 
-                  className="w-full bg-transparent border-none focus:ring-0 font-headline text-3xl leading-snug placeholder:text-outline-variant/40 resize-none outline-none" 
-                  placeholder="e.g., The implications of digital currency on central bank sovereignty in the 21st century..." 
+                <textarea
+                  value={query}
+                  onChange={(event) => onQueryChange(event.target.value)}
+                  className="w-full bg-transparent border-none focus:ring-0 font-headline text-3xl leading-snug placeholder:text-outline-variant/40 resize-none outline-none"
+                  placeholder="e.g., The implications of digital currency on central bank sovereignty..."
                   rows={4}
                 />
               </div>
             </div>
 
-            {/* Action Area */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pt-4">
               <div className="flex flex-col sm:flex-row sm:items-center gap-6">
                 <div className="flex items-center text-xs font-label text-secondary gap-2">
@@ -191,14 +174,17 @@ export default function AnalysisView({ authors, selectedId, onGenerate }: Analys
                 </div>
                 <div className="flex items-center text-xs font-label text-secondary gap-2">
                   <CheckCircle2 className="w-4 h-4 text-primary fill-primary/20" />
-                  <span>Model: Journal-Standard-v4</span>
+                  <span>Output: answer_json</span>
                 </div>
               </div>
-              <button 
+              <button
                 onClick={onGenerate}
-                className="flex items-center justify-center gap-4 bg-primary text-on-primary px-10 py-5 rounded-sm hover:bg-primary-dim transition-all shadow-xl shadow-primary/10 group"
+                disabled={!selectedAuthorId || !query.trim() || creating}
+                className="flex items-center justify-center gap-4 bg-primary text-on-primary px-10 py-5 rounded-sm hover:bg-primary-dim transition-all shadow-xl shadow-primary/10 group disabled:opacity-60"
               >
-                <span className="font-label text-sm font-bold uppercase tracking-widest">Generate Article</span>
+                <span className="font-label text-sm font-bold uppercase tracking-widest">
+                  {creating ? "Generating..." : "Generate Article"}
+                </span>
                 <Sparkles className="w-5 h-5 group-hover:rotate-12 transition-transform" />
               </button>
             </div>

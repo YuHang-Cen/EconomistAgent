@@ -9,6 +9,9 @@ from uuid import uuid4
 
 import pytest
 
+# Force tests to use isolated DB/storage and never touch dev runtime data.
+os.environ["DATABASE_URL"] = "sqlite:///./storage/test_tmp/test_app.db"
+os.environ["STORAGE_ROOT"] = "storage/test_tmp"
 os.environ.setdefault("CELERY_TASK_ALWAYS_EAGER", "true")
 os.environ.setdefault("CELERY_TASK_EAGER_PROPAGATES", "true")
 os.environ.setdefault("API_KEY", "replace_with_service_api_key")
@@ -37,7 +40,7 @@ def client() -> Generator[TestClient, None, None]:
 @pytest.fixture()
 def create_test_pdf() -> Callable[[str, list[str] | None], str]:
     """Create a temporary local PDF and return its absolute path."""
-    input_root = Path("storage") / "test_inputs"
+    input_root = Path(os.environ["STORAGE_ROOT"]) / "test_inputs"
     input_root.mkdir(parents=True, exist_ok=True)
 
     def _create(filename: str = "sample.pdf", blocks: list[str] | None = None) -> str:

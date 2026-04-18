@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from functools import lru_cache
 from pathlib import Path
-
 from dotenv import load_dotenv
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -26,6 +25,14 @@ class Settings(BaseSettings):
     database_url: str = Field(default="sqlite:///./storage/app.db")
     redis_url: str = Field(default="redis://127.0.0.1:6379/0")
     storage_root: str = Field(default="storage")
+    cors_allow_origins: str = Field(
+        default=(
+            "http://localhost:3000,"
+            "http://127.0.0.1:3000,"
+            "http://localhost:5173,"
+            "http://127.0.0.1:5173"
+        )
+    )
     celery_task_always_eager: bool = Field(default=False)
     celery_task_eager_propagates: bool = Field(default=True)
     method_chunk_max_words: int = Field(default=1200)
@@ -37,6 +44,16 @@ class Settings(BaseSettings):
         env_file_encoding="utf-8",
         extra="ignore",
     )
+
+    def get_cors_allow_origins(self) -> list[str]:
+        raw = self.cors_allow_origins
+        if isinstance(raw, list):
+            values = [str(item).strip() for item in raw]
+        elif isinstance(raw, str):
+            values = [item.strip() for item in raw.split(",")]
+        else:
+            values = [str(raw).strip()]
+        return [item for item in values if item]
 
 
 @lru_cache(maxsize=1)

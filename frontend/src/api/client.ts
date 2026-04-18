@@ -25,9 +25,10 @@ export class ApiClientError extends Error {
   }
 }
 
-function buildHeaders(initHeaders?: HeadersInit): Headers {
+function buildHeaders(initHeaders?: HeadersInit, body?: BodyInit | null): Headers {
   const headers = new Headers(initHeaders || {});
-  if (!headers.has("Content-Type")) {
+  const isFormData = typeof FormData !== "undefined" && body instanceof FormData;
+  if (!headers.has("Content-Type") && !isFormData) {
     headers.set("Content-Type", "application/json");
   }
   if (API_KEY && !headers.has("X-API-Key")) {
@@ -39,7 +40,7 @@ function buildHeaders(initHeaders?: HeadersInit): Headers {
 export async function apiRequest<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`${API_BASE_URL}${path}`, {
     ...init,
-    headers: buildHeaders(init?.headers),
+    headers: buildHeaders(init?.headers, init?.body),
   });
 
   let payload: ApiEnvelope<T> | null = null;

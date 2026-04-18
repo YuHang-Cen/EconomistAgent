@@ -8,11 +8,13 @@ from typing import Any
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.exceptions import RequestValidationError
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, Response
 
 from app.api.routes import authors, jobs, segments
 from app.domain.schemas import build_error_response, build_success_response
 from app.infra.logging import configure_logging
+from app.infra.settings import get_settings
 
 
 def _error_code_from_status(status_code: int) -> str:
@@ -32,6 +34,14 @@ def create_app() -> FastAPI:
     """创建并配置 FastAPI 应用实例。"""
     configure_logging()
     application = FastAPI(title="Economist Agent Backend", version="0.1.0")
+    settings = get_settings()
+    application.add_middleware(
+        CORSMiddleware,
+        allow_origins=settings.get_cors_allow_origins(),
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
     @application.middleware("http")
     async def attach_request_id(

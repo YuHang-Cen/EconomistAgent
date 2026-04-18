@@ -13,8 +13,8 @@ export async function pollJob(
   jobId: string,
   options: PollJobOptions = {}
 ): Promise<JobVM> {
-  const intervalMs = options.intervalMs ?? 1000;
-  const timeoutMs = options.timeoutMs ?? 180000;
+  const intervalMs = options.intervalMs ?? 2000;
+  const timeoutMs = options.timeoutMs ?? 10 * 60 * 1000;
   const deadline = Date.now() + timeoutMs;
 
   while (true) {
@@ -24,7 +24,11 @@ export async function pollJob(
       return job;
     }
     if (Date.now() >= deadline) {
-      throw new Error(`job polling timeout: ${jobId}`);
+      return {
+        ...job,
+        status: "running",
+        message: "The task is still being processed in the background."
+      } as JobVM;
     }
     await new Promise((resolve) => setTimeout(resolve, intervalMs));
   }
