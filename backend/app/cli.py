@@ -6,7 +6,12 @@ import os
 import subprocess
 import sys
 from collections.abc import Mapping, Sequence
-from pathlib import Path
+
+from app.infra.db_recovery import (
+    StartupDatabaseBootstrapError,
+    bootstrap_database_on_startup,
+    run_alembic_migrations,
+)
 
 
 def _run(command: Sequence[str]) -> int:
@@ -14,30 +19,17 @@ def _run(command: Sequence[str]) -> int:
     return completed.returncode
 
 
-def _run_migrations() -> int:
-    """Run `alembic upgrade head` before starting API server."""
-    project_root = Path(__file__).resolve().parents[1]
-    completed = subprocess.run(
-        [
-            sys.executable,
-            "-m",
-            "alembic",
-            "-c",
-            str(project_root / "alembic.ini"),
-            "upgrade",
-            "head",
-        ],
-        check=False,
-        cwd=project_root,
-    )
-    return completed.returncode
+def _bootstrap_or_exit() -> None:
+    try:
+        bootstrap_database_on_startup()
+    except StartupDatabaseBootstrapError as exc:
+        print(str(exc), file=sys.stderr)
+        raise SystemExit(1) from exc
 
 
 def dev() -> None:
     """Start FastAPI development server."""
-    migration_code = _run_migrations()
-    if migration_code != 0:
-        raise SystemExit(migration_code)
+    _bootstrap_or_exit()
     raise SystemExit(_run(["uvicorn", "app.main:app", "--reload"]))
 
 
@@ -81,6 +73,7 @@ def _build_worker_command(
 
 def worker() -> None:
     """Start Celery worker."""
+    _bootstrap_or_exit()
     raise SystemExit(_run(_build_worker_command()))
 
 
@@ -106,7 +99,7 @@ def test() -> None:
 
 def rebuild_db() -> None:
     """Rebuild the SQLite database from storage manifests/artifacts."""
-    migration_code = _run_migrations()
+    migration_code = run_alembic_migrations()
     if migration_code != 0:
         raise SystemExit(migration_code)
     from app.infra import storage

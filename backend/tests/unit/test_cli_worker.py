@@ -1,6 +1,12 @@
 from __future__ import annotations
 
-from app.cli import _build_worker_command, _build_worker_options
+import pytest
+from app.cli import (
+    _build_worker_command,
+    _build_worker_options,
+    worker,
+)
+from app.infra.db_recovery import StartupDatabaseBootstrapError
 
 
 def test_build_worker_options_windows_defaults_to_threads() -> None:
@@ -38,3 +44,37 @@ def test_build_worker_command_wraps_options() -> None:
         "--pool=threads",
         "--concurrency=8",
     ]
+
+
+def test_worker_bootstraps_database_before_running_command(monkeypatch: pytest.MonkeyPatch) -> None:
+    events: list[str] = []
+
+    def fake_bootstrap() -> None:
+        events.append("bootstrap")
+
+    def fake_run(command: list[str]) -> int:
+        events.append("run")
+        assert command == ["celery", "fake"]
+        return 0
+
+    monkeypatch.setattr("app.cli.bootstrap_database_on_startup", fake_bootstrap)
+    monkeypatch.setattr("app.cli._build_worker_command", lambda: ["celery", "fake"])
+    monkeypatch.setattr("app.cli._run", fake_run)
+
+    with pytest.raises(SystemExit) as exc:
+        worker()
+
+    assert exc.value.code == 0
+    assert events == ["bootstrap", "run"]
+
+
+def test_worker_exits_when_bootstrap_fails(monkeypatch: pytest.MonkeyPatch) -> None:
+    def fail_bootstrap() -> None:
+        raise StartupDatabaseBootstrapError("bootstrap failed")
+
+    monkeypatch.setattr("app.cli.bootstrap_database_on_startup", fail_bootstrap)
+
+    with pytest.raises(SystemExit) as exc:
+        worker()
+
+    assert exc.value.code == 1

@@ -7,6 +7,7 @@ from typing import Any
 
 from app.infra import storage
 from app.infra.db import Base, engine
+from app.infra.db_recovery import bootstrap_database_on_startup
 from app.scripts.rebuild_db_from_storage import rebuild_from_storage
 from fastapi.testclient import TestClient
 
@@ -53,10 +54,13 @@ def test_rebuild_db_from_storage_recovers_author_document_segments_and_skills(
     # Manifests should exist in storage.
     author_meta_path = storage.author_root(author_id=author_id) / "author_meta.json"
     assert author_meta_path.exists()
-    document_meta_path = storage.document_root(author_id=author_id, document_id=document_id) / "document_meta.json"
+    document_meta_path = (
+        storage.document_root(author_id=author_id, document_id=document_id) / "document_meta.json"
+    )
     assert document_meta_path.exists()
     extracted_path = (
-        storage.document_root(author_id=author_id, document_id=document_id) / "extracted_segments.json"
+        storage.document_root(author_id=author_id, document_id=document_id)
+        / "extracted_segments.json"
     )
     assert extracted_path.exists()
 
@@ -104,3 +108,35 @@ def test_rebuild_db_from_storage_recovers_author_document_segments_and_skills(
     final_payload = _wait_job_status(client=client, job_id=answer_job_id, expected="success")
     assert final_payload["status"] == "success"
 
+
+def test_bootstrap_database_on_startup_auto_recovers_when_db_empty(
+    client: TestClient,
+    create_test_pdf: Callable[[str, list[str] | None], str],
+) -> None:
+    author_response = client.post(
+        "/api/authors",
+        json={
+            "authorName": "Auto Recover Author",
+            "school": "Test School",
+            "avatarUrl": "https://example.com/avatar.png",
+        },
+    )
+    author_id = author_response.json()["data"]["authorId"]
+
+    pdf_uri = create_test_pdf("auto-recover.pdf")
+    document_response = client.post(
+        f"/api/authors/{author_id}/documents",
+        json={"bookTitle": "Auto Recover Book", "pdfUri": pdf_uri},
+    )
+    payload = document_response.json()["data"]
+    reload_job_id = payload["reloadJobId"]
+    _wait_job_status(client=client, job_id=reload_job_id, expected="success")
+
+    # Simulate DB loss: wipe all tables, keep storage artifacts untouched.
+    Base.metadata.drop_all(bind=engine)
+    Base.metadata.create_all(bind=engine)
+
+    bootstrap_database_on_startup(migration_runner=lambda: 0)
+
+    authors = client.get("/api/authors").json()["data"]
+    assert any(item["authorId"] == author_id for item in authors)
