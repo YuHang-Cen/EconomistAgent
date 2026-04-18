@@ -1,0 +1,393 @@
+{
+  "chunks": [
+    {
+      "chunk_id": 1,
+      "section_id": "667b1e45-0c20-409a-84be-84f3f0376f12",
+      "section_title": "Three: Individualism and Collectivism",
+      "paragraph_indexes": [
+        "004-0001",
+        "004-0002",
+        "004-0003",
+        "004-0004",
+        "004-0005",
+        "004-0006",
+        "004-0007",
+        "004-0008"
+      ],
+      "word_count": 1102,
+      "analysis": {
+        "methodPatterns": {
+          "raw_pattern": "The author first identifies a conceptual confusion in the common understanding of 'socialism', then decomposes it into its constituent aims and methods, and finally redefines the core concept by placing it within a broader genus (collectivism) to clarify the true subject of dispute.",
+          "normalized_pattern": "Concept Clarification",
+          "actions": [
+            "Identify conceptual confusion and ambiguity",
+            "Decompose the confused concept into distinct components (ends vs. means)",
+            "Compare different usages and their implications",
+            "Propose a terminological redefinition to isolate the core analytical subject"
+          ],
+          "method_program": "The analysis begins by diagnosing a critical obstacle to clear discussion: the ambiguous and conflated usage of the term 'socialism'. The author disentangles this by separating the concept into two distinct layers: the ultimate ends (social justice, equality, security) and the specific means proposed to achieve them (abolition of private enterprise, central planning). This decomposition reveals that the central dispute is primarily about means, not ends. To resolve the ambiguity and focus the analysis, the author then redefines the scope, proposing to use 'collectivism' as the genus for the method of central economic planning, of which socialism is one species. This conceptual clarification isolates the method (collectivist planning) as the true object of subsequent analysis, irrespective of the particular ends it is used to serve."
+        },
+        "methodSignals": {
+          "perspective": "Macro Analysis",
+          "nature": "Positive",
+          "time_orientation": "Static Analysis",
+          "system_scope": "Closed System",
+          "equilibrium_view": "Process Analysis",
+          "logic": [
+            "Conceptual Classification Reasoning",
+            "Comparative Reasoning"
+          ]
+        }
+      }
+    },
+    {
+      "chunk_id": 2,
+      "section_id": "667b1e45-0c20-409a-84be-84f3f0376f12",
+      "section_title": "Three: Individualism and Collectivism",
+      "paragraph_indexes": [
+        "004-0009",
+        "004-0010",
+        "004-0011",
+        "004-0012",
+        "004-0013"
+      ],
+      "word_count": 1012,
+      "analysis": {
+        "methodPatterns": {
+          "raw_pattern": "The author clarifies the core dispute by distinguishing between two opposing approaches to social organization, then systematically defines and defends one approach by specifying its necessary conditions, permissible exceptions, and institutional prerequisites.",
+          "normalized_pattern": "Concept Clarification",
+          "actions": [
+            "Distinguishing between competing conceptual definitions",
+            "Articulating the core principles of the preferred concept",
+            "Delineating necessary negative constraints",
+            "Specifying permissible positive interventions",
+            "Identifying required institutional preconditions"
+          ],
+          "method_program": "The method begins by clarifying the central conceptual dispute, rejecting a false dichotomy to define the liberal position precisely. It then articulates the core principle of that position—competition as a coordinating mechanism—and systematically elaborates its implications. This involves first establishing the negative legal framework essential for competition to function (what the state must not do), then examining permissible positive government actions that are compatible with this framework. Finally, the analysis identifies the neglected positive institutional prerequisites necessary for the system to work efficiently, thereby completing a comprehensive conceptual clarification of the liberal approach to planning."
+        },
+        "methodSignals": {
+          "perspective": "Institutional Analysis",
+          "nature": "Normative",
+          "time_orientation": "Static Analysis",
+          "system_scope": "Closed System",
+          "equilibrium_view": "Equilibrium Analysis",
+          "logic": [
+            "Conceptual Classification Reasoning",
+            "Constraint-Based Reasoning"
+          ]
+        }
+      }
+    },
+    {
+      "chunk_id": 3,
+      "section_id": "667b1e45-0c20-409a-84be-84f3f0376f12",
+      "section_title": "Three: Individualism and Collectivism",
+      "paragraph_indexes": [
+        "004-0014",
+        "004-0015",
+        "004-0016",
+        "004-0017"
+      ],
+      "word_count": 959,
+      "analysis": {
+        "methodPatterns": {
+          "raw_pattern": "The author first identifies a specific condition necessary for the effective functioning of a system (private property and competition), then analyzes instances where this condition fails, leading to a divergence between private and social welfare. From this analysis, the author derives a normative principle for state action (to supplement competition where it fails) and contrasts this with a historical deviation (the movement to supplant competition entirely). Finally, the author traces the causal consequences of this deviation, predicting a worsening intermediate state (syndicalist monopolies) before a final, undesirable outcome (complete state control).",
+          "normalized_pattern": "Historical Deviation Analysis",
+          "actions": [
+            "Identify a core functional condition of a system",
+            "Analyze cases where the condition fails, creating a divergence",
+            "Derive a normative principle for corrective action",
+            "Contrast this principle with an observed historical shift",
+            "Trace the causal chain initiated by this deviation",
+            "Predict the logical endpoint of the causal chain"
+          ],
+          "method_program": "The method begins by establishing the logical foundation for a system's effectiveness—here, the condition that private owners fully internalize benefits and costs. It then demonstrates the system's limits by examining real-world cases where this condition is impracticable (e.g., public goods, externalities), logically necessitating a supplementary role for the state. The analysis then pivots to a historical observation: instead of following this logical supplement, society turned towards the goal of displacing competition altogether. The author treats this turn as a critical deviation from the logically derived framework. The core of the method is to trace the negative consequences of this deviation, arguing it leads not to the intended planned utopia but first to a worse, unstable intermediate state (industrial monopolies), which in turn creates pressure for the very comprehensive state control that planners ostensibly seek, thereby revealing the deviation's self-defeating and dangerous logic."
+        },
+        "methodSignals": {
+          "perspective": "Institutional Analysis",
+          "nature": "Mixed",
+          "time_orientation": "Historical Analysis",
+          "system_scope": "Open System",
+          "equilibrium_view": "Disequilibrium Analysis",
+          "logic": [
+            "Historical Reasoning",
+            "Causal Reasoning",
+            "Constraint-Based Reasoning"
+          ]
+        }
+      }
+    },
+    {
+      "chunk_id": 4,
+      "section_id": "667b1e45-0c20-409a-84be-84f3f0376f12",
+      "section_title": "Three: Individualism and Collectivism",
+      "paragraph_indexes": [
+        "004-0018",
+        "004-0019",
+        "016-0001",
+        "016-0002",
+        "016-0003",
+        "016-0004",
+        "016-0005",
+        "016-0006",
+        "016-0007",
+        "016-0008"
+      ],
+      "word_count": 1133,
+      "analysis": {
+        "methodPatterns": {
+          "raw_pattern": "The author analyzes a problem by first identifying a false middle ground between two opposing principles, then demonstrating why their mixture is logically incoherent and practically harmful, and finally clarifying the precise meaning of key terms to sharpen the argument.",
+          "normalized_pattern": "Concept Clarification",
+          "actions": [
+            "Identifying a false dichotomy or middle ground",
+            "Demonstrating the logical incompatibility of mixed principles",
+            "Clarifying the precise definition of a core concept to resolve ambiguity"
+          ],
+          "method_program": "The author begins by diagnosing a common but flawed belief: that a 'judicious mixture' of two opposing systems (here, central planning and competition) is a viable solution. He then argues that these are not complementary tools but 'alternative principles' for solving the same problem, and that a mixture renders both ineffective, leading to worse outcomes than a consistent application of either. To prevent misunderstanding and strengthen the argument, he explicitly clarifies the specific meaning of a key term ('planning' as 'planning against competition') that is central to his critique, distinguishing it from other permissible uses of the term."
+        },
+        "methodSignals": {
+          "perspective": "Institutional Analysis",
+          "nature": "Normative",
+          "time_orientation": "Static Analysis",
+          "system_scope": "Open System",
+          "equilibrium_view": "Disequilibrium Analysis",
+          "logic": [
+            "Conceptual Classification Reasoning",
+            "Constraint-Based Reasoning"
+          ]
+        }
+      }
+    },
+    {
+      "chunk_id": 5,
+      "section_id": "e1adabb9-cc78-448b-a2d6-706f559972d3",
+      "section_title": "Fifteen: The Prospects of International Order",
+      "paragraph_indexes": [
+        "016-0009",
+        "016-0010",
+        "016-0011",
+        "016-0012",
+        "016-0013"
+      ],
+      "word_count": 1018,
+      "analysis": {
+        "methodPatterns": {
+          "raw_pattern": "The author analyzes the problem by scaling up a known phenomenon (planning) to larger and more diverse contexts, demonstrating how its inherent conflicts and requirements for coercion intensify with scale and diversity, ultimately leading to an inevitable conclusion about its nature.",
+          "normalized_pattern": "Comparative Analysis",
+          "actions": [
+            "Identify a core phenomenon (economic planning)",
+            "Establish its known properties and feasibility at a small scale (family, community)",
+            "Scale the phenomenon up to larger, more diverse contexts (national, international)",
+            "Analyze how key variables (agreement on ends, common values) change inversely with scale and diversity",
+            "Derive the necessary consequences (increased reliance on force, moral conflict) from this change in variables",
+            "Use concrete hypothetical examples to illustrate the derived consequences",
+            "Arrive at a general, scaled conclusion about the phenomenon's inherent nature."
+          ],
+          "method_program": "The method begins by establishing a baseline understanding of economic planning within a homogeneous, small-scale context where it is relatively feasible due to shared values and goals. It then systematically scales the analysis to larger and more heterogeneous contexts—first national, then international. At each step, the analysis focuses on how the decrease in shared standards and the increase in value divergence fundamentally alter the requirements for implementing the plan, transforming it from a cooperative endeavor into one necessitating coercion. This comparative scaling is reinforced with illustrative thought experiments (e.g., Norwegian fisherman vs. Portuguese, international authority dictating to Britain) to concretize the abstract logical progression. The final step is to generalize from this scaled comparison, concluding that the coercive and immoral outcomes are not contingent on the planners' character but are inherent to the task of large-scale planning across diversity."
+        },
+        "methodSignals": {
+          "perspective": "Macro Analysis",
+          "nature": "Normative",
+          "time_orientation": "Static Analysis",
+          "system_scope": "Open System",
+          "equilibrium_view": "Disequilibrium Analysis",
+          "logic": [
+            "Causal Reasoning",
+            "Comparative Reasoning",
+            "Constraint-Based Reasoning"
+          ]
+        }
+      }
+    },
+    {
+      "chunk_id": 6,
+      "section_id": "e1adabb9-cc78-448b-a2d6-706f559972d3",
+      "section_title": "Fifteen: The Prospects of International Order",
+      "paragraph_indexes": [
+        "016-0014",
+        "016-0015",
+        "016-0016",
+        "016-0017",
+        "016-0018"
+      ],
+      "word_count": 1056,
+      "analysis": {
+        "methodPatterns": {
+          "raw_pattern": "The author analyzes a proposed solution (international economic planning) by logically deriving its likely consequences, particularly focusing on how it would transform and intensify existing conflicts, and then illustrates this with a concrete hypothetical case.",
+          "normalized_pattern": "Causal Derivation",
+          "actions": [
+            "Identifying a core assumption of a proposed system",
+            "Deductive reasoning to trace systemic consequences of that assumption",
+            "Applying the derived logic to a specific hypothetical scenario",
+            "Evaluating the outcome based on principles of conflict and justice"
+          ],
+          "method_program": "The method begins by isolating a foundational belief or assumption underpinning a proposed policy (world planning based on democratic decision). It then engages in a logical derivation, extrapolating the inevitable consequences that would arise from implementing this system. The reasoning shows how the system's internal logic would transform latent economic differences into overt political conflicts, shifting the scale of struggle. This abstract causal chain is then grounded and tested by applying it to a concrete, detailed example (planning for the Danube Basin), which serves to demonstrate the inescapable practical dilemmas and coercive outcomes predicted by the initial derivation."
+        },
+        "methodSignals": {
+          "perspective": "Macro Analysis",
+          "nature": "Positive",
+          "time_orientation": "Static Analysis",
+          "system_scope": "Closed System",
+          "equilibrium_view": "Disequilibrium Analysis",
+          "logic": [
+            "Causal Reasoning",
+            "Constraint-Based Reasoning"
+          ]
+        }
+      }
+    },
+    {
+      "chunk_id": 7,
+      "section_id": "e1adabb9-cc78-448b-a2d6-706f559972d3",
+      "section_title": "Fifteen: The Prospects of International Order",
+      "paragraph_indexes": [
+        "016-0019",
+        "016-0020",
+        "016-0021",
+        "016-0022",
+        "016-0023",
+        "016-0024"
+      ],
+      "word_count": 1146,
+      "analysis": {
+        "methodPatterns": {
+          "raw_pattern": "The author analyzes a proposed solution (international economic planning) by systematically unpacking its logical implications, exposing internal contradictions, and demonstrating how its implementation would inevitably lead to outcomes opposite to its stated ideals.",
+          "normalized_pattern": "Concept Decomposition",
+          "actions": [
+            "Identify a proposed concept or system (international economic planning)",
+            "Decompose its abstract principles into concrete operational powers",
+            "Trace the logical and practical consequences of wielding those powers",
+            "Expose a contradiction between the system's stated moral aims and its necessary operational outcomes",
+            "Argue that the system inherently corrupts its own foundational goals"
+          ],
+          "method_program": "The author begins by identifying a widely advocated concept—international economic planning or authority with specific economic powers. He then decomposes this abstract concept into its concrete operational components: the power to control and allocate raw materials, markets, and investment. Next, he traces the logical chain of consequences that must follow from vesting such powers in an authority, arguing they inevitably lead to tyrannical control over national development and individual lives. The core of the method is exposing a fundamental contradiction: a system justified by moral ideals (justice, prosperity, assistance) becomes, through its necessary operational mechanics, an instrument of immoral coercion and corruption, thereby defeating its own purpose. The analysis concludes by showing how the real-world implementation would diverge from the idealistic vision, resulting in hegemony and subjection rather than fair cooperation."
+        },
+        "methodSignals": {
+          "perspective": "Institutional Analysis",
+          "nature": "Normative",
+          "time_orientation": "Static Analysis",
+          "system_scope": "Closed System",
+          "equilibrium_view": "Disequilibrium Analysis",
+          "logic": [
+            "Causal Reasoning",
+            "Constraint-Based Reasoning"
+          ]
+        }
+      }
+    },
+    {
+      "chunk_id": 8,
+      "section_id": "e1adabb9-cc78-448b-a2d6-706f559972d3",
+      "section_title": "Fifteen: The Prospects of International Order",
+      "paragraph_indexes": [
+        "016-0025",
+        "016-0026",
+        "016-0027",
+        "016-0028",
+        "016-0029",
+        "016-0030"
+      ],
+      "word_count": 1091,
+      "analysis": {
+        "methodPatterns": {
+          "raw_pattern": "The author critiques a proposed solution (centralized international economic authority) by exposing its flaws, then constructs a counter-proposal (federation with limited powers) through conceptual clarification, logical derivation of necessary functions, and comparative institutional analysis.",
+          "normalized_pattern": "Concept Clarification",
+          "actions": [
+            "Identifying a flawed premise in an opposing view",
+            "Distinguishing between necessary and excessive powers for an international authority",
+            "Defining core functions via negation (restraining harm vs. directing action)",
+            "Proposing an alternative institutional form (federation)",
+            "Clarifying the principle by contrasting it with centralized and unfettered sovereignty models",
+            "Enumerating the logical consequences and advantages of the proposed form"
+          ],
+          "method_program": "The method begins by analyzing a prevailing intellectual trend (advocacy for a centrally directed economic order) and identifying its internal contradiction with stated war aims and its disregard for small nations. It then grants a partial truth within the opposing view (unfettered economic sovereignty is problematic) but uses this to pivot. The core analytical move is to clarify the conceptual confusion between the *kind* of power needed (negative, rule-enforcing) and the *scope* of power proposed (positive, directive). This clarification logically derives the essential functions of a legitimate international authority. The author then matches these necessary functions to an existing institutional form—federation—and rigorously defines its principle by contrasting it with both a centralized superstate and absolute national sovereignty. Finally, the method evaluates the proposed form by deducing its systemic consequences, showing how it blocks harmful planning while enabling desirable forms, thereby resolving the initial problem."
+        },
+        "methodSignals": {
+          "perspective": "Institutional Analysis",
+          "nature": "Normative",
+          "time_orientation": "Static Analysis",
+          "system_scope": "Open System",
+          "equilibrium_view": "Equilibrium Analysis",
+          "logic": [
+            "Conceptual Classification Reasoning",
+            "Constraint-Based Reasoning"
+          ]
+        }
+      }
+    },
+    {
+      "chunk_id": 9,
+      "section_id": "e1adabb9-cc78-448b-a2d6-706f559972d3",
+      "section_title": "Fifteen: The Prospects of International Order",
+      "paragraph_indexes": [
+        "016-0031",
+        "016-0032",
+        "016-0033",
+        "016-0034",
+        "016-0035"
+      ],
+      "word_count": 1182,
+      "analysis": {
+        "methodPatterns": {
+          "raw_pattern": "The author critiques a grand, centralized solution (world federation) by contrasting it with a more limited, practical alternative (regional federations under a rule of law). The method involves identifying a historical ideal, diagnosing its flaws through logical and empirical consequences, and proposing a scaled, principle-based alternative that addresses the diagnosed failures.",
+          "normalized_pattern": "Comparative Analysis",
+          "actions": [
+            "Identify a historical ideal or proposed solution",
+            "Diagnose its practical and normative flaws through logical and empirical consequences",
+            "Propose a scaled alternative based on core principles",
+            "Contrast the outcomes and feasibility of the two approaches"
+          ],
+          "method_program": "The analysis begins by recalling a historical ideal (a single world federation) and noting its decline. It then systematically critiques this ideal by arguing from first principles about political scale, democracy, and individual freedom, showing how over-centralization leads to tyranny and inefficacy. This critique establishes the failure conditions of the grand solution. The author then proposes an alternative model built on the federal principle, but applied in a limited, regional context and underpinned by a supernational Rule of Law. The method concludes by comparing the two approaches, arguing that the scaled, principle-based alternative is more feasible and avoids the fatal flaws of the overambitious one, even if it does not solve all problems at once."
+        },
+        "methodSignals": {
+          "perspective": "Institutional Analysis",
+          "nature": "Normative",
+          "time_orientation": "Static Analysis",
+          "system_scope": "Open System",
+          "equilibrium_view": "Process Analysis",
+          "logic": [
+            "Comparative Reasoning",
+            "Constraint-Based Reasoning"
+          ]
+        }
+      }
+    },
+    {
+      "chunk_id": 10,
+      "section_id": "e1adabb9-cc78-448b-a2d6-706f559972d3",
+      "section_title": "Fifteen: The Prospects of International Order",
+      "paragraph_indexes": [
+        "016-0036",
+        "016-0037",
+        "016-0038",
+        "016-0039",
+        "016-0040"
+      ],
+      "word_count": 138,
+      "analysis": {
+        "methodPatterns": {
+          "raw_pattern": "The author analyzes a problem by referencing historical intellectual positions and literary parallels to illustrate a conceptual stance on political organization.",
+          "normalized_pattern": "Historical Tracing",
+          "actions": [
+            "Referencing historical intellectual advocacy",
+            "Drawing literary parallels for conceptual illustration",
+            "Connecting references to a core normative argument"
+          ],
+          "method_program": "The method begins by establishing a historical reference point, citing the advocacy of specific thinkers (Hayek, Robbins) for a European federation as a means to reduce war. It then introduces a literary reference (Tennyson's poem) to provide a parallel conceptual vision of global federation and peace. Finally, it connects these references—both historical and literary—to a personal biographical parallel, using them collectively to illustrate and reinforce a broader argument about political ideals and their human foundations."
+        },
+        "methodSignals": {
+          "perspective": "Macro Analysis",
+          "nature": "Mixed",
+          "time_orientation": "Historical Analysis",
+          "system_scope": "Open System",
+          "equilibrium_view": "Process Analysis",
+          "logic": [
+            "Historical Reasoning",
+            "Comparative Reasoning"
+          ]
+        }
+      }
+    }
+  ],
+  "errors": []
+}
