@@ -1,15 +1,17 @@
 import { Plus, ChevronDown, Trash2, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 import { useState } from 'react';
 import { motion } from 'motion/react';
-import { AUTHORS, HISTORY_DATA } from '../data/mockData';
+import { HISTORY_DATA } from '../data/mockData';
+import { Author } from '../types';
 
 interface AnalysisSidebarProps {
+  authors: Author[];
   selectedId: string | null;
   onSelect: (id: string) => void;
   onNewAnalysis: () => void;
 }
 
-export default function AnalysisSidebar({ selectedId, onSelect, onNewAnalysis }: AnalysisSidebarProps) {
+export default function AnalysisSidebar({ authors, selectedId, onSelect, onNewAnalysis }: AnalysisSidebarProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [expandedAuthors, setExpandedAuthors] = useState<string[]>(['Adam Smith']);
 
@@ -56,7 +58,7 @@ export default function AnalysisSidebar({ selectedId, onSelect, onNewAnalysis }:
         <div className={`flex-grow px-4 pb-8 ${isCollapsed ? 'px-2' : ''}`}>
           <div className="space-y-4">
             {HISTORY_DATA.map((group) => {
-              const author = AUTHORS.find(a => a.id === group.authorId);
+              const author = authors.find(a => a.id === group.authorId);
               if (!author) return null;
 
               return (

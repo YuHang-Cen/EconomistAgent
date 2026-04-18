@@ -172,6 +172,11 @@ export default function App() {
     updateSegmentState({ ...segmentState, authors: newAuthors });
   };
 
+  const handleDeleteAuthor = (authorId: string) => {
+    const newAuthors = segmentState.authors.filter(author => author.id !== authorId);
+    updateSegmentState({ ...segmentState, authors: newAuthors });
+  };
+
   return (
     <div className="min-h-screen bg-background text-on-background font-body flex flex-col">
       <Navbar 
@@ -226,6 +231,7 @@ export default function App() {
                     key={author.id} 
                     author={author} 
                     onRemoveManuscript={(manuscriptId) => handleRemoveManuscript(author.id, manuscriptId)}
+                    onRemoveAuthor={() => handleDeleteAuthor(author.id)}
                   />
                 ))}
               </section>
@@ -268,6 +274,7 @@ export default function App() {
         ) : activeTab === 'answer' ? (
           <div className="flex flex-1 overflow-hidden">
             <AnalysisSidebar 
+              authors={segmentState.authors}
               selectedId={answerSelection}
               onSelect={handleAnswerSelect}
               onNewAnalysis={handleNewAnalysis}

@@ -3,6 +3,7 @@ export interface Article {
   title: string;
   author: string;
   topic: string;
+  query?: string;
   date: string;
   mainSkill?: string;
   subSkills?: string[];
@@ -18,6 +19,7 @@ export const ARTICLES: Record<string, Article> = {
     title: 'The Invisible Hand in the Digital Age: An Inquiry into Algorithmic Equilibrium',
     author: 'Adam Smith (AI Simulation)',
     topic: 'Digital Economic Theory',
+    query: 'How does the principle of the "Invisible Hand" apply to modern algorithmic market structures and data economies?',
     date: 'October 24, 2023',
     mainSkill: 'Systemic Crisis Analysis',
     subSkills: ['Market Equilibrium Modeling', 'Institutional Framework Evolution', 'Behavioral Incentive Mapping'],

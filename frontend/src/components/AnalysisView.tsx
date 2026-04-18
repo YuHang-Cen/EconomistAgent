@@ -47,6 +47,20 @@ export default function AnalysisView({ authors, selectedId, onGenerate }: Analys
             </div>
           </header>
 
+          {/* Research Query Card */}
+          {article.query && (
+            <motion.div 
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-16 bg-surface-container-low border-l-4 border-primary p-8 rounded-sm editorial-shadow"
+            >
+              <span className="block font-label text-[10px] uppercase tracking-widest text-primary mb-3 font-bold">Research Inquiry</span>
+              <p className="font-headline text-2xl italic text-on-background leading-relaxed">
+                "{article.query}"
+              </p>
+            </motion.div>
+          )}
+
           {/* Article Content */}
           <article className="prose prose-slate max-w-none">
             {article.content.map((block, idx) => {

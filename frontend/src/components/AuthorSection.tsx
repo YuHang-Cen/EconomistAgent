@@ -1,4 +1,4 @@
-import { PlusCircle } from 'lucide-react';
+import { PlusCircle, Trash2 } from 'lucide-react';
 import { Author } from '../types';
 import { motion, AnimatePresence } from 'motion/react';
 import React, { useState, useRef } from 'react';
@@ -7,16 +7,18 @@ import ConfirmDialog from './ConfirmDialog';
 interface AuthorSectionProps {
   author: Author;
   onRemoveManuscript: (manuscriptId: string) => void;
+  onRemoveAuthor: () => void;
   key?: string;
 }
 
-export default function AuthorSection({ author, onRemoveManuscript }: AuthorSectionProps) {
+export default function AuthorSection({ author, onRemoveManuscript, onRemoveAuthor }: AuthorSectionProps) {
   const [avatarUrl, setAvatarUrl] = useState(author.avatarUrl);
   const [confirmDelete, setConfirmDelete] = useState<{ isOpen: boolean; manuscriptId: string | null; title: string }>({
     isOpen: false,
     manuscriptId: null,
     title: ''
   });
+  const [confirmAuthorDelete, setConfirmAuthorDelete] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleAvatarClick = () => {
@@ -43,6 +45,11 @@ export default function AuthorSection({ author, onRemoveManuscript }: AuthorSect
       onRemoveManuscript(confirmDelete.manuscriptId);
     }
     setConfirmDelete({ isOpen: false, manuscriptId: null, title: '' });
+  };
+
+  const handleConfirmAuthorDelete = () => {
+    onRemoveAuthor();
+    setConfirmAuthorDelete(false);
   };
 
   return (
@@ -87,10 +94,20 @@ export default function AuthorSection({ author, onRemoveManuscript }: AuthorSect
             </p>
           </div>
         </div>
-        <button className="text-primary hover:text-primary-dim font-label text-xs font-bold transition-colors flex items-center gap-2">
-          <PlusCircle className="w-4 h-4" />
-          ADD BOOK
-        </button>
+        <div className="flex items-center gap-4">
+          <button className="text-primary hover:text-primary-dim font-label text-xs font-bold transition-colors flex items-center gap-2">
+            <PlusCircle className="w-4 h-4" />
+            ADD BOOK
+          </button>
+          <div className="w-px h-4 bg-outline-variant/20" />
+          <button 
+            onClick={() => setConfirmAuthorDelete(true)}
+            className="text-error/40 hover:text-error transition-colors p-2 rounded-sm hover:bg-error/5"
+            title="Delete Author"
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
+        </div>
       </div>
 
       {author.manuscripts.length > 0 ? (
@@ -166,6 +183,15 @@ export default function AuthorSection({ author, onRemoveManuscript }: AuthorSect
         confirmLabel="Remove"
         onConfirm={handleConfirmDelete}
         onCancel={() => setConfirmDelete({ isOpen: false, manuscriptId: null, title: '' })}
+      />
+
+      <ConfirmDialog
+        isOpen={confirmAuthorDelete}
+        title="Delete Author"
+        message={`Are you sure you want to delete ${author.name}? This will remove the author and all their associated manuscripts and analysis data from your local archive. This action cannot be undone.`}
+        confirmLabel="Delete Author"
+        onConfirm={handleConfirmAuthorDelete}
+        onCancel={() => setConfirmAuthorDelete(false)}
       />
     </motion.div>
   );
