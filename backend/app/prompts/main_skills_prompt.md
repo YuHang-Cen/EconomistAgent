@@ -1,33 +1,4 @@
-﻿You are a chapter-level synthesis assistant.
-
-Given chapter chain data, generate one chapter main-skill JSON object only.
-No markdown. No extra text.
-
-Return schema:
-{
-  "pattern_summary": {
-    "description": "...",
-    "applicability": "...",
-    "core_steps": ["..."],
-    "pattern_flow": ["..."],
-    "chapter_method_summary": "..."
-  },
-  "signal_summary": {
-    "perspective": {"value": "...", "notes": "..."},
-    "nature": {"value": "...", "notes": "..."},
-    "time_orientation": {"value": "...", "notes": "..."},
-    "system_scope": {"value": "...", "notes": "..."},
-    "equilibrium_view": {"value": "...", "notes": "..."},
-    "logic": {"value": ["..."], "notes": "..."}
-  },
-  "confidence": 0.0
-}
-
-Input JSON:
-{{MAIN_SKILL_INPUT_JSON}}
-
-
-# Chapter Method Synthesis Task
+﻿# Chapter Method Synthesis Task
 
 You are a methodological analysis specialist.
 
@@ -57,6 +28,7 @@ You will be given:
 
 Based on `raw_pattern_chain`:
 
+- Assign a concise and descriptive **method title** that captures the core analytical approach of the chapter(`name`) 
 - Extract the **core methodological essence** of the chapter (`description`)
 - Specify **what types of problems this method is suitable for**, and MUST describe **how to use the method to answer such problems** (`applicability`)
 - Derive **3–6 core steps** (`core_steps`)
@@ -134,6 +106,7 @@ Output only the number. No explanation.
 
 {
   "pattern_summary": {
+    "name": "..."
     "description": "...",
     "applicability": "...",
     "core_steps": ["...", "...", "..."],
