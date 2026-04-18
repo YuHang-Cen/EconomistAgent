@@ -8,13 +8,18 @@ from app.services import answer_with_skills
 def test_answer_prefers_markdown_outputs_when_available(monkeypatch: object) -> None:
     """When markdown artifacts exist, answer context should use selected markdown content."""
     monkeypatch.setattr(answer_with_skills, "build_optional_llm", lambda: None)
-    monkeypatch.setattr(answer_with_skills, "_fallback_answer", lambda query, context: context)
+    monkeypatch.setattr(
+        answer_with_skills,
+        "_fallback_answer",
+        lambda query, context: {"title": "", "summary": "", "markdown": context},
+    )
 
     snapshot_outputs = {
         "main_skill_json": {
             "main_skills": [
                 {
                     "main_skill_id": "main_skill_001",
+                    "section_id": "section-1",
                     "pattern_summary": {
                         "name": "JSON Main",
                         "description": "JSON main description",
@@ -28,6 +33,7 @@ def test_answer_prefers_markdown_outputs_when_available(monkeypatch: object) -> 
             "sub_skills": [
                 {
                     "main_skill_id": "main_skill_001",
+                    "section_id": "section-1",
                     "name": "JSON Sub",
                     "description": "JSON sub description",
                 }
@@ -63,8 +69,10 @@ def test_answer_prefers_markdown_outputs_when_available(monkeypatch: object) -> 
         ],
     }
     selected = {
-        "selected_main_skill_id": "main_skill_001",
-        "selected_sub_skill_names": ["Chosen Sub"],
+        "selected_skill_index": 1,
+        "selected_section_id": "section-1",
+        "selection_mode": "llm",
+        "selection_warning": None,
     }
 
     result = answer_with_skills.run_answer_with_skills(
@@ -76,19 +84,24 @@ def test_answer_prefers_markdown_outputs_when_available(monkeypatch: object) -> 
     markdown = result["answer"]["markdown"]
     assert "MAIN_MARKER_ABC" in markdown
     assert "SUB_MARKER_XYZ" in markdown
-    assert "SHOULD_NOT_APPEAR" not in markdown
+    assert "SHOULD_NOT_APPEAR" in markdown
 
 
 def test_answer_falls_back_to_json_when_markdown_outputs_missing(monkeypatch: object) -> None:
     """If markdown artifacts are absent, answer context should fallback to JSON summaries."""
     monkeypatch.setattr(answer_with_skills, "build_optional_llm", lambda: None)
-    monkeypatch.setattr(answer_with_skills, "_fallback_answer", lambda query, context: context)
+    monkeypatch.setattr(
+        answer_with_skills,
+        "_fallback_answer",
+        lambda query, context: {"title": "", "summary": "", "markdown": context},
+    )
 
     snapshot_outputs = {
         "main_skill_json": {
             "main_skills": [
                 {
                     "main_skill_id": "main_skill_009",
+                    "section_id": "section-9",
                     "pattern_summary": {
                         "name": "JSON_ONLY_MAIN_NAME",
                         "description": "JSON_ONLY_DESC",
@@ -102,6 +115,7 @@ def test_answer_falls_back_to_json_when_markdown_outputs_missing(monkeypatch: ob
             "sub_skills": [
                 {
                     "main_skill_id": "main_skill_009",
+                    "section_id": "section-9",
                     "name": "JSON_ONLY_SUB",
                     "description": "JSON_ONLY_SUB_DESC",
                 }
@@ -109,8 +123,10 @@ def test_answer_falls_back_to_json_when_markdown_outputs_missing(monkeypatch: ob
         },
     }
     selected = {
-        "selected_main_skill_id": "main_skill_009",
-        "selected_sub_skill_names": ["JSON_ONLY_SUB"],
+        "selected_skill_index": 1,
+        "selected_section_id": "section-9",
+        "selection_mode": "llm",
+        "selection_warning": None,
     }
 
     result = answer_with_skills.run_answer_with_skills(

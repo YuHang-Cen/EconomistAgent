@@ -133,7 +133,9 @@ def test_author_answer_job_generates_answer_json(
     answer_output = answer_output_response.json()["data"]["content"]
     assert answer_output_response.status_code == 200
     assert answer_output["query"] == "analyze policy mechanism and outcomes"
-    assert answer_output["selected_main_skill_id"] is not None
+    assert isinstance(answer_output.get("selected_skill_index"), int)
+    assert answer_output.get("selected_section_id")
+    assert answer_output.get("selection_mode") in {"llm", "fallback_rule"}
     assert "answer" in answer_output
 
 

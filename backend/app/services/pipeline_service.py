@@ -65,7 +65,9 @@ def _ensure_not_canceled(session: Session, job: PipelineJob) -> None:
         raise PipelineCanceledError("job canceled")
 
 
-def _persist_stage_progress(session: Session, job: PipelineJob, stage: Stage, progress: int) -> None:
+def _persist_stage_progress(
+    session: Session, job: PipelineJob, stage: Stage, progress: int
+) -> None:
     """Persist stage updates immediately so polling APIs can observe live progress."""
     job.status = JobStatus.RUNNING.value
     job.current_stage = stage.value
@@ -366,7 +368,7 @@ def run_author_answer(session: Session, job: PipelineJob) -> None:
     _ensure_not_canceled(session, job)
 
     selection = run_select_skills(snapshot_outputs=snapshot_outputs, query=job.query)
-    if not selection.get("selected_main_skill_id"):
+    if not selection.get("selected_section_id"):
         raise ValueError("no available skill selected for author_answer")
 
     _ensure_not_canceled(session, job)
