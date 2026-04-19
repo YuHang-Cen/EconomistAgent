@@ -1,4 +1,4 @@
-import { apiRequest } from "./client";
+import { apiRequest, getApiBaseUrl } from "./client";
 import type {
   AuthorVM,
   ChapterVM,
@@ -23,6 +23,19 @@ export function createAuthor(input: {
   return apiRequest<AuthorVM>("/authors", {
     method: "POST",
     body: JSON.stringify(input),
+  });
+}
+
+export async function uploadAuthorAvatar(input: {
+  authorId: string;
+  file: File;
+}): Promise<AuthorVM> {
+  const formData = new FormData();
+  formData.set("file", input.file);
+  return apiRequest<AuthorVM>(`/authors/${input.authorId}/avatar/upload`, {
+    method: "POST",
+    body: formData,
+    headers: {},
   });
 }
 
@@ -184,4 +197,20 @@ export function listOutputs(jobId: string): Promise<OutputTypeVM[]> {
 
 export function getOutput(jobId: string, outputType: string): Promise<OutputContentVM> {
   return apiRequest<OutputContentVM>(`/jobs/${jobId}/outputs/${outputType}`);
+}
+
+export function resolvePublicAssetUrl(url: string | null | undefined): string | null {
+  if (!url) return null;
+  if (url.startsWith("http://") || url.startsWith("https://") || url.startsWith("data:")) {
+    return url;
+  }
+  if (!url.startsWith("/")) {
+    return url;
+  }
+  try {
+    const api = new URL(getApiBaseUrl());
+    return `${api.origin}${url}`;
+  } catch {
+    return url;
+  }
 }

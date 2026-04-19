@@ -9,13 +9,16 @@ from app.domain.schemas import (
     AuthorCreateRequest,
     AuthorDocumentUploadRequest,
     AuthorDocumentUploadResponse,
+    AuthorResponse,
     ReloadJobResponse,
     build_success_response,
 )
 from app.services import author_service
 from fastapi import APIRouter, Depends, File, Form, UploadFile
+from fastapi.responses import FileResponse
 
 router = APIRouter(tags=["authors"], dependencies=[Depends(verify_api_key)])
+public_router = APIRouter(tags=["authors-public"])
 
 
 @router.post("/authors")
@@ -74,6 +77,24 @@ async def upload_document_file(
     return build_success_response(request_id=request_id, data=response)
 
 
+@router.post("/authors/{author_id}/avatar/upload")
+async def upload_author_avatar(
+    author_id: str,
+    request_id: Annotated[str, Depends(get_request_id)],
+    file: UploadFile = File(...),
+) -> dict[str, Any]:
+    """Upload author avatar image and persist to storage."""
+    content = await file.read()
+    author = author_service.upload_author_avatar(
+        author_id=author_id,
+        filename=file.filename or "",
+        content=content,
+        content_type=file.content_type,
+    )
+    response = AuthorResponse.model_validate(author).model_dump(by_alias=True)
+    return build_success_response(request_id=request_id, data=response)
+
+
 @router.get("/authors/{author_id}/documents")
 def list_documents(
     author_id: str, request_id: Annotated[str, Depends(get_request_id)]
@@ -95,3 +116,10 @@ def reload_document(
     result = author_service.reload_document(author_id=author_id, document_id=document_id)
     response = ReloadJobResponse.model_validate(result).model_dump(by_alias=True)
     return build_success_response(request_id=request_id, data=response)
+
+
+@public_router.get("/public/authors/{author_id}/avatar")
+def get_public_author_avatar(author_id: str) -> FileResponse:
+    """Public avatar URL for img tags (no API key required)."""
+    avatar_path, media_type = author_service.get_public_avatar(author_id=author_id)
+    return FileResponse(path=avatar_path, media_type=media_type)

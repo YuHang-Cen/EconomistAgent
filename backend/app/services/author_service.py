@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import logging
 import uuid
-from pathlib import Path
 from datetime import UTC, datetime
+from pathlib import Path
 
 from app.domain.enums import JobStatus
 from app.domain.models import (
@@ -29,10 +29,100 @@ from sqlalchemy import delete, func, select, update
 
 logger = logging.getLogger(__name__)
 
+MAX_AVATAR_BYTES = 5 * 1024 * 1024
+ALLOWED_AVATAR_SUFFIXES: dict[str, str] = {
+    ".jpg": "image/jpeg",
+    ".jpeg": "image/jpeg",
+    ".png": "image/png",
+    ".webp": "image/webp",
+    ".gif": "image/gif",
+}
+
 
 def _now_iso() -> str:
     """Return current UTC timestamp as ISO-8601 string."""
     return datetime.now(tz=UTC).isoformat()
+
+
+def _author_manifest(author: Author) -> dict[str, str | None]:
+    return {
+        "author_id": author.author_id,
+        "author_name": author.author_name,
+        "school": author.school,
+        "avatar_url": author.avatar_url,
+        "created_at": author.created_at,
+        "updated_at": author.updated_at,
+    }
+
+
+def _write_author_manifest(author: Author) -> None:
+    _write_author_manifest_payload(author_id=author.author_id, payload=_author_manifest(author))
+
+
+def _write_author_manifest_payload(author_id: str, payload: dict[str, str | None]) -> None:
+    try:
+        storage.write_json(
+            storage.author_root(author_id=author_id) / "author_meta.json",
+            payload,
+        )
+    except OSError as exc:
+        logger.warning(
+            "failed to write author manifest: author_id=%s, error=%s",
+            author_id,
+            exc,
+        )
+
+
+def _author_avatar_candidates(author_id: str) -> list[Path]:
+    root = storage.author_root(author_id=author_id)
+    if not root.exists():
+        return []
+    return sorted(
+        [
+            item
+            for item in root.glob("avatar.*")
+            if item.is_file() and item.suffix.lower() in ALLOWED_AVATAR_SUFFIXES
+        ],
+        key=lambda item: item.stat().st_mtime,
+        reverse=True,
+    )
+
+
+def _resolve_author_avatar_path(author_id: str) -> Path | None:
+    files = _author_avatar_candidates(author_id=author_id)
+    return files[0] if files else None
+
+
+def _author_avatar_public_url(author_id: str) -> str:
+    version = int(datetime.now(tz=UTC).timestamp() * 1000)
+    return f"/api/public/authors/{author_id}/avatar?v={version}"
+
+
+def _validate_avatar_upload(filename: str, content: bytes, content_type: str | None) -> str:
+    suffix = Path(filename).suffix.lower()
+    if suffix not in ALLOWED_AVATAR_SUFFIXES:
+        raise HTTPException(
+            status_code=422,
+            detail="uploaded avatar must be one of .jpg/.jpeg/.png/.webp/.gif",
+        )
+    if len(content) > MAX_AVATAR_BYTES:
+        raise HTTPException(status_code=422, detail="uploaded avatar must be <= 5MB")
+    if content_type and not content_type.startswith("image/"):
+        raise HTTPException(status_code=422, detail="uploaded avatar content type must be image/*")
+    return suffix
+
+
+def _persist_avatar_file(author_id: str, suffix: str, content: bytes) -> Path:
+    root = storage.author_root(author_id=author_id)
+    root.mkdir(parents=True, exist_ok=True)
+    target = root / f"avatar{suffix}"
+    target.write_bytes(content)
+
+    for item in root.glob("avatar.*"):
+        if item.is_file() and item != target:
+            item.unlink(missing_ok=True)
+
+    return target
 
 
 def _create_document_with_reload_job(author_id: str, book_title: str, pdf_uri: str) -> dict[str, str]:
@@ -54,14 +144,7 @@ def _create_document_with_reload_job(author_id: str, book_title: str, pdf_uri: s
         session.add(document)
         session.flush()
         document_id = document.document_id
-        author_manifest = {
-            "author_id": author.author_id,
-            "author_name": author.author_name,
-            "school": author.school,
-            "avatar_url": author.avatar_url,
-            "created_at": author.created_at,
-            "updated_at": author.updated_at,
-        }
+        author_manifest = _author_manifest(author)
 
     from app.services import job_service
 
@@ -108,24 +191,7 @@ def create_author(payload: AuthorCreateRequest) -> AuthorResponse:
     )
     with session_scope() as session:
         session.add(author)
-    try:
-        storage.write_json(
-            storage.author_root(author_id=author.author_id) / "author_meta.json",
-            {
-                "author_id": author.author_id,
-                "author_name": author.author_name,
-                "school": author.school,
-                "avatar_url": author.avatar_url,
-                "created_at": author.created_at,
-                "updated_at": author.updated_at,
-            },
-        )
-    except OSError as exc:
-        logger.warning(
-            "failed to write author manifest: author_id=%s, error=%s",
-            author.author_id,
-            exc,
-        )
+    _write_author_manifest(author)
     return AuthorResponse(
         author_id=author.author_id,
         author_name=author.author_name,
@@ -206,14 +272,7 @@ def upload_document_file(author_id: str, book_title: str, filename: str, content
             raise HTTPException(status_code=404, detail="author not found")
         session.add(document)
         session.flush()
-        author_manifest = {
-            "author_id": author.author_id,
-            "author_name": author.author_name,
-            "school": author.school,
-            "avatar_url": author.avatar_url,
-            "created_at": author.created_at,
-            "updated_at": author.updated_at,
-        }
+        author_manifest = _author_manifest(author)
 
     from app.services import job_service
 
@@ -245,6 +304,56 @@ def upload_document_file(author_id: str, book_title: str, filename: str, content
             exc,
         )
     return {"document_id": document_id, "reload_job_id": str(job["jobId"])}
+
+
+def upload_author_avatar(
+    author_id: str,
+    filename: str,
+    content: bytes,
+    content_type: str | None,
+) -> AuthorResponse:
+    suffix = _validate_avatar_upload(filename=filename, content=content, content_type=content_type)
+
+    with session_scope() as session:
+        author = session.get(Author, author_id)
+        if author is None:
+            raise HTTPException(status_code=404, detail="author not found")
+        _persist_avatar_file(author_id=author_id, suffix=suffix, content=content)
+        author.avatar_url = _author_avatar_public_url(author_id=author_id)
+        author.updated_at = _now_iso()
+        session.flush()
+        manifest_data = _author_manifest(author)
+        manuscripts_count = int(
+            session.execute(
+                select(func.count(AuthorDocument.document_id)).where(
+                    AuthorDocument.author_id == author_id
+                )
+            ).scalar_one()
+        )
+
+    _write_author_manifest_payload(author_id=author_id, payload=manifest_data)
+
+    return AuthorResponse(
+        author_id=str(manifest_data["author_id"]),
+        author_name=str(manifest_data["author_name"]),
+        school=str(manifest_data["school"]) if manifest_data["school"] is not None else None,
+        avatar_url=str(manifest_data["avatar_url"]) if manifest_data["avatar_url"] else None,
+        manuscripts_count=manuscripts_count,
+    )
+
+
+def get_public_avatar(author_id: str) -> tuple[Path, str]:
+    with session_scope() as session:
+        author = session.get(Author, author_id)
+        if author is None:
+            raise HTTPException(status_code=404, detail="author not found")
+
+    avatar_path = _resolve_author_avatar_path(author_id=author_id)
+    if avatar_path is None or not avatar_path.exists():
+        raise HTTPException(status_code=404, detail="avatar not found")
+
+    media_type = ALLOWED_AVATAR_SUFFIXES.get(avatar_path.suffix.lower(), "application/octet-stream")
+    return avatar_path, media_type
 
 
 def list_documents(author_id: str) -> list[AuthorDocumentResponse]:

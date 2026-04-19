@@ -93,6 +93,7 @@ def create_app() -> FastAPI:
         return build_success_response(request_id=request_id, data={"status": "ok"})
 
     application.include_router(authors.router, prefix="/api")
+    application.include_router(authors.public_router, prefix="/api")
     application.include_router(segments.router, prefix="/api")
     application.include_router(jobs.router, prefix="/api")
     return application

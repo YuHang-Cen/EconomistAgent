@@ -17,6 +17,7 @@ import {
   mapApiErrorToUi,
   pollJob,
   reloadDocument,
+  uploadAuthorAvatar,
   uploadDocumentFile,
 } from "./api";
 import type { AnswerVM, Author, Chapter, Job, ModelConfig, Segment } from "./types";
@@ -90,6 +91,7 @@ export default function App() {
 
   const [creatingAuthor, setCreatingAuthor] = useState(false);
   const [deletingAuthorId, setDeletingAuthorId] = useState<string | null>(null);
+  const [avatarUploadingAuthorId, setAvatarUploadingAuthorId] = useState<string | null>(null);
   const [uploadingDocument, setUploadingDocument] = useState(false);
   const [reloadingDocumentId, setReloadingDocumentId] = useState<string | null>(null);
   const [globalError, setGlobalError] = useState<string | null>(null);
@@ -320,16 +322,42 @@ export default function App() {
     ensureAnalysisHistory(selectedAnalysisAuthorId).catch(handleError);
   }, [activeTab, selectedAnalysisAuthorId, ensureAnalysisHistory, handleError]);
 
-  const handleCreateAuthor = async (payload: { authorName: string; school?: string; avatarUrl?: string }) => {
+  const handleCreateAuthor = async (payload: {
+    authorName: string;
+    school?: string;
+    avatarFile?: File;
+  }) => {
     try {
       setCreatingAuthor(true);
-      await createAuthor(payload);
+      const created = await createAuthor({
+        authorName: payload.authorName,
+        school: payload.school,
+      });
+      if (payload.avatarFile) {
+        await uploadAuthorAvatar({
+          authorId: created.authorId,
+          file: payload.avatarFile,
+        });
+      }
       await refreshAuthors();
       setCreateAuthorOpen(false);
     } catch (error) {
       handleError(error);
+      await refreshAuthors().catch(() => undefined);
     } finally {
       setCreatingAuthor(false);
+    }
+  };
+
+  const handleUploadAvatar = async (authorId: string, file: File) => {
+    try {
+      setAvatarUploadingAuthorId(authorId);
+      await uploadAuthorAvatar({ authorId, file });
+      await refreshAuthors();
+    } catch (error) {
+      handleError(error);
+    } finally {
+      setAvatarUploadingAuthorId(null);
     }
   };
 
@@ -568,8 +596,10 @@ export default function App() {
                     documents={documentsByAuthor[author.authorId] || []}
                     reloadingDocumentId={reloadingDocumentId}
                     deletingAuthor={deletingAuthorId === author.authorId}
+                    avatarUploading={avatarUploadingAuthorId === author.authorId}
                     onReloadDocument={(documentId) => handleReloadDocument(author.authorId, documentId)}
                     onDeleteAuthor={() => handleDeleteAuthor(author.authorId)}
+                    onUploadAvatar={(file) => handleUploadAvatar(author.authorId, file)}
                   />
                 ))}
               </section>

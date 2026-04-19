@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import base64
 from collections.abc import Callable
 from typing import Any
 
@@ -10,6 +11,10 @@ from app.infra.db import Base, engine
 from app.infra.db_recovery import bootstrap_database_on_startup
 from app.scripts.rebuild_db_from_storage import rebuild_from_storage
 from fastapi.testclient import TestClient
+
+PNG_BYTES = base64.b64decode(
+    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+kvxkAAAAASUVORK5CYII="
+)
 
 
 def _wait_job_status(
@@ -140,3 +145,36 @@ def test_bootstrap_database_on_startup_auto_recovers_when_db_empty(
 
     authors = client.get("/api/authors").json()["data"]
     assert any(item["authorId"] == author_id for item in authors)
+
+
+def test_rebuild_db_from_storage_recovers_local_avatar_url(client: TestClient) -> None:
+    author_response = client.post(
+        "/api/authors",
+        json={
+            "authorName": "Avatar Rebuild Author",
+            "school": "Test School",
+            "avatarUrl": "",
+        },
+    )
+    author_id = author_response.json()["data"]["authorId"]
+
+    upload_response = client.post(
+        f"/api/authors/{author_id}/avatar/upload",
+        files={"file": ("avatar.png", PNG_BYTES, "image/png")},
+    )
+    assert upload_response.status_code == 200
+    avatar_url = upload_response.json()["data"]["avatarUrl"]
+
+    Base.metadata.drop_all(bind=engine)
+    Base.metadata.create_all(bind=engine)
+
+    summary = rebuild_from_storage(storage_root=storage.ensure_storage_root())
+    assert summary.authors >= 1
+
+    authors = client.get("/api/authors").json()["data"]
+    recovered = next(item for item in authors if item["authorId"] == author_id)
+    assert recovered["avatarUrl"] == avatar_url
+
+    public_response = client.get(avatar_url)
+    assert public_response.status_code == 200
+    assert public_response.headers["content-type"].startswith("image/png")

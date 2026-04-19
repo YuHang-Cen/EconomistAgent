@@ -1,6 +1,6 @@
-import { X } from "lucide-react";
+import { ImagePlus, Loader2, X } from "lucide-react";
 import { motion } from "motion/react";
-import { useState } from "react";
+import { ChangeEvent, useRef, useState } from "react";
 
 interface CreateAuthorModalProps {
   isOpen: boolean;
@@ -9,7 +9,7 @@ interface CreateAuthorModalProps {
   onCreate: (payload: {
     authorName: string;
     school?: string;
-    avatarUrl?: string;
+    avatarFile?: File;
   }) => Promise<void> | void;
 }
 
@@ -21,9 +21,26 @@ export default function CreateAuthorModal({
 }: CreateAuthorModalProps) {
   const [authorName, setAuthorName] = useState("");
   const [school, setSchool] = useState("");
-  const [avatarUrl, setAvatarUrl] = useState("");
+  const [avatarPreview, setAvatarPreview] = useState("");
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   if (!isOpen) return null;
+
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setAvatarFile(file);
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setAvatarPreview(typeof reader.result === "string" ? reader.result : "");
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleUploadClick = () => {
+    fileInputRef.current?.click();
+  };
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
@@ -61,11 +78,13 @@ export default function CreateAuthorModal({
             await onCreate({
               authorName: authorName.trim(),
               school: school.trim() || undefined,
-              avatarUrl: avatarUrl.trim() || undefined,
+              avatarFile: avatarFile || undefined,
             });
             setAuthorName("");
             setSchool("");
-            setAvatarUrl("");
+            setAvatarPreview("");
+            setAvatarFile(null);
+            if (fileInputRef.current) fileInputRef.current.value = "";
           }}
         >
           <div className="space-y-2">
@@ -74,6 +93,7 @@ export default function CreateAuthorModal({
             </label>
             <input
               type="text"
+              required
               value={authorName}
               onChange={(event) => setAuthorName(event.target.value)}
               placeholder="e.g. Friedrich Hayek"
@@ -96,15 +116,34 @@ export default function CreateAuthorModal({
 
           <div className="space-y-2">
             <label className="font-label text-[10px] uppercase tracking-widest text-secondary block">
-              Avatar URL
+              Author Portrait
             </label>
             <input
-              type="text"
-              value={avatarUrl}
-              onChange={(event) => setAvatarUrl(event.target.value)}
-              placeholder="https://example.com/avatar.png"
-              className="w-full bg-surface-container-low border-none font-body text-sm py-3 px-4 outline-none focus:ring-1 focus:ring-primary rounded-sm transition-all"
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileChange}
+              accept="image/*"
+              className="hidden"
             />
+            <div
+              onClick={handleUploadClick}
+              className="relative w-full aspect-video bg-surface-container-low border-2 border-dashed border-outline-variant/30 rounded-sm flex flex-col items-center justify-center cursor-pointer group hover:border-primary/50 transition-all overflow-hidden"
+            >
+              {avatarPreview ? (
+                <img
+                  src={avatarPreview}
+                  alt="Avatar Preview"
+                  className="w-full h-full object-cover filter grayscale group-hover:grayscale-0 transition-all duration-500"
+                />
+              ) : (
+                <div className="text-center">
+                  <ImagePlus className="w-8 h-8 text-outline-variant mx-auto mb-2 group-hover:scale-110 transition-transform" />
+                  <span className="font-label text-[10px] uppercase tracking-widest text-outline-variant">
+                    Upload Portrait
+                  </span>
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="pt-4 flex gap-4">
@@ -118,8 +157,9 @@ export default function CreateAuthorModal({
             <button
               type="submit"
               disabled={submitting || !authorName.trim()}
-              className="flex-1 bg-primary text-on-primary px-6 py-3 rounded-sm font-label text-sm font-semibold tracking-wide hover:bg-primary-dim transition-all shadow-md active:translate-y-px disabled:opacity-60"
+              className="flex-1 bg-primary text-on-primary px-6 py-3 rounded-sm font-label text-sm font-semibold tracking-wide hover:bg-primary-dim transition-all shadow-md active:translate-y-px disabled:opacity-60 flex items-center justify-center gap-2"
             >
+              {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
               {submitting ? "Creating..." : "Create Author"}
             </button>
           </div>
