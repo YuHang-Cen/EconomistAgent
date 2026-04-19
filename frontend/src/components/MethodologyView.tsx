@@ -1,7 +1,8 @@
-import { ChevronRight, Download, Sparkles, Terminal, Trash2 } from "lucide-react";
+import { ChevronRight, Download, Terminal, Trash2 } from "lucide-react";
 import type { Author, Job } from "../types";
 import { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
+import React from "react";
 
 interface SkillOutputs {
   mainSkillJson: Record<string, unknown> | null;
@@ -31,6 +32,28 @@ function readSubSkills(outputs: SkillOutputs | null): Array<Record<string, unkno
   return Array.isArray(list) ? list.filter((item): item is Record<string, unknown> => !!item && typeof item === "object") : [];
 }
 
+// 辅助组件：渲染小标题
+const SectionHeader = ({ title }: { title: string }) => (
+  <div className="flex items-center gap-2 mb-4 mt-10 text-[11px] font-bold tracking-[0.15em] text-secondary uppercase">
+    <div className="w-1 h-1 rounded-full bg-secondary"></div>
+    {title}
+  </div>
+);
+
+// 辅助组件：渲染有序步骤列表
+const ExecutionSkeletonList = ({ steps }: { steps: any[] }) => (
+  <ol className="space-y-4">
+    {steps.map((step, idx) => (
+      <li key={idx} className="flex gap-4 items-start">
+        <span className="flex-shrink-0 w-7 h-7 rounded-full bg-surface-container-low flex items-center justify-center text-xs font-bold text-secondary">
+          {idx + 1}
+        </span>
+        <span className="text-sm text-secondary pt-1 leading-relaxed">{String(step)}</span>
+      </li>
+    ))}
+  </ol>
+);
+
 export default function MethodologyView({
   selectedAuthor,
   runningJob,
@@ -59,13 +82,6 @@ export default function MethodologyView({
     ? subSkills.filter((item) => String(item.section_id || "") === selectedSection)
     : [];
 
-  const selectedMainMarkdown = selectedSection
-    ? outputs?.mainSkillsMdJson.find((item) => String(item.section_id || "") === selectedSection)
-    : null;
-  const selectedSubMarkdown = selectedSection
-    ? outputs?.subSkillsMdJson.filter((item) => String(item.section_id || "") === selectedSection)
-    : [];
-
   useEffect(() => {
     if (!selectedSectionId) return;
     const stillExists = mainSkills.some(
@@ -81,6 +97,22 @@ export default function MethodologyView({
     setActiveTab("main");
     setSelectedSubSkillIndex(0);
   }, [mainSkills, selectedSectionId]);
+
+  // Main Skill 提取字段
+  const mainPattern = (selectedMain?.pattern_summary || {}) as Record<string, unknown>;
+  const mainName = String(mainPattern.name || selectedMain?.section_title || "Unnamed Skill");
+  const mainDescription = String(mainPattern.description || "");
+  const mainApplicability = String(mainPattern.applicability || "");
+  const mainMethodProgram = String(mainPattern.chapter_method_summary || "");
+  const mainCoreSteps = Array.isArray(mainPattern.core_steps) ? mainPattern.core_steps : [];
+  const mainPatternFlow = Array.isArray(mainPattern.pattern_flow) ? mainPattern.pattern_flow : [];
+
+  // Sub Skill 提取字段
+  const currentSub = selectedSubSkills[selectedSubSkillIndex] || {};
+  const subName = String(currentSub.name || "Unnamed Sub Skill");
+  const subDescription = String(currentSub.description || "");
+  const subMethodProgram = String(currentSub.method_program_summary || "");
+  const subActionChain = Array.isArray(currentSub.abstract_action_chain) ? currentSub.abstract_action_chain : [];
 
   return (
     <div className="flex-grow bg-background p-8 lg:p-12 overflow-y-auto custom-scrollbar">
@@ -218,45 +250,129 @@ export default function MethodologyView({
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
-                className="bg-white shadow-2xl p-10 border-t-4 border-primary rounded-sm relative"
+                className="bg-white shadow-2xl border border-outline-variant/20 rounded-sm relative"
               >
-                <div className="flex items-center gap-4 mb-10">
-                  <div className="w-12 h-12 bg-primary/10 flex items-center justify-center rounded-sm">
-                    <Terminal className="w-6 h-6 text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="font-headline text-2xl font-bold text-on-background">
-                      {activeTab === "main" ? "Primary Framework" : "Tactical Heuristic"}
-                    </h3>
-                    <p className="text-[10px] font-label text-primary tracking-[0.2em] uppercase font-bold">Extracted Logic Module</p>
-                  </div>
-                </div>
-
-                <div className="prose prose-slate max-w-none">
-                  {activeTab === "main" ? (
-                    selectedMain ? (
-                      <div className="bg-surface-container-low/50 p-8 rounded-sm border border-outline-variant/10 font-body text-sm leading-relaxed text-secondary italic">
-                        {selectedMainMarkdown?.markdown ? String(selectedMainMarkdown.markdown) : "Parsing core logic..."}
+                {/* 顶部指示条 */}
+                <div className="h-1 w-full bg-primary rounded-t-sm"></div>
+                
+                <div className="p-10 lg:p-14">
+                  {/* 标题区域 */}
+                  <div className="flex items-start justify-between mb-8 gap-4">
+                    <div className="flex gap-4 items-center">
+                      <div className="w-14 h-14 bg-surface-container-low border border-outline-variant/20 flex items-center justify-center rounded-sm text-secondary flex-shrink-0">
+                        <Terminal className="w-6 h-6" />
                       </div>
-                    ) : (
-                      <p className="italic text-secondary">Awaiting framework selection.</p>
-                    )
+                      <div>
+                        <h2 className="font-headline text-3xl font-bold text-on-background leading-tight">
+                          {activeTab === "main" ? mainName : subName}
+                        </h2>
+                        <p className="text-[10px] font-bold tracking-[0.2em] uppercase text-secondary mt-2">
+                          {activeTab === "main" ? "MAIN SKILL" : "SUB SKILL"}
+                        </p>
+                      </div>
+                    </div>
+                    {/* 右上角的虚化文字修饰 */}
+                    <div className="text-4xl font-headline font-black text-outline-variant/10 select-none">
+                      {activeTab === "main" ? "#MS" : "#SS"}
+                    </div>
+                  </div>
+
+                  {activeTab === "main" && selectedMain ? (
+                    // ================== Main Skill 视图 ==================
+                    <div className="space-y-10">
+                      {mainDescription && (
+                        <div>
+                          <SectionHeader title="Skill Summary" />
+                          <div className="font-headline text-xl text-on-background leading-relaxed border-l-4 border-primary pl-5 py-1">
+                            "{mainDescription}"
+                          </div>
+                        </div>
+                      )}
+
+                      {mainApplicability && (
+                        <div>
+                          <SectionHeader title="When to Use" />
+                          <div className="bg-surface-container-low p-6 rounded-sm text-sm text-secondary leading-relaxed border border-outline-variant/10">
+                            {mainApplicability}
+                          </div>
+                        </div>
+                      )}
+
+                      {mainMethodProgram && (
+                        <div>
+                          <SectionHeader title="Method Program" />
+                          <div className="bg-surface-container-low p-6 rounded-sm text-sm text-secondary leading-relaxed border border-outline-variant/10">
+                            {mainMethodProgram}
+                          </div>
+                        </div>
+                      )}
+
+                      {mainCoreSteps.length > 0 && (
+                        <div>
+                          <SectionHeader title="Execution Skeleton" />
+                          <ExecutionSkeletonList steps={mainCoreSteps} />
+                        </div>
+                      )}
+
+                      {mainPatternFlow.length > 0 && (
+                        <div>
+                          <SectionHeader title="Pattern Flow" />
+                          <div className="flex flex-wrap items-center gap-2">
+                            {mainPatternFlow.map((flowItem, idx) => (
+                              <React.Fragment key={idx}>
+                                <span className="bg-[#2b2b2b] text-white px-3 py-2 rounded-sm text-[10px] font-bold uppercase tracking-widest">
+                                  {String(flowItem)}
+                                </span>
+                                {idx < mainPatternFlow.length - 1 && (
+                                  <span className="text-outline-variant">
+                                    <ChevronRight className="w-4 h-4" />
+                                  </span>
+                                )}
+                              </React.Fragment>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ) : activeTab === "sub" && selectedSubSkills[selectedSubSkillIndex] ? (
+                    // ================== Sub Skill 视图 ==================
+                    <div className="space-y-10">
+                      {subDescription && (
+                        <div>
+                          <SectionHeader title="Skill Summary" />
+                          <div className="font-headline text-xl text-on-background leading-relaxed border-l-4 border-primary pl-5 py-1">
+                            "{subDescription}"
+                          </div>
+                        </div>
+                      )}
+
+                      {subMethodProgram && (
+                        <div>
+                          <SectionHeader title="Method Program" />
+                          <div className="bg-surface-container-low p-6 rounded-sm text-sm text-secondary leading-relaxed border border-outline-variant/10">
+                            {subMethodProgram}
+                          </div>
+                        </div>
+                      )}
+
+                      {subActionChain.length > 0 && (
+                        <div>
+                          <SectionHeader title="Execution Skeleton" />
+                          <ExecutionSkeletonList steps={subActionChain} />
+                        </div>
+                      )}
+                    </div>
                   ) : (
-                    selectedSubSkills[selectedSubSkillIndex] ? (
-                      <div className="bg-surface-container-low/50 p-8 rounded-sm border border-outline-variant/10 font-body text-sm leading-relaxed text-secondary italic">
-                        {selectedSubMarkdown[selectedSubSkillIndex]?.markdown ? String(selectedSubMarkdown[selectedSubSkillIndex].markdown) : "Parsing sub-competency..."}
-                      </div>
-                    ) : (
-                      <p className="italic text-secondary">Awaiting sub-skill identification.</p>
-                    )
+                    // ================== 兜底空状态 ==================
+                    <p className="italic text-secondary py-10">Awaiting selection...</p>
                   )}
-                </div>
-
-                <div className="pt-8 mt-12 flex items-center justify-between border-t border-outline-variant/10">
-                  <span className="text-[10px] font-mono text-outline-variant uppercase tracking-widest">Stability: v2.4.0-STABLE</span>
-                  <button className="flex items-center gap-2 text-primary font-label text-[10px] uppercase tracking-widest font-bold hover:underline group">
-                    <Download className="w-4 h-4 transition-transform group-hover:translate-y-0.5" /> Export Module
-                  </button>
+                  
+                  <div className="pt-8 mt-12 flex items-center justify-between border-t border-outline-variant/10">
+                    <span className="text-[10px] font-mono text-outline-variant uppercase tracking-widest">Source: Extracted Core</span>
+                    <button className="flex items-center gap-2 text-primary font-label text-[10px] uppercase tracking-widest font-bold hover:underline group">
+                      <Download className="w-4 h-4 transition-transform group-hover:translate-y-0.5" /> Export Data
+                    </button>
+                  </div>
                 </div>
               </motion.div>
             </AnimatePresence>
@@ -266,4 +382,3 @@ export default function MethodologyView({
     </div>
   );
 }
-
