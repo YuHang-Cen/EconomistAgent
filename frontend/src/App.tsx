@@ -17,6 +17,7 @@ import {
   mapApiErrorToUi,
   pollJob,
   reloadDocument,
+  updateAuthor,
   uploadAuthorAvatar,
   uploadDocumentFile,
 } from "./api";
@@ -92,6 +93,7 @@ export default function App() {
   const [creatingAuthor, setCreatingAuthor] = useState(false);
   const [deletingAuthorId, setDeletingAuthorId] = useState<string | null>(null);
   const [avatarUploadingAuthorId, setAvatarUploadingAuthorId] = useState<string | null>(null);
+  const [renameSavingAuthorId, setRenameSavingAuthorId] = useState<string | null>(null);
   const [uploadingDocument, setUploadingDocument] = useState(false);
   const [reloadingDocumentId, setReloadingDocumentId] = useState<string | null>(null);
   const [globalError, setGlobalError] = useState<string | null>(null);
@@ -369,6 +371,19 @@ export default function App() {
     }
   };
 
+  const handleRenameAuthor = async (authorId: string, authorName: string) => {
+    try {
+      setRenameSavingAuthorId(authorId);
+      await updateAuthor(authorId, { authorName });
+      await refreshAuthors();
+    } catch (error) {
+      handleError(error);
+      throw error;
+    } finally {
+      setRenameSavingAuthorId(null);
+    }
+  };
+
   const handleUploadDocument = async (payload: { authorId: string; bookTitle: string; file: File }) => {
     try {
       setUploadingDocument(true);
@@ -606,9 +621,11 @@ export default function App() {
                     reloadingDocumentId={reloadingDocumentId}
                     deletingAuthor={deletingAuthorId === author.authorId}
                     avatarUploading={avatarUploadingAuthorId === author.authorId}
+                    renameSaving={renameSavingAuthorId === author.authorId}
                     onReloadDocument={(documentId) => handleReloadDocument(author.authorId, documentId)}
                     onDeleteAuthor={() => handleDeleteAuthor(author.authorId)}
                     onUploadAvatar={(file) => handleUploadAvatar(author.authorId, file)}
+                    onRenameAuthor={(authorName) => handleRenameAuthor(author.authorId, authorName)}
                   />
                 ))}
               </section>

@@ -9,6 +9,7 @@ from app.domain.schemas import (
     AuthorCreateRequest,
     AuthorDocumentUploadRequest,
     AuthorDocumentUploadResponse,
+    AuthorUpdateRequest,
     AuthorResponse,
     ReloadJobResponse,
     build_success_response,
@@ -44,6 +45,17 @@ def delete_author(
     """Delete author and related data."""
     result = author_service.delete_author(author_id=author_id)
     return build_success_response(request_id=request_id, data=result)
+
+
+@router.patch("/authors/{author_id}")
+def update_author(
+    author_id: str,
+    payload: AuthorUpdateRequest,
+    request_id: Annotated[str, Depends(get_request_id)],
+) -> dict[str, Any]:
+    """Update author display fields."""
+    author = author_service.update_author(author_id=author_id, payload=payload)
+    return build_success_response(request_id=request_id, data=author.model_dump(by_alias=True))
 
 
 @router.post("/authors/{author_id}/documents")

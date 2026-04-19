@@ -75,6 +75,12 @@ class AuthorCreateRequest(CamelModel):
     avatar_url: str | None = Field(default=None, max_length=512)
 
 
+class AuthorUpdateRequest(CamelModel):
+    """Update author request body."""
+
+    author_name: str = Field(min_length=1, max_length=255)
+
+
 class AuthorResponse(CamelModel):
     """作者返回体。"""
 

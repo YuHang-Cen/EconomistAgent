@@ -26,6 +26,16 @@ export function createAuthor(input: {
   });
 }
 
+export function updateAuthor(
+  authorId: string,
+  input: { authorName: string }
+): Promise<AuthorVM> {
+  return apiRequest<AuthorVM>(`/authors/${authorId}`, {
+    method: "PATCH",
+    body: JSON.stringify(input),
+  });
+}
+
 export async function uploadAuthorAvatar(input: {
   authorId: string;
   file: File;

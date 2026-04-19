@@ -6,6 +6,7 @@ import logging
 import uuid
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import Any
 
 from app.domain.enums import JobStatus
 from app.domain.models import (
@@ -20,6 +21,7 @@ from app.domain.schemas import (
     AuthorCreateRequest,
     AuthorDocumentResponse,
     AuthorDocumentUploadRequest,
+    AuthorUpdateRequest,
     AuthorResponse,
 )
 from app.infra import storage
@@ -178,6 +180,16 @@ def _create_document_with_reload_job(author_id: str, book_title: str, pdf_uri: s
     return {"document_id": document_id, "reload_job_id": str(job["jobId"])}
 
 
+def _count_manuscripts_by_author(session: Any, author_id: str) -> int:
+    return int(
+        session.execute(
+            select(func.count(AuthorDocument.document_id)).where(
+                AuthorDocument.author_id == author_id
+            )
+        ).scalar_one()
+    )
+
+
 def create_author(payload: AuthorCreateRequest) -> AuthorResponse:
     """Create an author record."""
     now = _now_iso()
@@ -198,6 +210,33 @@ def create_author(payload: AuthorCreateRequest) -> AuthorResponse:
         school=author.school,
         avatar_url=author.avatar_url,
         manuscripts_count=0,
+    )
+
+
+def update_author(author_id: str, payload: AuthorUpdateRequest) -> AuthorResponse:
+    """Update author name and persist manifest."""
+    author_name = payload.author_name.strip()
+    if not author_name:
+        raise HTTPException(status_code=422, detail="author name must not be empty")
+
+    with session_scope() as session:
+        author = session.get(Author, author_id)
+        if author is None:
+            raise HTTPException(status_code=404, detail="author not found")
+        author.author_name = author_name
+        author.updated_at = _now_iso()
+        session.flush()
+        manifest_data = _author_manifest(author)
+        manuscripts_count = _count_manuscripts_by_author(session=session, author_id=author_id)
+
+    _write_author_manifest_payload(author_id=author_id, payload=manifest_data)
+
+    return AuthorResponse(
+        author_id=str(manifest_data["author_id"]),
+        author_name=str(manifest_data["author_name"]),
+        school=str(manifest_data["school"]) if manifest_data["school"] is not None else None,
+        avatar_url=str(manifest_data["avatar_url"]) if manifest_data["avatar_url"] else None,
+        manuscripts_count=manuscripts_count,
     )
 
 
@@ -323,13 +362,7 @@ def upload_author_avatar(
         author.updated_at = _now_iso()
         session.flush()
         manifest_data = _author_manifest(author)
-        manuscripts_count = int(
-            session.execute(
-                select(func.count(AuthorDocument.document_id)).where(
-                    AuthorDocument.author_id == author_id
-                )
-            ).scalar_one()
-        )
+        manuscripts_count = _count_manuscripts_by_author(session=session, author_id=author_id)
 
     _write_author_manifest_payload(author_id=author_id, payload=manifest_data)
 
