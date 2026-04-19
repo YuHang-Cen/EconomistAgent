@@ -1,4 +1,4 @@
-import { CheckCircle2, ChevronDown, Sparkles } from "lucide-react";
+import { CheckCircle2, ChevronDown, ChevronRight, Sparkles } from "lucide-react";
 import { motion } from "motion/react";
 import type { AnswerVM, Author, Job } from "../types";
 
@@ -26,86 +26,146 @@ export default function AnalysisView({
   onGenerate,
 }: AnalysisViewProps) {
   if (selectedAnswer) {
+    // 获取当前作者名称
+    const authorDisplayName = authors.find(a => a.authorId === selectedAuthorId)?.authorName || "Unknown Author";
+
     return (
       <main className="flex-grow bg-surface overflow-y-auto custom-scrollbar">
-        <div className="px-12 py-12">
+        <div className="px-12 py-12 max-w-6xl mx-auto">
+          {/* 顶部导航 */}
           <nav className="mb-12">
             <ol className="flex items-center gap-2 font-label text-[10px] tracking-[0.2em] text-secondary font-semibold uppercase">
               <li>Analysis</li>
-              <li className="text-outline-variant opacity-50">/</li>
+              <li><ChevronRight className="w-3 h-3 text-outline-variant opacity-50" /></li>
+              <li>{authorDisplayName}</li>
+              <li><ChevronRight className="w-3 h-3 text-outline-variant opacity-50" /></li>
               <li className="text-primary">{selectedAnswer.answer.topic || "Answer"}</li>
             </ol>
           </nav>
 
-          <header className="mb-16">
-            <h1 className="font-headline text-5xl font-bold text-on-surface mb-8 tracking-tight leading-[1.1]">
+          {/* 标题与元数据 */}
+          <header className="mb-12">
+            <h1 className="font-headline text-5xl lg:text-[3.5rem] font-bold text-on-surface mb-12 tracking-tight leading-[1.15]">
               {selectedAnswer.answer.title || "Generated Answer"}
             </h1>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6 border-t border-outline-variant/10">
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pb-6 border-b border-outline-variant/10">
               <div>
-                <span className="block font-label text-[10px] uppercase tracking-widest text-outline-variant mb-2">Topic</span>
+                <span className="block font-label text-[9px] uppercase tracking-widest text-outline-variant mb-2">Author</span>
+                <span className="font-body text-sm font-semibold text-on-surface">
+                  {authorDisplayName}
+                </span>
+              </div>
+              <div>
+                <span className="block font-label text-[9px] uppercase tracking-widest text-outline-variant mb-2">Topic</span>
                 <span className="font-body text-sm font-semibold text-on-surface">
                   {selectedAnswer.answer.topic}
                 </span>
               </div>
               <div>
-                <span className="block font-label text-[10px] uppercase tracking-widest text-outline-variant mb-2">Selection Mode</span>
+                <span className="block font-label text-[9px] uppercase tracking-widest text-outline-variant mb-2">Job Status</span>
                 <span className="font-body text-sm font-semibold text-on-surface">
-                  {selectedAnswer.selectionMode}
-                </span>
-              </div>
-              <div>
-                <span className="block font-label text-[10px] uppercase tracking-widest text-outline-variant mb-2">Job Status</span>
-                <span className="font-body text-sm font-semibold text-on-surface">
-                  {selectedJob?.status || "success"}
+                  {selectedJob?.status || "SUCCESS"}
                 </span>
               </div>
             </div>
           </header>
 
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-10 bg-surface-container-low border-l-4 border-primary p-8 rounded-sm editorial-shadow">
-            <span className="block font-label text-[10px] uppercase tracking-widest text-primary mb-3 font-bold">
-              Research Query
+          {/* Research Inquiry */}
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-12 bg-surface-container-lowest border-l-[3px] border-outline-variant/30 pl-6 py-2">
+            <span className="block font-label text-[10px] uppercase tracking-widest text-secondary mb-3 font-bold">
+              Research Inquiry
             </span>
-            <p className="font-headline text-2xl italic text-on-background leading-relaxed">
+            <p className="font-headline text-2xl italic text-on-surface/80 leading-relaxed">
               "{selectedAnswer.query}"
             </p>
           </motion.div>
 
           {selectedAnswer.selectionWarning && (
             <div className="mb-8 p-4 bg-amber-50 border border-amber-300 rounded-sm text-sm text-amber-800">
-              fallback 声明: {selectedAnswer.selectionWarning}
+              Fallback Warning: {selectedAnswer.selectionWarning}
             </div>
           )}
 
-          <article className="prose prose-slate max-w-none">
-            <p className="font-body text-lg text-secondary leading-relaxed whitespace-pre-wrap">
-              {selectedAnswer.answer.summary}
-            </p>
-            <pre className="mt-8 p-6 bg-surface-container-low rounded-sm whitespace-pre-wrap text-sm font-body">
-              {selectedAnswer.answer.markdown}
-            </pre>
+          {/* Answer Summary 卡片 */}
+          {selectedAnswer.answer.summary && (
+            <div className="mb-12 bg-surface-container-low p-8 rounded-sm editorial-shadow">
+              <span className="block font-label text-[10px] uppercase tracking-widest text-primary mb-4 font-bold">
+                Answer Summary
+              </span>
+              <p className="font-body text-lg text-secondary leading-relaxed">
+                {selectedAnswer.answer.summary}
+              </p>
+            </div>
+          )}
+
+          {/* 正文解析 (Markdown) */}
+          <article className="prose prose-slate max-w-none mb-20">
+            {selectedAnswer.answer.markdown.split(/\n+/).map((block, i) => {
+              const text = block.trim();
+              if (!text) return null;
+              
+              // 标题处理
+              if (text.startsWith('#')) {
+                const headingText = text.replace(/^#+\s*/, '');
+                return (
+                  <h2 key={i} className="font-headline text-3xl font-bold text-on-surface mt-14 mb-6 leading-snug">
+                    {headingText}
+                  </h2>
+                );
+              }
+              
+              // 普通段落处理
+              return (
+                <p key={i} className="font-body text-[1.1rem] text-secondary leading-[1.8] mb-6">
+                  {text}
+                </p>
+              );
+            })}
           </article>
 
-          <section className="mt-16 pt-8 border-t border-outline-variant/10">
-            <h3 className="font-label text-xs font-bold uppercase tracking-[0.2em] text-primary mb-4">
-              Methodological Footprint
-            </h3>
-            <div className="space-y-3 text-sm">
-              <div>
-                <span className="font-semibold">Main Skill:</span>{" "}
-                {selectedAnswer.selectedMainSkillName || "-"}
+          {/* Methodological Footprint */}
+          <section className="pt-10 border-t border-outline-variant/15">
+            <div className="flex items-center gap-2 mb-8">
+              <Sparkles className="w-4 h-4 text-secondary" />
+              <h3 className="font-label text-xs font-bold uppercase tracking-[0.2em] text-secondary">
+                Methodological Footprint
+              </h3>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
+              {/* Main Skill */}
+              <div className="md:col-span-4">
+                <span className="block font-label text-[9px] uppercase tracking-widest text-outline-variant mb-3">
+                  Main Skill
+                </span>
+                <div className="bg-surface-container-low p-5 rounded-sm border border-outline-variant/10">
+                  <div className="font-headline text-lg font-bold text-on-surface mb-2">
+                    {selectedAnswer.selectedMainSkillName || "Unspecified Framework"}
+                  </div>
+                  <div className="font-label text-[9px] uppercase tracking-widest text-outline-variant">
+                    Main Skill Applied
+                  </div>
+                </div>
               </div>
-              <div>
-                <span className="font-semibold">Sub Skills:</span>{" "}
-                {selectedAnswer.selectedSubSkillNames.length > 0
-                  ? selectedAnswer.selectedSubSkillNames.join(", ")
-                  : "-"}
-              </div>
-              <div>
-                <span className="font-semibold">Selected Section:</span>{" "}
-                {selectedAnswer.selectedSectionId || "-"} (index:{" "}
-                {selectedAnswer.selectedSkillIndex ?? "-"})
+
+              {/* Sub Skills */}
+              <div className="md:col-span-8">
+                <span className="block font-label text-[9px] uppercase tracking-widest text-outline-variant mb-3">
+                  Sub Skills
+                </span>
+                <div className="flex flex-wrap gap-3">
+                  {selectedAnswer.selectedSubSkillNames.length > 0 ? (
+                    selectedAnswer.selectedSubSkillNames.map((skill, idx) => (
+                      <span key={idx} className="flex items-center gap-2 bg-surface-container-low px-4 py-2.5 rounded-sm border border-outline-variant/10">
+                        <span className="w-1.5 h-1.5 rounded-full bg-outline-variant/40"></span>
+                        <span className="font-body text-xs text-secondary">{skill}</span>
+                      </span>
+                    ))
+                  ) : (
+                    <span className="text-sm text-outline-variant italic mt-2">No sub skills recorded.</span>
+                  )}
+                </div>
               </div>
             </div>
           </section>
@@ -114,6 +174,7 @@ export default function AnalysisView({
     );
   }
 
+  // 以下为生成页面默认态
   return (
     <main className="flex-grow bg-surface overflow-y-auto custom-scrollbar">
       <div className="px-12 py-12">
