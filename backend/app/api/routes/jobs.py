@@ -100,3 +100,14 @@ def cancel_job(job_id: str, request_id: Annotated[str, Depends(get_request_id)])
     """执行任务取消骨架接口。"""
     job = job_service.cancel_job(job_id=job_id)
     return build_success_response(request_id=request_id, data=job)
+
+
+@router.delete("/authors/{author_id}/jobs/answer/{job_id}")
+def delete_author_answer_job(
+    author_id: str,
+    job_id: str,
+    request_id: Annotated[str, Depends(get_request_id)],
+) -> dict[str, Any]:
+    """Delete one author_answer job history item."""
+    result = job_service.delete_author_answer_job(author_id=author_id, job_id=job_id)
+    return build_success_response(request_id=request_id, data=result)

@@ -53,6 +53,14 @@ def answer_root(author_id: str, job_id: str) -> Path:
     return path
 
 
+def delete_answer_root(author_id: str, job_id: str) -> None:
+    """Delete one answer artifact directory if it exists."""
+    path = author_root(author_id) / "answers" / job_id
+    if not path.exists():
+        return
+    shutil.rmtree(path)
+
+
 def delete_author_root(author_id: str) -> None:
     """Delete the author storage directory if it exists."""
     path = author_root(author_id)

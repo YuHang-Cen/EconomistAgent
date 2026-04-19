@@ -5,6 +5,7 @@ import {
   createAuthor,
   createSkillsJob,
   deleteMainSkillSection,
+  deleteAuthorAnswerJob,
   deleteAuthor,
   deleteChapter,
   deleteSegment,
@@ -122,6 +123,7 @@ export default function App() {
   const [answersByJob, setAnswersByJob] = useState<Record<string, AnswerVM>>({});
   const [answerQuery, setAnswerQuery] = useState("");
   const [answerCreating, setAnswerCreating] = useState(false);
+  const [deletingAnswerJobId, setDeletingAnswerJobId] = useState<string | null>(null);
 
   const currentSegmentAuthor = useMemo(
     () => authors.find((item) => item.authorId === selectedSegmentAuthorId) || null,
@@ -592,6 +594,32 @@ export default function App() {
     }
   };
 
+  const handleDeleteAnswerHistory = async (jobId: string) => {
+    const resolvedAuthorId =
+      Object.entries(analysisHistoryByAuthor).find(([, jobs]) =>
+        jobs.some((job) => job.jobId === jobId)
+      )?.[0] || selectedAnalysisAuthorId;
+    if (!resolvedAuthorId) return;
+
+    try {
+      setDeletingAnswerJobId(jobId);
+      await deleteAuthorAnswerJob(resolvedAuthorId, jobId);
+      setAnswersByJob((prev) => {
+        const next = { ...prev };
+        delete next[jobId];
+        return next;
+      });
+      if (selectedAnswerJobId === jobId) {
+        setSelectedAnswerJobId(null);
+      }
+      await ensureAnalysisHistory(resolvedAuthorId, true);
+    } catch (error) {
+      handleError(error);
+    } finally {
+      setDeletingAnswerJobId(null);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background text-on-background font-body flex flex-col">
       <Navbar activeTab={activeTab} onTabChange={setActiveTab} onSettingsOpen={() => setSettingsOpen(true)} />
@@ -729,11 +757,13 @@ export default function App() {
               authors={authors}
               selectedAuthorId={selectedAnalysisAuthorId}
               selectedJobId={selectedAnswerJobId}
+              deletingJobId={deletingAnswerJobId}
               historyByAuthor={analysisHistoryByAuthor}
               loadingByAuthor={analysisLoadingByAuthor}
               onExpandAuthor={(authorId) => ensureAnalysisHistory(authorId).catch(handleError)}
               onSelectAuthor={(authorId) => setSelectedAnalysisAuthorId(authorId)}
               onSelectJob={(jobId) => handleSelectAnswerJob(jobId).catch(handleError)}
+              onDeleteJob={handleDeleteAnswerHistory}
               onNewAnalysis={() => setSelectedAnswerJobId(null)}
             />
             <AnalysisView

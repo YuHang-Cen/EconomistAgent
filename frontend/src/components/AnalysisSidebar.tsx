@@ -1,4 +1,4 @@
-import { ChevronDown, ChevronRight, PanelLeftClose, PanelLeftOpen, Plus } from "lucide-react";
+import { ChevronDown, ChevronRight, PanelLeftClose, PanelLeftOpen, Plus, Trash2 } from "lucide-react";
 import { motion } from "motion/react";
 import { useState } from "react";
 import type { Author, Job } from "../types";
@@ -7,11 +7,13 @@ interface AnalysisSidebarProps {
   authors: Author[];
   selectedAuthorId: string | null;
   selectedJobId: string | null;
+  deletingJobId: string | null;
   historyByAuthor: Record<string, Job[]>;
   loadingByAuthor: Record<string, boolean>;
   onExpandAuthor: (authorId: string) => void;
   onSelectAuthor: (authorId: string) => void;
   onSelectJob: (jobId: string) => void;
+  onDeleteJob: (jobId: string) => Promise<void> | void;
   onNewAnalysis: () => void;
 }
 
@@ -19,11 +21,13 @@ export default function AnalysisSidebar({
   authors,
   selectedAuthorId,
   selectedJobId,
+  deletingJobId,
   historyByAuthor,
   loadingByAuthor,
   onExpandAuthor,
   onSelectAuthor,
   onSelectJob,
+  onDeleteJob,
   onNewAnalysis,
 }: AnalysisSidebarProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -83,6 +87,7 @@ export default function AnalysisSidebar({
               const jobs = historyByAuthor[authorId] || [];
               const loading = !!loadingByAuthor[authorId];
               const expanded = expandedAuthors.has(authorId);
+
               return (
                 <div key={authorId} className="group">
                   <div
@@ -125,22 +130,43 @@ export default function AnalysisSidebar({
                       {!loading && jobs.length === 0 && (
                         <div className="text-xs text-secondary italic px-2 py-1">No analysis jobs yet.</div>
                       )}
-                      {jobs.map((item) => (
-                        <div
-                          key={item.jobId}
-                          onClick={() => onSelectJob(item.jobId)}
-                          className={`group/item flex items-center justify-between p-2 rounded-sm cursor-pointer transition-all ${
-                            selectedJobId === item.jobId
-                              ? "border-l-2 border-primary bg-primary/5 text-primary font-medium"
-                              : "hover:bg-surface-container-highest text-secondary"
-                          }`}
-                        >
-                          <span className="font-body text-sm truncate pr-4">
-                            {(item.query || "Untitled query").slice(0, 48)}
-                          </span>
-                          <span className="text-[10px] uppercase tracking-wider">{item.status}</span>
-                        </div>
-                      ))}
+                      {jobs.map((item) => {
+                        const deleting = deletingJobId === item.jobId;
+                        return (
+                          <div
+                            key={item.jobId}
+                            onClick={() => onSelectJob(item.jobId)}
+                            className={`group/item flex items-center justify-between p-2 rounded-sm cursor-pointer transition-all ${
+                              selectedJobId === item.jobId
+                                ? "border-l-2 border-primary bg-primary/5 text-primary font-medium"
+                                : "hover:bg-surface-container-highest text-secondary"
+                            }`}
+                          >
+                            <span className="font-body text-sm truncate pr-4">
+                              {(item.query || "Untitled query").slice(0, 48)}
+                            </span>
+                            <div className="flex items-center gap-2">
+                              <span className="text-[10px] uppercase tracking-wider">{item.status}</span>
+                              <button
+                                onClick={async (event) => {
+                                  event.stopPropagation();
+                                  if (deleting) return;
+                                  await onDeleteJob(item.jobId);
+                                }}
+                                disabled={deleting}
+                                className={`p-1 rounded-sm transition-all flex-shrink-0 ${
+                                  selectedJobId === item.jobId
+                                    ? "text-primary hover:text-red-500 hover:bg-red-50"
+                                    : "text-outline-variant/50 hover:text-red-500 hover:bg-red-50 opacity-0 group-hover/item:opacity-100"
+                                } ${deleting ? "opacity-60 cursor-not-allowed" : ""}`}
+                                title={deleting ? "Deleting..." : "Delete Job"}
+                              >
+                                <Trash2 className={`w-[14px] h-[14px] ${deleting ? "animate-pulse" : ""}`} />
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
                   )}
                 </div>

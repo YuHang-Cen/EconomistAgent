@@ -183,6 +183,18 @@ export function createAnswerJob(input: {
   });
 }
 
+export function deleteAuthorAnswerJob(
+  authorId: string,
+  jobId: string
+): Promise<{ deleted: true; authorId: string; jobId: string }> {
+  return apiRequest<{ deleted: true; authorId: string; jobId: string }>(
+    `/authors/${authorId}/jobs/answer/${jobId}`,
+    {
+      method: "DELETE",
+    }
+  );
+}
+
 export function listAuthorJobs(input: {
   authorId: string;
   jobType?: string;

@@ -420,6 +420,37 @@ def cancel_job(job_id: str) -> dict[str, Any]:
         return _serialize_job(job)
 
 
+def delete_author_answer_job(author_id: str, job_id: str) -> dict[str, Any]:
+    """Delete one terminal author_answer job and its answer artifacts."""
+    with session_scope() as session:
+        author = session.get(Author, author_id)
+        if author is None:
+            raise HTTPException(status_code=404, detail="author not found")
+
+        job = session.get(PipelineJob, job_id)
+        if (
+            job is None
+            or job.author_id != author_id
+            or job.job_type != JobType.AUTHOR_ANSWER.value
+        ):
+            raise HTTPException(status_code=404, detail="job not found")
+
+        if job.status in {JobStatus.QUEUED.value, JobStatus.RUNNING.value}:
+            raise HTTPException(
+                status_code=409,
+                detail="job is not deletable while queued/running",
+            )
+
+        try:
+            storage.delete_answer_root(author_id=author_id, job_id=job_id)
+        except OSError as exc:
+            raise HTTPException(status_code=500, detail=f"failed to delete answer artifacts: {exc}") from exc
+
+        session.delete(job)
+
+    return {"deleted": True, "authorId": author_id, "jobId": job_id}
+
+
 def list_author_jobs(
     author_id: str,
     job_type: str | None = None,
