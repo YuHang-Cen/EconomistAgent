@@ -193,7 +193,12 @@ export default function App() {
   );
 
   const syncSegmentView = useCallback(
-    async (authorId: string, documentId: string, preferredChapterId?: string | null) => {
+    async (
+      authorId: string, 
+      documentId: string, 
+      preferredChapterId?: string | null,
+      shouldResetHistory = true // 1. 增加此控制参数，默认为开启重置
+    ) => {
       const chapters = await listChapters(authorId, documentId);
       setChaptersByDocument((prev) => ({ ...prev, [documentId]: chapters }));
       const chapterId =
@@ -203,12 +208,15 @@ export default function App() {
       setSelectedSegmentChapterId(chapterId);
       if (!chapterId) {
         setSegments([]);
-        resetSegmentHistory(chapters, []);
+        if (shouldResetHistory) resetSegmentHistory(chapters, []); // 2. 只有需要时才重置
         return;
       }
       const nextSegments = await listSegments(authorId, documentId, chapterId);
       setSegments(nextSegments);
-      resetSegmentHistory(chapters, nextSegments);
+      // 3. 核心修改：如果是由于删除操作触发的同步，我们不希望历史记录被抹除
+      if (shouldResetHistory) {
+        resetSegmentHistory(chapters, nextSegments);
+      }
     },
     [resetSegmentHistory]
   );
@@ -430,7 +438,7 @@ export default function App() {
     } catch (error) {
       handleError(error);
     } finally {
-      await syncSegmentView(authorId, documentId, nextChapterId).catch(handleError);
+      await syncSegmentView(authorId, documentId, nextChapterId, false).catch(handleError);
     }
   };
 
@@ -449,7 +457,8 @@ export default function App() {
       await syncSegmentView(
         selectedSegmentAuthorId,
         selectedSegmentDocumentId,
-        selectedSegmentChapterId
+        selectedSegmentChapterId,
+        false
       ).catch(handleError);
     }
   };

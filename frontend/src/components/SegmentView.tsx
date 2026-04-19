@@ -79,7 +79,7 @@ export default function SegmentView({
 
           <section className="bg-surface-container-low p-8 rounded-sm editorial-shadow">
             <h3 className="text-xs font-bold uppercase tracking-widest text-secondary mb-6">Segment Metrics</h3>
-            <div className="space-y-4 mb-8">
+            <div className="space-y-4">
               <div className="flex justify-between items-center text-sm">
                 <span className="text-secondary">Total Segments</span>
                 <span className="font-semibold">{segments.length} blocks</span>
@@ -91,13 +91,6 @@ export default function SegmentView({
                 </span>
               </div>
             </div>
-            <button
-              onClick={onRefresh}
-              className="w-full border border-primary/20 text-primary py-3 rounded-sm text-sm font-bold hover:bg-primary/5 transition-all flex items-center justify-center gap-2"
-            >
-              <RefreshCw className="w-4 h-4" />
-              Refresh Segment
-            </button>
           </section>
         </div>
 
