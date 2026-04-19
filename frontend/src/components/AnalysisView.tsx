@@ -14,6 +14,13 @@ interface AnalysisViewProps {
   onGenerate: () => Promise<void> | void;
 }
 
+function formatGenerateDate(value: string | null | undefined): string {
+  if (!value) return "-";
+  const parsed = Date.parse(value);
+  if (Number.isNaN(parsed)) return value;
+  return new Date(parsed).toLocaleString();
+}
+
 export default function AnalysisView({
   authors,
   selectedAuthorId,
@@ -26,6 +33,9 @@ export default function AnalysisView({
   onGenerate,
 }: AnalysisViewProps) {
   if (selectedAnswer) {
+    const generateDateValue = formatGenerateDate(
+      selectedAnswer.generatedAt ?? selectedJob?.finishedAt ?? null
+    );
     // 获取当前作者名称
     const authorDisplayName = authors.find(a => a.authorId === selectedAuthorId)?.authorName || "Unknown Author";
 
@@ -63,9 +73,9 @@ export default function AnalysisView({
                 </span>
               </div>
               <div>
-                <span className="block font-label text-[9px] uppercase tracking-widest text-outline-variant mb-2">Job Status</span>
+                <span className="block font-label text-[9px] uppercase tracking-widest text-outline-variant mb-2">Generate Date</span>
                 <span className="font-body text-sm font-semibold text-on-surface">
-                  {selectedJob?.status || "SUCCESS"}
+                  {generateDateValue}
                 </span>
               </div>
             </div>

@@ -660,11 +660,13 @@ def run_author_answer(session: Session, job: PipelineJob) -> None:
             selected=selection,
             snapshot_outputs=snapshot_outputs,
         )
+    generated_at = _now_iso()
+    answer_json["generated_at"] = generated_at
 
     outputs = _store_answer_artifact(
         author_id=job.author_id, job_id=job.job_id, answer_json=answer_json
     )
-    now = _now_iso()
+    now = generated_at
     job.snapshot_id = latest_snapshot.snapshot_id
     job.outputs_json = json.dumps(outputs)
     job.status = JobStatus.SUCCESS.value

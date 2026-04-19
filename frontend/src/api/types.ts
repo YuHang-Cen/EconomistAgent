@@ -97,6 +97,7 @@ export interface OutputContentVM {
 
 export interface AnswerVM {
   query: string;
+  generatedAt: string | null;
   selectedSkillIndex: number | null;
   selectedSectionId: string | null;
   selectedMainSkillName: string | null;

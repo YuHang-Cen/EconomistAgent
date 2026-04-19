@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Callable
+from datetime import datetime
 from typing import Any
 
 from fastapi.testclient import TestClient
@@ -144,6 +145,10 @@ def test_author_answer_job_generates_answer_json(
     assert isinstance(answer_output.get("selected_sub_skill_names"), list)
     assert answer_output.get("selection_mode") in {"llm", "fallback_rule"}
     assert "answer" in answer_output
+    generated_at = answer_output.get("generated_at")
+    assert isinstance(generated_at, str)
+    assert generated_at.strip()
+    datetime.fromisoformat(generated_at)
 
 
 def test_outputs_type_validation_and_not_found(

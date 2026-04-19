@@ -8,6 +8,12 @@ function asString(value: unknown): string | null {
   return typeof value === "string" && value.trim() ? value : null;
 }
 
+function asIsoDatetime(value: unknown): string | null {
+  const text = asString(value);
+  if (!text) return null;
+  return Number.isNaN(Date.parse(text)) ? null : text;
+}
+
 export function parseMainSkillsMdJson(content: unknown): Array<Record<string, unknown>> {
   if (!Array.isArray(content)) {
     throw new Error("main_skills_md_json is not an array");
@@ -50,6 +56,7 @@ export function parseAnswerJson(content: unknown): AnswerVM {
 
   return {
     query: asString(content.query) || "",
+    generatedAt: asIsoDatetime(content.generatedAt ?? content.generated_at),
     selectedSkillIndex:
       typeof (content.selectedSkillIndex ?? content.selected_skill_index) === "number"
         ? (content.selectedSkillIndex ?? content.selected_skill_index) as number
