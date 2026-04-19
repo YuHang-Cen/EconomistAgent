@@ -185,19 +185,15 @@ def _load_snapshot_skill_payloads(
 
 
 def _load_generated_section_history(session: Session, author_id: str) -> set[str]:
-    snapshots = session.execute(
-        select(AuthorSkillSnapshot)
-        .where(AuthorSkillSnapshot.author_id == author_id)
-        .order_by(AuthorSkillSnapshot.created_at.asc())
-    ).scalars()
-
+    latest_snapshot = _load_latest_snapshot(session=session, author_id=author_id)
+    if latest_snapshot is None:
+        return set()
     generated: set[str] = set()
-    for snapshot in snapshots:
-        main_skills, _sub_skills = _load_snapshot_skill_payloads(snapshot)
-        for item in main_skills:
-            section_id = str(item.get("section_id", "")).strip()
-            if section_id:
-                generated.add(section_id)
+    main_skills, _sub_skills = _load_snapshot_skill_payloads(latest_snapshot)
+    for item in main_skills:
+        section_id = str(item.get("section_id", "")).strip()
+        if section_id:
+            generated.add(section_id)
     return generated
 
 

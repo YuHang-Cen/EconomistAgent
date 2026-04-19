@@ -157,6 +157,18 @@ export function createSkillsJob(
   });
 }
 
+export function deleteMainSkillSection(
+  authorId: string,
+  sectionId: string
+): Promise<{ deleted: true; authorId: string; sectionId: string }> {
+  return apiRequest<{ deleted: true; authorId: string; sectionId: string }>(
+    `/authors/${authorId}/skills/sections/${encodeURIComponent(sectionId)}`,
+    {
+      method: "DELETE",
+    }
+  );
+}
+
 export function createAnswerJob(input: {
   authorId: string;
   query: string;

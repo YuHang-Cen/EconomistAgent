@@ -1,6 +1,6 @@
-import { ChevronRight, Download, Sparkles, Terminal } from "lucide-react";
+import { ChevronRight, Download, Sparkles, Terminal, Trash2 } from "lucide-react";
 import type { Author, Job } from "../types";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 
 interface SkillOutputs {
@@ -15,8 +15,10 @@ interface MethodologyViewProps {
   runningJob: Job | null;
   outputs: SkillOutputs | null;
   generating: boolean;
+  deletingSectionId: string | null;
   onGenerate: () => Promise<void> | void;
   onRefresh: () => Promise<void> | void;
+  onDeleteMainSkill: (sectionId: string) => Promise<void> | void;
 }
 
 function readMainSkills(outputs: SkillOutputs | null): Array<Record<string, unknown>> {
@@ -34,8 +36,10 @@ export default function MethodologyView({
   runningJob,
   outputs,
   generating,
+  deletingSectionId,
   onGenerate,
   onRefresh,
+  onDeleteMainSkill,
 }: MethodologyViewProps) {
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"main" | "sub">("main");
@@ -61,6 +65,22 @@ export default function MethodologyView({
   const selectedSubMarkdown = selectedSection
     ? outputs?.subSkillsMdJson.filter((item) => String(item.section_id || "") === selectedSection)
     : [];
+
+  useEffect(() => {
+    if (!selectedSectionId) return;
+    const stillExists = mainSkills.some(
+      (item) => String(item.section_id || "") === selectedSectionId
+    );
+    if (stillExists) return;
+    const fallback = mainSkills[0];
+    const fallbackSectionId =
+      fallback && fallback.section_id !== undefined && fallback.section_id !== null
+        ? String(fallback.section_id)
+        : null;
+    setSelectedSectionId(fallbackSectionId);
+    setActiveTab("main");
+    setSelectedSubSkillIndex(0);
+  }, [mainSkills, selectedSectionId]);
 
   return (
     <div className="flex-grow bg-background p-8 lg:p-12 overflow-y-auto custom-scrollbar">
@@ -111,9 +131,10 @@ export default function MethodologyView({
                   const pattern = (skill.pattern_summary || {}) as Record<string, unknown>;
                   const name = String(pattern.name || skill.section_title || `main_${index + 1}`);
                   const isActive = selectedSection === sectionId && activeTab === "main";
+                  const deleting = deletingSectionId === sectionId;
 
                   return (
-                    <motion.button
+                    <motion.div
                       key={sectionId}
                       whileHover={{ x: 4 }}
                       whileTap={{ scale: 0.98 }}
@@ -122,14 +143,32 @@ export default function MethodologyView({
                         setActiveTab("main");
                         setSelectedSubSkillIndex(0);
                       }}
-                      className={`w-full text-left p-5 rounded-sm transition-all border-l-4 editorial-shadow ${
+                      className={`w-full flex items-center justify-between cursor-pointer text-left p-5 rounded-sm transition-all border-l-4 editorial-shadow group ${
                         isActive
                           ? "bg-white border-primary shadow-lg"
                           : "bg-surface-container-low border-transparent hover:bg-white text-secondary hover:text-on-background"
                       }`}
                     >
-                      <div className="font-headline text-lg font-bold leading-tight">{name}</div>
-                    </motion.button>
+                      <div className="font-headline text-lg font-bold leading-tight pr-4">{name}</div>
+                      
+                      {/* 删除按钮 */}
+                      <button
+                        onClick={async (e) => {
+                          e.stopPropagation();
+                          if (deleting) return;
+                          await onDeleteMainSkill(sectionId);
+                        }}
+                        disabled={deleting}
+                        className={`p-2 rounded-sm transition-all flex-shrink-0 ${
+                          isActive
+                            ? "text-outline-variant hover:text-red-500 hover:bg-red-50"
+                            : "text-transparent group-hover:text-outline-variant hover:!text-red-500 hover:!bg-red-50"
+                        } ${deleting ? "opacity-60 cursor-not-allowed" : ""}`}
+                        title={deleting ? "Deleting..." : "Delete Main Skill"}
+                      >
+                        <Trash2 className={`w-[18px] h-[18px] ${deleting ? "animate-pulse" : ""}`} />
+                      </button>
+                    </motion.div>
                   );
                 })}
               </div>
@@ -227,3 +266,4 @@ export default function MethodologyView({
     </div>
   );
 }
+

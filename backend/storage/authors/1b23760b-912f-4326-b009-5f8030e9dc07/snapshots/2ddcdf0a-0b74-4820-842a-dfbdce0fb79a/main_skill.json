@@ -1,0 +1,116 @@
+{
+  "main_skills": [
+    {
+      "section_id": "ca255b4c-8b32-4901-8b8e-453c2f7f1776",
+      "main_skill_id": "main_skill_001",
+      "section_title": "One: The Abandoned Road",
+      "pattern_summary": {
+        "name": "Historical-Causal Analysis of Ideational Reversal",
+        "description": "A method that diagnoses systemic crises by tracing the historical development of core ideas, identifying a critical error or reversal in their application, and evaluating the resulting consequences against original principles.",
+        "applicability": "Use this method to explain the emergence of systemic crises, intellectual declines, or societal reversals rooted in ideas. First, identify a present problematic outcome. Then, trace the historical lineage of the governing idea or principle. Next, pinpoint where the idea's application became rigid, was abandoned, or its direction reversed. Finally, connect this ideational shift to the observed negative outcomes, contrasting the original and corrupted states.",
+        "core_steps": [
+          "Establish the original principle or evaluative baseline of a system.",
+          "Trace the historical development and transmission of the core idea.",
+          "Identify a critical error, rigidification, or reversal in the application of the principle.",
+          "Contrast the original state with the corrupted or opposing state.",
+          "Connect the identified ideational shift to the observed systemic outcomes or crisis."
+        ],
+        "pattern_flow": [
+          "Define the present crisis or problematic outcome",
+          "Establish the original intellectual principles",
+          "Trace historical development and transmission paths",
+          "Identify the point of reversal or critical error",
+          "Contrast original and subsequent states",
+          "Link ideational shift to systemic consequences"
+        ],
+        "chapter_method_summary": "First, define the present systemic crisis or reversal as the outcome to be explained. Establish the original intellectual principles or societal self-perception that formed the system's baseline. Trace the historical development, evolution, and geographical transmission of these core ideas. Identify the precise point where a fundamental error occurred, the principle was rigidly misapplied, or its direction was reversed. Contrast this corrupted state with the original principles to highlight the deviation. Finally, causally connect this ideational shift to the emergence of the observed negative outcomes, thereby explaining how the crisis originated from within the system's intellectual framework."
+      },
+      "signal_summary": {
+        "perspective": {
+          "value": "Macro Analysis",
+          "notes": "Consistently applied across all chunks, focusing on large-scale societal and intellectual systems."
+        },
+        "nature": {
+          "value": "Mixed",
+          "notes": "Shifts between normative evaluation and positive analysis, but maintains a consistent critical stance."
+        },
+        "time_orientation": {
+          "value": "Historical Analysis",
+          "notes": "Stable and dominant across all analysis, using historical tracing as the primary temporal mode."
+        },
+        "system_scope": {
+          "value": "Open System",
+          "notes": "Predominantly open, acknowledging external influences and transmission, with one early instance of a closed view."
+        },
+        "equilibrium_view": {
+          "value": "Process Analysis",
+          "notes": "Consistently views systems as dynamic processes of change and reversal after an initial disequilibrium focus."
+        },
+        "logic": {
+          "value": [
+            "Historical Reasoning",
+            "Causal Reasoning"
+          ],
+          "notes": "These two types are consistently dominant and paired, with comparative reasoning appearing as a secondary, reinforcing tool."
+        }
+      },
+      "confidence": 0.85
+    },
+    {
+      "section_id": "dfd3f457-6469-4d71-a875-ff1213ea364e",
+      "main_skill_id": "main_skill_002",
+      "section_title": "Fourteen: Material Conditions and Ideal Ends",
+      "pattern_summary": {
+        "name": "Structural Dilemma Analysis through Conceptual Contrast",
+        "description": "A method that diagnoses societal or economic problems by identifying a core structural or conceptual dilemma, contrasting opposing principles or states, and tracing their logical consequences to explain systemic outcomes.",
+        "applicability": "Use this method to analyze persistent societal failures, economic stagnation, or ideological conflicts where a fundamental tension between opposing principles (e.g., market vs. control, traditional vs. collectivist values) is suspected. To apply it, first define the core dilemma, then logically deduce the consequences of adhering to each principle, and finally connect these consequences to the observed negative outcomes to diagnose the root cause and necessary reversal.",
+        "core_steps": [
+          "Identify the core structural dilemma or conceptual confusion at the heart of the societal problem.",
+          "Contrast the opposing principles, values, or systems of coordination involved (e.g., impersonal markets vs. conscious control, traditional virtues vs. collectivist morality).",
+          "Trace the logical, causal, or historical consequences that flow from adopting each principle.",
+          "Connect the negative consequences of the dominant but flawed principle to the observed systemic failure or crisis.",
+          "Argue for the necessity of reversing course by reaffirming the correct principle to resolve the dilemma."
+        ],
+        "pattern_flow": [
+          "Problem Identification and Core Dilemma Definition",
+          "Conceptual Contrast of Opposing Principles",
+          "Consequence Tracing and Causal Deduction",
+          "Diagnosis of Systemic Failure",
+          "Prescription of Corrective Reversal"
+        ],
+        "chapter_method_summary": "First, identify the central societal or economic problem and define the fundamental structural dilemma or conceptual confusion causing it. Then, clearly contrast the two opposing principles or systems of social coordination involved. Next, trace the logical, causal, or historical consequences that necessarily follow from adhering to each principle. Subsequently, connect the negative consequences of the currently dominant but flawed principle to the specific observed failures, diagnosing the root of the crisis. Finally, argue that resolving the problem requires a reversal—reaffirming and returning to the correct, historically validated principle."
+      },
+      "signal_summary": {
+        "perspective": {
+          "value": "Macro Analysis",
+          "notes": "Consistently stable across all chunks, focusing on societal and systemic-level analysis."
+        },
+        "nature": {
+          "value": "Normative",
+          "notes": "Predominantly normative, with one chunk shifting to positive analysis for a specific logical deduction."
+        },
+        "time_orientation": {
+          "value": "Static Analysis",
+          "notes": "Primarily static, with occasional shifts to dynamic or historical analysis for tracing consequences or decline."
+        },
+        "system_scope": {
+          "value": "Closed System",
+          "notes": "Consistently treats the societal or economic system as closed for the purpose of internal logical deduction."
+        },
+        "equilibrium_view": {
+          "value": "Disequilibrium Analysis",
+          "notes": "Overwhelmingly views systems as being in or moving toward crisis, with one instance of equilibrium analysis for contrasting ideal states."
+        },
+        "logic": {
+          "value": [
+            "Causal Reasoning",
+            "Comparative Reasoning",
+            "Conceptual Classification Reasoning"
+          ],
+          "notes": "A stable combination of these three reasoning types, with causal and comparative being most frequent, and conceptual classification intensifying in later chunks."
+        }
+      },
+      "confidence": 0.85
+    }
+  ]
+}

@@ -355,7 +355,7 @@ def test_incremental_skills_generation_and_no_remaining_reuses_latest_snapshot(
         assert job.snapshot_id == snapshot3.snapshot_id
 
 
-def test_trim_by_max_confidence_and_keep_history_scope(monkeypatch: object) -> None:
+def test_trim_by_max_confidence_and_latest_snapshot_scope(monkeypatch: object) -> None:
     author_id = str(uuid4())
     _seed_author_with_sections(author_id=author_id, section_count=4)
     counters = _install_incremental_fakes(monkeypatch, batch_size=2, max_main_skills=2)
@@ -386,6 +386,9 @@ def test_trim_by_max_confidence_and_keep_history_scope(monkeypatch: object) -> N
     _execute_skills_once(author_id)
     snapshot3 = _latest_snapshot(author_id)
     assert snapshot3 is not None
-    assert snapshot3.snapshot_id == previous_snapshot_id
-    assert _snapshot_count(author_id) == 2
-    assert counters == {"analyze": 2, "main": 2, "sub": 2, "render": 2}
+    assert snapshot3.snapshot_id != previous_snapshot_id
+    assert _snapshot_count(author_id) == 3
+    main3 = _read_main_skills(snapshot3)
+    sections3 = {str(item.get("section_id", "")) for item in main3 if isinstance(item, dict)}
+    assert sections3 == {"section-03", "section-04"}
+    assert counters == {"analyze": 3, "main": 3, "sub": 3, "render": 3}

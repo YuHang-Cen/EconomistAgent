@@ -32,7 +32,7 @@ Based on `raw_pattern_chain`:
 - Extract the **core methodological essence** of the chapter (`description`)
 - Specify **what types of problems this method is suitable for**, and MUST describe **how to use the method to answer such problems** (`applicability`)
 - Derive **3–6 core steps** (`core_steps`)
-- Construct a **method flow structure** that reflects sequential progression (`pattern_flow`)
+- Construct a method flow structure as an ordered list of discrete strings, where each string represents a single stage of the sequential progression (pattern_flow). Do not use arrows or concatenate them into a single string.
 - Generate a **coherent paragraph summarizing the full reasoning procedure** (`chapter_method_summary`)
 - MUST use a **procedure-style expression** (instructional), not a descriptive summary of the author or chapter
 

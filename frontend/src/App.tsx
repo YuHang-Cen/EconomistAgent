@@ -4,6 +4,7 @@ import {
   createAnswerJob,
   createAuthor,
   createSkillsJob,
+  deleteMainSkillSection,
   deleteAuthor,
   deleteChapter,
   deleteSegment,
@@ -112,6 +113,7 @@ export default function App() {
   const [methodologyRunningJob, setMethodologyRunningJob] = useState<Job | null>(null);
   const [methodologyOutputs, setMethodologyOutputs] = useState<SkillOutputs | null>(null);
   const [methodologyGenerating, setMethodologyGenerating] = useState(false);
+  const [methodologyDeletingSectionId, setMethodologyDeletingSectionId] = useState<string | null>(null);
 
   const [selectedAnalysisAuthorId, setSelectedAnalysisAuthorId] = useState<string | null>(null);
   const [analysisHistoryByAuthor, setAnalysisHistoryByAuthor] = useState<Record<string, Job[]>>({});
@@ -548,6 +550,19 @@ export default function App() {
     await loadLatestSkills(selectedMethodologyAuthorId).catch(handleError);
   };
 
+  const handleDeleteMethodologySection = async (sectionId: string) => {
+    if (!selectedMethodologyAuthorId || !sectionId.trim()) return;
+    try {
+      setMethodologyDeletingSectionId(sectionId);
+      await deleteMainSkillSection(selectedMethodologyAuthorId, sectionId);
+      await loadLatestSkills(selectedMethodologyAuthorId);
+    } catch (error) {
+      handleError(error);
+    } finally {
+      setMethodologyDeletingSectionId(null);
+    }
+  };
+
   const handleSelectAnswerJob = async (jobId: string) => {
     setSelectedAnswerJobId(jobId);
     if (answersByJob[jobId]) return;
@@ -702,8 +717,10 @@ export default function App() {
               runningJob={methodologyRunningJob}
               outputs={methodologyOutputs}
               generating={methodologyGenerating}
+              deletingSectionId={methodologyDeletingSectionId}
               onGenerate={handleGenerateSkills}
               onRefresh={handleRefreshMethodology}
+              onDeleteMainSkill={handleDeleteMethodologySection}
             />
           </div>
         ) : activeTab === "answer" ? (
