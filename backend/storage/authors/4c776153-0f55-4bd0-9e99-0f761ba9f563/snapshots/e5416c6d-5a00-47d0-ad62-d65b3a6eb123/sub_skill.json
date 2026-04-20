@@ -1,0 +1,157 @@
+{
+  "sub_skills": [
+    {
+      "name": "Causal Derivation under Controlled Conditions",
+      "description": "This method is used when analyzing the causal relationship between variables that are known to be influenced by complex, multi-factorial systems. It is appropriate when the goal is to derive a clear directional link for theoretical explanation or policy analysis, despite underlying complexity.",
+      "abstract_action_chain": [
+        "Acknowledge systemic complexity and identify key variables of interest.",
+        "Establish a controlled analytical frame that isolates stable conditions for the relationship.",
+        "Derive the causal mechanism by linking variables through psychological or conventional determinants.",
+        "Concretize the derived relationship with a simplified illustration.",
+        "Extend the causal logic to explain broader systemic behaviors or constraints."
+      ],
+      "method_program_summary": "Begin by recognizing that the target variables exist within a complex system with multiple influencing factors. To enable analysis, define a specific scenario or time horizon where extraneous factors can be treated as stable, creating a controlled frame. Within this frame, identify the core psychological, institutional, or conventional drivers that connect the variables, and logically deduce the direction of causality based on incentives and risks. To solidify understanding, construct a simplified hypothetical example that manifests the causal link. Finally, apply the derived causal mechanism to explain persistent real-world phenomena, systemic obstacles, or policy implications beyond the initial controlled frame.",
+      "section_id": "50ff70fc-4eb1-46ac-836d-495eff4d92da",
+      "main_skill_id": "main_skill_001",
+      "normalized_pattern": "Causal Derivation",
+      "source_chunk_ids": [
+        3
+      ],
+      "method_program_example": "The method begins by acknowledging that a variable (V, then M2) is not inherently constant but depends on multiple institutional and behavioral factors. It then introduces a controlled analytical frame—a short period or a given state of expectation—under which these factors can be treated as stable, allowing the variable to be analyzed as near-constant or predictably related to another. The core causal derivation proceeds by identifying the psychological and conventional mechanisms (liquidity preference, expectations of a 'safe' rate) that link the variables. This is supported by logical deduction about how changes in one variable (r) affect incentives and risks, thereby influencing the other (M2). The derived relationship is then illustrated with a numerical example to concretize the logic. Finally, the analysis extends the derived causal link to explain broader systemic phenomena (obstacles to low interest rates, policy effectiveness) and persistent disequilibria (chronically high interest rates)."
+    },
+    {
+      "name": "Theoretical Framework Comparison",
+      "description": "This method is used when an existing theoretical explanation is insufficient or its conclusions are questionable. It is triggered by the need to challenge a dominant theory by revealing its foundational limitations and demonstrating the explanatory superiority of an alternative analytical structure.",
+      "abstract_action_chain": [
+        "Isolate and articulate a core proposition from the target theory.",
+        "Deconstruct the proposition to expose its underlying, often implicit, simplifying assumptions.",
+        "Construct an alternative analytical framework based on a different or expanded set of premises.",
+        "Systematically contrast the logical outcomes and empirical applicability of the two frameworks to demonstrate the alternative's explanatory advantages."
+      ],
+      "method_program_summary": "Begin by selecting a specific, consequential claim from the established theory. Critically examine this claim to identify and make explicit the foundational assumptions that enable its conclusion, highlighting their simplifying or restrictive nature. Then, propose a counter-framework built upon a revised or more comprehensive set of premises that address the limitations of the original. Finally, conduct a comparative analysis, deriving the logical implications and real-world predictions from each framework to clearly show how the alternative framework provides a more robust or accurate explanation of the phenomenon in question.",
+      "section_id": "50ff70fc-4eb1-46ac-836d-495eff4d92da",
+      "main_skill_id": "main_skill_001",
+      "normalized_pattern": "Comparative Analysis",
+      "source_chunk_ids": [
+        5
+      ],
+      "method_program_example": "The method begins by isolating a specific theoretical claim (e.g., the self-adjusting nature of the economy via wage flexibility). It then dissects the claim to reveal its foundational, often unstated, assumptions (e.g., no propensity to hoard, constant velocity of money, full employment). Following this, the author introduces his own analytical method, built on a different set of premises (e.g., accounting for liquidity preference, uncertainty, and aggregate demand). Finally, he systematically compares the conclusions derived from both analytical structures, highlighting how the inclusion of omitted factors in his framework leads to fundamentally different predictions and policy implications regarding phenomena like wage changes and interest rates."
+    },
+    {
+      "name": "Analytical Decomposition of Complex Concepts",
+      "description": "This method is used when analyzing a complex, aggregate concept or phenomenon to understand its internal structure, causal mechanisms, and system behavior. It is appropriate when the concept's overall behavior emerges from distinct, interacting components that respond differently to external variables.",
+      "abstract_action_chain": [
+        "Decompose the aggregate concept into its core constituent components or channels",
+        "Define the distinct functional relationships and determinants governing each component",
+        "Analyze and compare the differential responsiveness of components to key variables",
+        "Trace systemic interactions to identify critical transmission mechanisms or equilibrium adjustments"
+      ],
+      "method_program_summary": "Begin by establishing the aggregate concept as the central subject of analysis. Systematically decompose it into its fundamental constituent parts, such as distinct motives, channels, or functional components. For each component, define its purpose and the specific variables or functions that determine its behavior. Proceed to analyze and compare how the different components respond to changes in key external variables, identifying which are sensitive to specific factors. Finally, synthesize this understanding by tracing how changes propagate through the defined relationships between components, revealing the primary transmission mechanisms within the system or the process by which a new equilibrium is established.",
+      "section_id": "50ff70fc-4eb1-46ac-836d-495eff4d92da",
+      "main_skill_id": "main_skill_001",
+      "normalized_pattern": "Concept Decomposition",
+      "source_chunk_ids": [
+        1,
+        2
+      ],
+      "method_program_example": "The method begins by establishing liquidity-preference as the central concept, equivalent to the demand for money. It then decomposes this aggregate demand into four constituent motives: the transactions-motive (further split into income and business sub-motives), the precautionary-motive, and the speculative-motive. For each motive, the analysis examines its purpose and primary determinants, such as income levels or the reliability of borrowing. A key comparative step follows, distinguishing the motives that are primarily responsive to income and general economic activity from the speculative-motive, which is shown to have a continuous, sensitive relationship to the rate of interest. This differential analysis culminates in identifying the speculative-motive as the crucial channel through which monetary management influences the economic system."
+    },
+    {
+      "name": "Mechanism Analysis with Practical Qualification",
+      "description": "This method is used when a theoretical causal mechanism is known or hypothesized, but its real-world operation needs to be understood by examining how institutional practices, behavioral constraints, and boundary conditions modify or limit its effect.",
+      "abstract_action_chain": [
+        "Establish the core theoretical mechanism or causal relationship.",
+        "Identify and analyze the practical factors (institutional, behavioral, or structural) that qualify or constrain the mechanism's operation.",
+        "Illustrate or test the qualified mechanism against empirical cases or historical examples to define its effective boundaries."
+      ],
+      "method_program_summary": "Begin by clearly positing the direct theoretical mechanism or causal relationship under investigation. Next, systematically examine the real-world factors that modify this mechanism, focusing on institutional habits, behavioral limits, or structural constraints that alter its expected operation. Finally, ground the analysis by applying the qualified mechanism to specific historical instances or empirical cases, using them to demonstrate its practical function and to define the conditions under which it holds or breaks down.",
+      "section_id": "50ff70fc-4eb1-46ac-836d-495eff4d92da",
+      "main_skill_id": "main_skill_001",
+      "normalized_pattern": "Mechanism Analysis",
+      "source_chunk_ids": [
+        4
+      ],
+      "method_program_example": "The analysis begins by positing a direct theoretical mechanism: the monetary authority, by setting the terms on which it deals in debts, can determine a complex of interest rates. It then systematically examines how this mechanism is qualified in practice by the authority's own institutional habits—such as concentrating on short-term debts—and by potential behavioral limits like absolute liquidity preference. Finally, it grounds the argument by referencing historical instances (e.g., post-WWI Europe, the US in 1932) that demonstrate the mechanism's breakdown under extreme conditions, thereby defining the boundaries of its effective operation."
+    },
+    {
+      "name": "Multi-Channel Causal Net Effect Assessment",
+      "description": "This method is used when evaluating a policy intervention, economic shock, or systemic change where multiple causal pathways operate simultaneously, often with offsetting or reinforcing effects, and a determination of the net outcome is required.",
+      "abstract_action_chain": [
+        "Enumerate the primary causal repercussions or channels triggered by the focal event.",
+        "Analyze the directional impact of each repercussion on key target variables, conditional on relevant system states.",
+        "Identify interactions between channels as reinforcing, offsetting, or independent.",
+        "Synthesize the channel impacts to weigh the probable net effect, highlighting dominant forces."
+      ],
+      "method_program_summary": "Begin by systematically listing the major causal repercussions or transmission channels that follow from the initiating event. For each identified channel, analyze its directional effect (positive, negative, or neutral) on the ultimate target variables of interest, making explicit any conditional dependencies (e.g., system openness, institutional context). Next, map the interactions between these channels, determining whether they reinforce, offset, or operate independently of one another. Finally, synthesize this causal map to assess the probable net outcome, reasoning through which forces are likely dominant under the given conditions to arrive at a balanced conclusion.",
+      "section_id": "c1a8617d-e611-4846-a3ec-13f098b042f0",
+      "main_skill_id": "main_skill_002",
+      "normalized_pattern": "Causal Derivation",
+      "source_chunk_ids": [
+        7
+      ],
+      "method_program_example": "The method begins by listing the major possible repercussions of a policy intervention (wage reduction). For each repercussion, the author derives its directional causal impact on ultimate target variables like employment, distinguishing the analysis by the system's openness to trade. The author then examines how these separate causal channels interact, noting where effects are reinforcing or offsetting. Finally, the reasoning synthesizes these derived effects to assess the net probable outcome, often by identifying which forces are likely dominant under specified conditions."
+    },
+    {
+      "name": "Comparative Policy Analysis",
+      "description": "Use this method when you need to evaluate two or more alternative policy instruments or interventions that aim to achieve similar economic or social objectives, particularly when theoretical equivalence exists but practical implementation differs.",
+      "abstract_action_chain": [
+        "Identify and define the alternative policy instruments or mechanisms under consideration.",
+        "Establish their theoretical equivalence or relationship under idealized conditions.",
+        "Introduce and analyze real-world institutional, practical, and systemic constraints that differentiate them.",
+        "Compare the alternatives across dimensions of feasibility, stability, and secondary effects.",
+        "Derive a normative conclusion regarding the superior policy based on the comparative evaluation."
+      ],
+      "method_program_summary": "Begin by clearly defining the alternative policy levers or mechanisms that could be used to influence the target outcome. First, analyze how these alternatives are theoretically equivalent or related in their core causal mechanism under simplified, ideal conditions. Next, systematically introduce the relevant real-world constraints—such as institutional structures, administrative practicality, social norms, or systemic stability requirements—that break this theoretical equivalence. Proceed to compare the policy options across multiple evaluative dimensions, including ease of implementation, distributional consequences, impact on systemic confidence, and adaptability to different contexts. Finally, synthesize this comparative analysis to arrive at a reasoned judgment about which policy is most advisable, balancing theoretical soundness against practical feasibility and secondary effects.",
+      "section_id": "c1a8617d-e611-4846-a3ec-13f098b042f0",
+      "main_skill_id": "main_skill_002",
+      "normalized_pattern": "Comparative Analysis",
+      "source_chunk_ids": [
+        8,
+        9
+      ],
+      "method_program_example": "The analysis begins by identifying two potential policy levers for influencing effective demand and employment: flexible money-wages and flexible money supply. It first establishes their theoretical equivalence in affecting the rate of interest via the wage-unit. Then, it systematically introduces real-world institutional constraints—such as decentralized wage bargaining, social justice considerations, and administrative practicality—that break this equivalence. The method proceeds by comparing the two policies along multiple dimensions: ease of implementation, distributional fairness, and impact on confidence. This comparative constraint analysis leads to the conclusion that a flexible money policy is superior to a flexible wage policy, despite their analytical similarity."
+    },
+    {
+      "name": "Conceptual Structure Analysis",
+      "description": "This method is used when a theoretical concept, definition, or formal system is presented as an explanation for a phenomenon, but its explanatory power or logical coherence is in question. It is triggered by the need to critically evaluate the internal consistency of a conceptual framework or its ability to account for observed dynamics.",
+      "abstract_action_chain": [
+        "Reconstruct the formal or definitional structure of the target concept or theory.",
+        "Analyze the internal logic and dynamic properties of the reconstructed system.",
+        "Identify a mismatch, logical gap, or hidden assumption within the structure.",
+        "Trace the implications of this identified flaw for the theory's explanatory scope.",
+        "Contrast the limited conceptual construct with the omitted or alternative causal factors required to explain the phenomenon."
+      ],
+      "method_program_summary": "To apply this method, first formally reconstruct the target theory by clarifying its key definitions, equations, and implicit assumptions. Next, analyze the logical structure and inherent behavioral properties (e.g., stability, variability) of this reconstructed system. Identify any critical gaps, such as insufficient equations for unknowns, or a structural incapacity to generate the dynamics the theory purports to explain. Expose the hidden assumptions required to close these gaps. Then, systematically trace the necessary implications and limitations these assumptions impose on the theory's explanatory power. Finally, contrast the theory's constrained conceptual framework with the volatile, omitted factors that are necessary for a complete account of the observed phenomenon.",
+      "section_id": "c1a8617d-e611-4846-a3ec-13f098b042f0",
+      "main_skill_id": "main_skill_002",
+      "normalized_pattern": "Concept Decomposition",
+      "source_chunk_ids": [
+        10,
+        12
+      ],
+      "method_program_example": "The analysis begins by systematically reconstructing Pigou's theoretical framework: defining his key categories (wage-goods/non-wage-goods industries), formalizing his equations (x+y=φ(x), n=χ(x)), and clarifying his implicit assumptions (marginal wage-cost equals marginal prime cost). It then identifies a critical logical problem: the system has three unknowns but only two equations. The author deduces that Pigou must be implicitly assuming n=x+y to resolve this, which is shown to be equivalent to assuming no involuntary unemployment. This hidden assumption is then traced to its necessary implications: that demand for non-wage-goods must adjust automatically to preserve full employment, which in turn requires a specific behavior of the interest rate. Finally, the author evaluates the theory's resulting limitations, concluding it can only describe variations under full employment conditions, not explain actual employment levels or involuntary unemployment."
+    },
+    {
+      "name": "Comparative Conceptual Analysis",
+      "description": "This method is used when evaluating competing theoretical explanations for a complex systemic phenomenon, particularly when one view appears plausible in isolation but fails to account for aggregate interdependencies. It is triggered by the need to expose hidden assumptions and demonstrate the logical insufficiency of an opposing argument within a broader theoretical framework.",
+      "abstract_action_chain": [
+        "Reconstruct and formalize the logical structure of the opposing argument",
+        "Identify and isolate its critical hidden assumption regarding systemic aggregates",
+        "Decompose the core problem into direct (partial equilibrium) and indirect (general equilibrium) causal pathways",
+        "Apply one's own theoretical framework to evaluate the direct effect deductively",
+        "Conduct a constrained thought experiment under conditions most favorable to the opposing view",
+        "Trace the logical repercussions through key systemic variables to demonstrate insufficiency"
+      ],
+      "method_program_summary": "To execute this comparative analysis, first clarify the opposing theory's reasoning pattern, often by identifying an analogical extension from a micro-level case to the whole system. The central analytical move is to pinpoint the invalid transfer, which typically hinges on an unstated assumption of fixed aggregate conditions. Structure the problem by separating it into direct effects (holding key aggregates constant) and indirect effects (via repercussions on those aggregates). Evaluate the direct effect by applying your own established theoretical principles, which often yield a deductive result showing no change if aggregates are held fixed. To solidify the critique, perform a constrained thought experiment: assume the most favorable initial conditions for the opposing view and then logically trace the sequence of events through the interconnected variables of your systemic framework. This tracing demonstrates that the proposed causal link is incomplete and sustainable only if specific conditions within your framework are met, thereby revealing the argument's dependence on the very aggregate effects it overlooks.",
+      "section_id": "c1a8617d-e611-4846-a3ec-13f098b042f0",
+      "main_skill_id": "main_skill_002",
+      "normalized_pattern": "Conceptual Comparison",
+      "source_chunk_ids": [
+        6
+      ],
+      "method_program_example": "The method begins by clarifying the opposing (classical) theory's reasoning pattern: it constructs a demand schedule for labor in a single industry and then analogically extends this to the economy as a whole. The author's core analytical move is to identify the invalid transfer, which hinges on the unstated assumption of fixed aggregate effective demand. Having established this as the point of contention, the author then applies his own method. He first structures the problem by separating the question into two parts: the direct effect (holding key aggregates constant) and the indirect effects (via repercussions on those aggregates). He answers the first part deductively by invoking his previously established theoretical result that employment is uniquely determined by effective demand, which cannot change if the key aggregates are unchanged. To further solidify the critique, he then engages in a constrained thought experiment: he assumes the most favorable scenario for the classical view (entrepreneurs initially expect higher profits) and logically traces the sequence of events through the system. This tracing demonstrates that increased employment can only be sustained if specific conditions within his framework (regarding the propensity to consume and investment) are met, thereby showing that the crude causal link (lower wages -> lower costs -> more employment) is incomplete and dependent on the very aggregate effects the classical theory overlooks."
+    }
+  ],
+  "model_name": "deepseek-chat",
+  "api_base": "https://api.deepseek.com"
+}
