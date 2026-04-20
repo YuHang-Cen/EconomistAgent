@@ -59,6 +59,11 @@ def test_rebuild_db_from_storage_recovers_author_document_segments_and_skills(
 
     skills_job_id = client.post(f"/api/authors/{author_id}/jobs/skills").json()["data"]["jobId"]
     _wait_job_status(client=client, job_id=skills_job_id, expected="success")
+    recovered_answer_job_id = client.post(
+        f"/api/authors/{author_id}/jobs/answer",
+        json={"query": "answer should be recoverable"},
+    ).json()["data"]["jobId"]
+    _wait_job_status(client=client, job_id=recovered_answer_job_id, expected="success")
 
     # Manifests should exist in storage.
     author_meta_path = storage.author_root(author_id=author_id) / "author_meta.json"
@@ -125,6 +130,21 @@ def test_rebuild_db_from_storage_recovers_author_document_segments_and_skills(
     )
     assert recovered_main_skill_output.status_code == 200
     assert isinstance(recovered_main_skill_output.json()["data"]["content"], dict)
+
+    recovered_answer_jobs_resp = client.get(
+        f"/api/authors/{author_id}/jobs",
+        params={"jobType": "author_answer", "status": "success", "limit": 50},
+    )
+    assert recovered_answer_jobs_resp.status_code == 200
+    recovered_answer_jobs = recovered_answer_jobs_resp.json()["data"]["items"]
+    assert any(item["jobId"] == recovered_answer_job_id for item in recovered_answer_jobs)
+
+    recovered_answer_output = client.get(
+        f"/api/jobs/{recovered_answer_job_id}/outputs/answer_json"
+    )
+    assert recovered_answer_output.status_code == 200
+    recovered_answer_content = recovered_answer_output.json()["data"]["content"]
+    assert recovered_answer_content.get("query") == "answer should be recoverable"
 
     # Answer should succeed using rebuilt latest snapshot.
     answer_job_id = client.post(

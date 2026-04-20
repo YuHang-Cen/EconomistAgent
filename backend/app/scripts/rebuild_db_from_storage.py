@@ -60,6 +60,20 @@ def _recovered_skills_job_id(author_id: str, snapshot_id: str) -> str:
     return str(uuid.uuid5(uuid.NAMESPACE_URL, seed))
 
 
+def _pick_answer_generated_at(answer_json: dict[str, Any], fallback: str) -> str:
+    generated_at = answer_json.get("generated_at")
+    if isinstance(generated_at, str) and generated_at.strip():
+        candidate = generated_at.strip()
+        if _parse_iso(candidate) is not None:
+            return candidate
+    generated_at_camel = answer_json.get("generatedAt")
+    if isinstance(generated_at_camel, str) and generated_at_camel.strip():
+        candidate = generated_at_camel.strip()
+        if _parse_iso(candidate) is not None:
+            return candidate
+    return fallback
+
+
 @dataclass(frozen=True)
 class RebuildSummary:
     authors: int
@@ -331,6 +345,12 @@ def rebuild_from_storage(storage_root: Path) -> RebuildSummary:
                     PipelineJob.job_type == JobType.AUTHOR_SKILLS.value,
                 )
             )
+            session.execute(
+                delete(PipelineJob).where(
+                    PipelineJob.author_id == author_id,
+                    PipelineJob.job_type == JobType.AUTHOR_ANSWER.value,
+                )
+            )
 
             if snapshot_records:
                 snapshot_records.sort(
@@ -370,6 +390,65 @@ def rebuild_from_storage(storage_root: Path) -> RebuildSummary:
                         )
                     )
                     created_snapshots += 1
+
+            # Rebuild author_answer jobs from answers/<job_id>/answer.json artifacts.
+            answers_dir = author_dir / "answers"
+            if answers_dir.exists():
+                for answer_job_dir in sorted([p for p in answers_dir.iterdir() if p.is_dir()]):
+                    answer_job_id = answer_job_dir.name
+                    if not answer_job_id or len(answer_job_id) > 64:
+                        warnings.append(
+                            f"invalid answer job directory name for author_id={author_id}: {answer_job_id}"
+                        )
+                        continue
+
+                    answer_json_path = answer_job_dir / "answer.json"
+                    if not answer_json_path.exists():
+                        warnings.append(
+                            f"missing answer.json for author_id={author_id}, job_id={answer_job_id}"
+                        )
+                        continue
+
+                    answer_json = _safe_load_json(answer_json_path)
+                    if not isinstance(answer_json, dict):
+                        warnings.append(
+                            f"invalid answer.json for author_id={author_id}, job_id={answer_job_id}"
+                        )
+                        continue
+
+                    created_at_text = _pick_answer_generated_at(
+                        answer_json=answer_json,
+                        fallback=datetime.fromtimestamp(
+                            answer_json_path.stat().st_mtime, tz=UTC
+                        ).isoformat(),
+                    )
+                    query = answer_json.get("query")
+                    query_text = query.strip() if isinstance(query, str) else None
+                    outputs = {
+                        OutputType.ANSWER_JSON.value: _to_storage_uri(
+                            answer_json_path,
+                            storage_root=storage_root,
+                        )
+                    }
+                    session.add(
+                        PipelineJob(
+                            job_id=answer_job_id,
+                            author_id=author_id,
+                            document_id=None,
+                            job_type=JobType.AUTHOR_ANSWER.value,
+                            status=JobStatus.SUCCESS.value,
+                            current_stage=Stage.ANSWER.value,
+                            progress=100,
+                            query=query_text,
+                            model_config_json="{}",
+                            snapshot_id=None,
+                            outputs_json=json.dumps(outputs, ensure_ascii=False),
+                            error_message=None,
+                            created_at=created_at_text,
+                            updated_at=created_at_text,
+                            finished_at=created_at_text,
+                        )
+                    )
 
         # Ensure FK-less consistency is good before commit.
         session.flush()
