@@ -82,6 +82,14 @@ function getJobById(history: Record<string, Job[]>, authorId: string | null, job
   return jobs.find((item) => item.jobId === jobId) || null;
 }
 
+function findJobAcrossAuthors(history: Record<string, Job[]>, jobId: string): Job | null {
+  for (const jobs of Object.values(history)) {
+    const matched = jobs.find((item) => item.jobId === jobId);
+    if (matched) return matched;
+  }
+  return null;
+}
+
 export default function App() {
   const [activeTab, setActiveTab] = useState<Tab>("landing");
   const [isCreateAuthorOpen, setCreateAuthorOpen] = useState(false);
@@ -606,6 +614,11 @@ export default function App() {
 
   const handleSelectAnswerJob = async (jobId: string) => {
     setSelectedAnswerJobId(jobId);
+    const job = findJobAcrossAuthors(analysisHistoryByAuthor, jobId);
+    if (!job || job.status !== "success" || !job.outputsReady) {
+      setGlobalError("回答任务尚未完成或无可用输出，请稍后再试。");
+      return;
+    }
     if (answersByJob[jobId]) return;
     await loadAnswerByJobId(jobId).catch(handleError);
   };
@@ -638,6 +651,10 @@ export default function App() {
         throw new Error(finalJob.errorMessage || `answer failed: ${finalJob.status}`);
       }
       await ensureAnalysisHistory(selectedAnalysisAuthorId, true);
+      const refreshedJob = findJobAcrossAuthors(analysisHistoryByAuthor, created.jobId);
+      if (refreshedJob && !refreshedJob.outputsReady) {
+        throw new Error("answer output is not ready yet, please wait and retry.");
+      }
       setSelectedAnswerJobId(created.jobId);
       await loadAnswerByJobId(created.jobId);
     } catch (error) {

@@ -59,6 +59,9 @@ def _build_worker_options(
         options.append(f"--concurrency={configured_concurrency}")
     elif pool == "solo":
         options.append("--concurrency=1")
+    elif runtime_platform.startswith("win") and pool == "threads":
+        # SQLite allows one writer; keep a safe default on Windows threads pool.
+        options.append("--concurrency=1")
 
     return options
 

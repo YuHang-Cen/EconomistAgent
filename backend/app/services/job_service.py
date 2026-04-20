@@ -1,4 +1,4 @@
-"""提供任务创建、轮询、取消、重试与产物读取服务。"""
+﻿"""提供任务创建、轮询、取消、重试与产物读取服务。"""
 
 from __future__ import annotations
 
@@ -12,6 +12,7 @@ from app.domain.enums import JobStatus, JobType, OutputType, Stage
 from app.domain.models import Author, AuthorDocument, PipelineJob
 from app.infra import storage
 from app.infra.db import session_scope
+from app.infra.settings import get_settings
 from app.services import pipeline_service
 from fastapi import HTTPException
 from sqlalchemy import and_, desc, or_, select
@@ -102,15 +103,47 @@ def _decode_cursor(cursor: str) -> tuple[str, str]:
 
 
 def _dispatch_job(job_id: str, job_type: str) -> None:
-    """按任务类型分发 Celery 异步任务。"""
+    """Dispatch task to Celery; fallback to inline run when worker is unavailable."""
+    from app.infra.queue import celery_app
     from app.services import stage_runners
 
-    if job_type == JobType.DOCUMENT_RELOAD.value:
-        stage_runners.run_document_reload_pipeline.delay(job_id)
-    elif job_type == JobType.AUTHOR_SKILLS.value:
-        stage_runners.run_author_skills_pipeline.delay(job_id)
-    elif job_type == JobType.AUTHOR_ANSWER.value:
-        stage_runners.run_author_answer_pipeline.delay(job_id)
+    def _run_inline() -> None:
+        if job_type == JobType.DOCUMENT_RELOAD.value:
+            execute_document_reload_job(job_id)
+        elif job_type == JobType.AUTHOR_SKILLS.value:
+            execute_author_skills_job(job_id)
+        elif job_type == JobType.AUTHOR_ANSWER.value:
+            execute_author_answer_job(job_id)
+
+    settings = get_settings()
+    if settings.celery_task_always_eager:
+        if job_type == JobType.DOCUMENT_RELOAD.value:
+            stage_runners.run_document_reload_pipeline.delay(job_id)
+        elif job_type == JobType.AUTHOR_SKILLS.value:
+            stage_runners.run_author_skills_pipeline.delay(job_id)
+        elif job_type == JobType.AUTHOR_ANSWER.value:
+            stage_runners.run_author_answer_pipeline.delay(job_id)
+        return
+
+    try:
+        ping_result = celery_app.control.inspect(timeout=0.5).ping()
+        has_worker = bool(ping_result)
+    except Exception:
+        has_worker = False
+
+    if not has_worker:
+        _run_inline()
+        return
+
+    try:
+        if job_type == JobType.DOCUMENT_RELOAD.value:
+            stage_runners.run_document_reload_pipeline.delay(job_id)
+        elif job_type == JobType.AUTHOR_SKILLS.value:
+            stage_runners.run_author_skills_pipeline.delay(job_id)
+        elif job_type == JobType.AUTHOR_ANSWER.value:
+            stage_runners.run_author_answer_pipeline.delay(job_id)
+    except Exception:
+        _run_inline()
 
 
 def create_document_reload_job(

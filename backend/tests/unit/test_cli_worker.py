@@ -11,7 +11,7 @@ from app.infra.db_recovery import StartupDatabaseBootstrapError
 
 def test_build_worker_options_windows_defaults_to_threads() -> None:
     options = _build_worker_options(platform="win32", env={})
-    assert options == ["worker", "--loglevel=info", "--pool=threads"]
+    assert options == ["worker", "--loglevel=info", "--pool=threads", "--concurrency=1"]
 
 
 def test_build_worker_options_uses_configured_pool_and_concurrency() -> None:

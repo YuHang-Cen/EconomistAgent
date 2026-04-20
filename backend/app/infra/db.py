@@ -31,7 +31,11 @@ class Base(DeclarativeBase):
 engine = create_engine(
     database_url,
     future=True,
-    connect_args={"check_same_thread": False} if database_url.startswith("sqlite") else {},
+    connect_args=(
+        {"check_same_thread": False, "timeout": 30}
+        if database_url.startswith("sqlite")
+        else {}
+    ),
 )
 
 SessionLocal = sessionmaker(
@@ -64,4 +68,3 @@ def session_scope() -> Generator[Session, None, None]:
         raise
     finally:
         session.close()
-
