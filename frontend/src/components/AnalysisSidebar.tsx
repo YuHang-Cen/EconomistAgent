@@ -146,7 +146,7 @@ export default function AnalysisSidebar({
                               {(item.query || "Untitled query").slice(0, 48)}
                             </span>
                             <div className="flex items-center gap-2">
-                              <span className="text-[10px] uppercase tracking-wider">{item.status}</span>
+                              {/* 在这里删除了原有的 item.status 显示 */}
                               <button
                                 onClick={async (event) => {
                                   event.stopPropagation();

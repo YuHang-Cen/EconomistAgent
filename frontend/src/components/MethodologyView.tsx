@@ -18,7 +18,7 @@ interface MethodologyViewProps {
   generating: boolean;
   deletingSectionId: string | null;
   onGenerate: () => Promise<void> | void;
-  onRefresh: () => Promise<void> | void;
+  onRefresh?: () => Promise<void> | void;
   onDeleteMainSkill: (sectionId: string) => Promise<void> | void;
 }
 
@@ -86,7 +86,6 @@ export default function MethodologyView({
   generating,
   deletingSectionId,
   onGenerate,
-  onRefresh,
   onDeleteMainSkill,
 }: MethodologyViewProps) {
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null);
@@ -153,7 +152,7 @@ export default function MethodologyView({
           <span className="text-primary">{selectedAuthor?.authorName || "No Author Selected"}</span>
         </nav>
         <h1 className="text-5xl lg:text-6xl font-headline font-medium text-on-background leading-tight">
-          Methodology & <span className="italic">Intellectual</span> Frameworks
+          Methodology & Intellectual Frameworks
         </h1>
       </section>
 
@@ -164,13 +163,6 @@ export default function MethodologyView({
           className="bg-primary text-on-primary px-8 py-3 rounded-sm font-label text-xs tracking-widest uppercase hover:bg-primary-dim transition-all shadow-lg shadow-primary/20 disabled:opacity-60"
         >
           {generating ? "Generating..." : "Generate Skills"}
-        </button>
-        <button
-          disabled={!selectedAuthor}
-          onClick={onRefresh}
-          className="border border-outline-variant/30 px-8 py-3 rounded-sm font-label text-xs tracking-widest uppercase hover:bg-surface-container-low transition-all disabled:opacity-60"
-        >
-          Refresh Latest
         </button>
       </section>
 
@@ -356,7 +348,7 @@ export default function MethodologyView({
                       {mainDescription && (
                         <div>
                           <SectionHeader title="Skill Summary" />
-                          <div className="font-headline text-xl text-on-background leading-relaxed border-l-4 border-primary pl-5 py-1">
+                          <div className="font-headline text-xl font-bold text-on-background leading-relaxed border-l-4 border-primary pl-5 py-1">
                             "{mainDescription}"
                           </div>
                         </div>
@@ -393,8 +385,8 @@ export default function MethodologyView({
                           <div className="flex flex-wrap items-center gap-2">
                             {mainPatternFlow.map((flowItem, idx) => (
                               <React.Fragment key={idx}>
-                                <span className="bg-[#2b2b2b] text-white px-3 py-2 rounded-sm text-[10px] font-bold uppercase tracking-widest">
-                                  {String(flowItem)}
+                                <span className="bg-[#2b2b2b] text-white px-3 py-2 rounded-sm text-[11px] font-bold tracking-wider">
+                                  {String(flowItem).charAt(0).toUpperCase() + String(flowItem).slice(1).toLowerCase()}
                                 </span>
                                 {idx < mainPatternFlow.length - 1 && (
                                   <span className="text-outline-variant">
@@ -413,7 +405,7 @@ export default function MethodologyView({
                       {subDescription && (
                         <div>
                           <SectionHeader title="Skill Summary" />
-                          <div className="font-headline text-xl text-on-background leading-relaxed border-l-4 border-primary pl-5 py-1">
+                          <div className="font-headline text-xl font-bold text-on-background leading-relaxed border-l-4 border-primary pl-5 py-1">
                             "{subDescription}"
                           </div>
                         </div>
