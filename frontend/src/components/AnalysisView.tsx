@@ -234,7 +234,7 @@ export default function AnalysisView({
       <div className="px-12 py-12">
         <header className="mb-16">
           <h1 className="font-headline text-5xl font-light text-on-surface mb-6 tracking-tight leading-tight">
-            Synthesize an economic <span className="italic">perspective</span> through academic rigor.
+            Synthesize an economic perspective through academic rigor.
           </h1>
           <p className="font-body text-lg text-secondary max-w-2xl leading-relaxed">
             Trigger backend answer jobs and read `answer_json` outputs with selected skill traceability.

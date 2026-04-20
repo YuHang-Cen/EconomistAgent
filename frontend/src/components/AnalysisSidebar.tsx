@@ -1,4 +1,4 @@
-import { ChevronDown, ChevronRight, PanelLeftClose, PanelLeftOpen, Plus, Trash2 } from "lucide-react";
+import { ChevronDown, ChevronRight, PanelLeftClose, PanelLeftOpen, Plus, Trash2, X, Check } from "lucide-react";
 import { motion } from "motion/react";
 import { useState } from "react";
 import type { Author, Job } from "../types";
@@ -32,6 +32,8 @@ export default function AnalysisSidebar({
 }: AnalysisSidebarProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [expandedAuthors, setExpandedAuthors] = useState<Set<string>>(new Set());
+  // 新增：用于追踪当前哪条记录正处于“确认删除”状态
+  const [confirmingDeleteId, setConfirmingDeleteId] = useState<string | null>(null);
 
   function toggleAuthor(authorId: string) {
     if (isCollapsed) return;
@@ -132,37 +134,57 @@ export default function AnalysisSidebar({
                       )}
                       {jobs.map((item) => {
                         const deleting = deletingJobId === item.jobId;
+                        const isConfirming = confirmingDeleteId === item.jobId;
+
                         return (
                           <div
                             key={item.jobId}
-                            onClick={() => onSelectJob(item.jobId)}
+                            onClick={() => !isConfirming && onSelectJob(item.jobId)}
                             className={`group/item flex items-center justify-between p-2 rounded-sm cursor-pointer transition-all ${
                               selectedJobId === item.jobId
                                 ? "border-l-2 border-primary bg-primary/5 text-primary font-medium"
                                 : "hover:bg-surface-container-highest text-secondary"
                             }`}
                           >
-                            <span className="font-body text-sm truncate pr-4">
+                            <span className="font-body text-sm truncate pr-2">
                               {(item.query || "Untitled query").slice(0, 48)}
                             </span>
-                            <div className="flex items-center gap-2">
-                              {/* 在这里删除了原有的 item.status 显示 */}
-                              <button
-                                onClick={async (event) => {
-                                  event.stopPropagation();
-                                  if (deleting) return;
-                                  await onDeleteJob(item.jobId);
-                                }}
-                                disabled={deleting}
-                                className={`p-1 rounded-sm transition-all flex-shrink-0 ${
-                                  selectedJobId === item.jobId
-                                    ? "text-primary hover:text-red-500 hover:bg-red-50"
-                                    : "text-outline-variant/50 hover:text-red-500 hover:bg-red-50 opacity-0 group-hover/item:opacity-100"
-                                } ${deleting ? "opacity-60 cursor-not-allowed" : ""}`}
-                                title={deleting ? "Deleting..." : "Delete Job"}
-                              >
-                                <Trash2 className={`w-[14px] h-[14px] ${deleting ? "animate-pulse" : ""}`} />
-                              </button>
+                            
+                            <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+                              {isConfirming ? (
+                                <div className="flex items-center gap-1.5 animate-in fade-in slide-in-from-right-1 duration-200">
+                                  <button
+                                    onClick={async () => {
+                                      await onDeleteJob(item.jobId);
+                                      setConfirmingDeleteId(null);
+                                    }}
+                                    className="p-1 hover:bg-red-50 text-red-500 rounded-sm transition-colors"
+                                    title="Confirm Delete"
+                                  >
+                                    <Check className="w-3.5 h-3.5" />
+                                  </button>
+                                  <button
+                                    onClick={() => setConfirmingDeleteId(null)}
+                                    className="p-1 hover:bg-surface-container-highest text-outline-variant rounded-sm transition-colors"
+                                    title="Cancel"
+                                  >
+                                    <X className="w-3.5 h-3.5" />
+                                  </button>
+                                </div>
+                              ) : (
+                                <button
+                                  onClick={() => setConfirmingDeleteId(item.jobId)}
+                                  disabled={deleting}
+                                  className={`p-1 rounded-sm transition-all flex-shrink-0 ${
+                                    selectedJobId === item.jobId
+                                      ? "text-primary hover:text-red-500 hover:bg-red-50"
+                                      : "text-outline-variant/50 hover:text-red-500 hover:bg-red-50 opacity-0 group-hover/item:opacity-100"
+                                  } ${deleting ? "opacity-60 cursor-not-allowed" : ""}`}
+                                  title="Delete Job"
+                                >
+                                  <Trash2 className={`w-[14px] h-[14px] ${deleting ? "animate-pulse" : ""}`} />
+                                </button>
+                              )}
                             </div>
                           </div>
                         );
