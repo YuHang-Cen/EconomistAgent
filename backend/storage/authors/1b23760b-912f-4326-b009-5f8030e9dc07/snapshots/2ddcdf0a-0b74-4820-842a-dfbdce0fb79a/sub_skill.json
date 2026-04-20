@@ -131,5 +131,7 @@
       ],
       "method_program_example": "The method begins by establishing a historical baseline of specific virtues (independence, self-reliance, voluntary cooperation) that were foundational to a particular societal order (individualist society). It then analyzes the causal agent of change—collectivism—and traces its impact in devaluing and destroying these virtues, leaving a moral void filled by obedience and collective compulsion. The analysis proceeds by contrasting present degraded values (group rights, discrimination, acceptance of injustice) with the past's 'essential bases of civilized life,' using rhetorical questions and examples to highlight the inversion of moral priorities. Finally, it diagnoses the broader consequences: a blunted moral sense, the destruction of national character, and the loss of the civilizing traditions that shaped specific nations."
     }
-  ]
+  ],
+  "model_name": "deepseek-chat",
+  "api_base": "https://api.deepseek.com"
 }

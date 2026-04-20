@@ -209,6 +209,19 @@ export default function AnalysisView({
                 </div>
               </div>
             </div>
+
+            {/* 模型与 API 信息底部栏 */}
+            <div className="pt-8 mt-12 flex items-center justify-between border-t border-outline-variant/15">
+              <div className="flex flex-col gap-1.5">
+                {/* TODO: 后端需要在此处对齐并传入真实的 Model Name 和 API Base 数据 */}
+                <span className="text-[10px] font-mono text-outline-variant normal-case tracking-widest">
+                  Model Name: {selectedAnswer.modelName || "Unknown"}
+                </span>
+                <span className="text-[10px] font-mono text-outline-variant normal-case tracking-widest">
+                  Api Base: {selectedAnswer.apiBase || "Unknown"}
+                </span>
+              </div>
+            </div>
           </section>
         </div>
       </main>

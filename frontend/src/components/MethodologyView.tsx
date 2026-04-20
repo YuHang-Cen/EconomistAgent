@@ -58,6 +58,42 @@ function normalizeProgress(value: number | null | undefined): number {
   return Math.max(0, Math.min(100, Math.round(value)));
 }
 
+function readOptionalString(value: unknown): string | null {
+  return typeof value === "string" && value.trim() ? value : null;
+}
+
+function readLlmMetadata(outputs: SkillOutputs | null): { modelName: string | null; apiBase: string | null } {
+  if (!outputs) return { modelName: null, apiBase: null };
+  const fromMain = outputs.mainSkillJson || null;
+  const fromSub = outputs.subSkillJson || null;
+  const fromMainMd = outputs.mainSkillsMdJson[0] || null;
+  const fromSubMd = outputs.subSkillsMdJson[0] || null;
+
+  const modelName =
+    readOptionalString(fromMain?.model_name) ||
+    readOptionalString(fromMain?.modelName) ||
+    readOptionalString(fromSub?.model_name) ||
+    readOptionalString(fromSub?.modelName) ||
+    readOptionalString(fromMainMd?.model_name) ||
+    readOptionalString(fromMainMd?.modelName) ||
+    readOptionalString(fromSubMd?.model_name) ||
+    readOptionalString(fromSubMd?.modelName) ||
+    null;
+
+  const apiBase =
+    readOptionalString(fromMain?.api_base) ||
+    readOptionalString(fromMain?.apiBase) ||
+    readOptionalString(fromSub?.api_base) ||
+    readOptionalString(fromSub?.apiBase) ||
+    readOptionalString(fromMainMd?.api_base) ||
+    readOptionalString(fromMainMd?.apiBase) ||
+    readOptionalString(fromSubMd?.api_base) ||
+    readOptionalString(fromSubMd?.apiBase) ||
+    null;
+
+  return { modelName, apiBase };
+}
+
 const SectionHeader = ({ title }: { title: string }) => (
   <div className="flex items-center gap-2 mb-4 mt-10 text-[11px] font-bold tracking-[0.15em] text-secondary uppercase">
     <div className="w-1 h-1 rounded-full bg-secondary"></div>
@@ -110,6 +146,7 @@ export default function MethodologyView({
   const selectedSubSkills = selectedSection
     ? subSkills.filter((item) => String(item.section_id || "") === selectedSection)
     : [];
+  const llmMetadata = useMemo(() => readLlmMetadata(outputs), [outputs]);
 
   useEffect(() => {
     if (!selectedSectionId) return;
@@ -433,7 +470,15 @@ export default function MethodologyView({
                   )}
                   
                   <div className="pt-8 mt-12 flex items-center justify-between border-t border-outline-variant/10">
-                    <span className="text-[10px] font-mono text-outline-variant uppercase tracking-widest">Source: Extracted Core</span>
+                    <div className="flex flex-col gap-1.5">
+                      {/* TODO: 后端需要在此处对齐并传入真实的 Model Name 和 API Base 数据 */}
+                      <span className="text-[10px] font-mono text-outline-variant normal-case tracking-widest">
+                        Model Name: {llmMetadata.modelName || "Unknown"}
+                      </span>
+                      <span className="text-[10px] font-mono text-outline-variant normal-case tracking-widest">
+                        Api Base: {llmMetadata.apiBase || "Unknown"}
+                      </span>
+                    </div>
                     <button className="flex items-center gap-2 text-primary font-label text-[10px] uppercase tracking-widest font-bold hover:underline group">
                       <Download className="w-4 h-4 transition-transform group-hover:translate-y-0.5" /> Export Data
                     </button>

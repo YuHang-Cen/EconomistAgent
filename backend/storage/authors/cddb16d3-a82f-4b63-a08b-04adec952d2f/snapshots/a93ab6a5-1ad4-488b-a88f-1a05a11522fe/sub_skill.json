@@ -185,5 +185,7 @@
       ],
       "method_program_example": "The analysis begins by confronting a conceptual difficulty: the conflict between liberal anti-paternalism and the perceived necessity of some paternalistic government action. It resolves this not by abandoning principle but by constraining it through pragmatic judgment and historical precedent (Dicey's quote), establishing a limited, justifiable scope. The author then defines the positive functions of government that are consistent with liberal principles. The core methodological move is to use these defined principles as a set of constraints or filters. He applies this constraint-based framework to evaluate existing government activities, systematically identifying and listing those that cannot be validated under the principles, thereby demarcating the boundary of legitimate state action."
     }
-  ]
+  ],
+  "model_name": "deepseek-chat",
+  "api_base": "https://api.deepseek.com"
 }

@@ -23,7 +23,7 @@ from app.infra.settings import get_settings
 from app.services.analyze_method_chunks import run_analyze_method_chunks
 from app.services.answer_with_skills import run_answer_with_skills
 from app.services.extract_paragraphs import run_extract_paragraphs
-from app.services.llm_utils import model_config_override_scope
+from app.services.llm_utils import get_effective_model_config, model_config_override_scope
 from app.services.main_skill import run_main_skill
 from app.services.render import run_render
 from app.services.select_skills import run_select_skills
@@ -339,10 +339,13 @@ def _store_author_skill_artifacts(
     method_analysis: dict[str, Any],
     main_skill_json: dict[str, Any],
     sub_skill_json: dict[str, Any],
+    llm_metadata: dict[str, str],
     rendered: dict[str, Any],
 ) -> dict[str, str]:
     """                         ?artifact_type -> uri ?"""
     snapshot_dir = storage.snapshot_root(author_id=author_id, snapshot_id=snapshot_id)
+    model_name = str(llm_metadata.get("model_name", "")).strip()
+    api_base = str(llm_metadata.get("api_base", "")).strip()
     snapshot_meta_uri = storage.write_json(
         snapshot_dir / "snapshot_meta.json",
         {
@@ -351,11 +354,20 @@ def _store_author_skill_artifacts(
             "created_at": created_at,
         },
     )
+    method_analysis_payload = dict(method_analysis)
+    method_analysis_payload["model_name"] = model_name
+    method_analysis_payload["api_base"] = api_base
     method_analysis_json_uri = storage.write_json(
-        snapshot_dir / "method_analysis.json", method_analysis
+        snapshot_dir / "method_analysis.json", method_analysis_payload
     )
-    main_skill_json_uri = storage.write_json(snapshot_dir / "main_skill.json", main_skill_json)
-    sub_skill_json_uri = storage.write_json(snapshot_dir / "sub_skill.json", sub_skill_json)
+    main_skill_payload = dict(main_skill_json)
+    main_skill_payload["model_name"] = model_name
+    main_skill_payload["api_base"] = api_base
+    main_skill_json_uri = storage.write_json(snapshot_dir / "main_skill.json", main_skill_payload)
+    sub_skill_payload = dict(sub_skill_json)
+    sub_skill_payload["model_name"] = model_name
+    sub_skill_payload["api_base"] = api_base
+    sub_skill_json_uri = storage.write_json(snapshot_dir / "sub_skill.json", sub_skill_payload)
     main_skill_files = rendered.get("main_skill_files", [])
     main_skills_md_records: list[dict[str, str]] = []
     if isinstance(main_skill_files, list):
@@ -381,6 +393,8 @@ def _store_author_skill_artifacts(
                     "name": name,
                     "file_name": file_name,
                     "markdown": markdown,
+                    "model_name": model_name,
+                    "api_base": api_base,
                 }
             )
     main_skills_md_json_uri = storage.write_json(
@@ -419,6 +433,8 @@ def _store_author_skill_artifacts(
                         "normalized_pattern": normalized_pattern,
                         "file_name": file_name,
                         "markdown": markdown,
+                        "model_name": model_name,
+                        "api_base": api_base,
                     }
                 )
     sub_skills_md_zip_uri = storage.write_zip_from_files(
@@ -497,7 +513,13 @@ def run_author_skills(session: Session, job: PipelineJob) -> None:
         raise ValueError("no selected segments found for author_skills")
 
     model_config = _load_job_model_config(job)
+    llm_metadata: dict[str, str] = {}
     with model_config_override_scope(model_config):
+        effective_model_config = get_effective_model_config()
+        llm_metadata = {
+            "model_name": effective_model_config["model_name"],
+            "api_base": effective_model_config["api_base"],
+        }
         method_analysis = run_analyze_method_chunks(segments=selected_segments)
 
         _ensure_not_canceled(session, job)
@@ -561,6 +583,7 @@ def run_author_skills(session: Session, job: PipelineJob) -> None:
         method_analysis=method_analysis,
         main_skill_json=merged_main_skill_json,
         sub_skill_json=merged_sub_skill_json,
+        llm_metadata=llm_metadata,
         rendered=rendered,
     )
 
@@ -646,15 +669,20 @@ def run_author_answer(session: Session, job: PipelineJob) -> None:
     _ensure_not_canceled(session, job)
 
     model_config = _load_job_model_config(job)
+    llm_metadata: dict[str, str] = {}
     with model_config_override_scope(model_config):
+        effective_model_config = get_effective_model_config()
+        llm_metadata = {
+            "model_name": effective_model_config["model_name"],
+            "api_base": effective_model_config["api_base"],
+        }
         selection = run_select_skills(snapshot_outputs=snapshot_outputs, query=job.query)
-    if not selection.get("selected_section_id"):
-        raise ValueError("no available skill selected for author_answer")
+        if not selection.get("selected_section_id"):
+            raise ValueError("no available skill selected for author_answer")
 
-    _ensure_not_canceled(session, job)
-    job.current_stage = Stage.ANSWER.value
-    job.updated_at = _now_iso()
-    with model_config_override_scope(model_config):
+        _ensure_not_canceled(session, job)
+        job.current_stage = Stage.ANSWER.value
+        job.updated_at = _now_iso()
         answer_json = run_answer_with_skills(
             query=job.query,
             selected=selection,
@@ -662,6 +690,8 @@ def run_author_answer(session: Session, job: PipelineJob) -> None:
         )
     generated_at = _now_iso()
     answer_json["generated_at"] = generated_at
+    answer_json["model_name"] = llm_metadata.get("model_name", "")
+    answer_json["api_base"] = llm_metadata.get("api_base", "")
 
     outputs = _store_answer_artifact(
         author_id=job.author_id, job_id=job.job_id, answer_json=answer_json

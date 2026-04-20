@@ -7,6 +7,7 @@ from datetime import datetime
 from typing import Any
 
 from fastapi.testclient import TestClient
+from app.services.llm_utils import get_effective_model_config
 
 
 def _wait_job_status(
@@ -59,6 +60,7 @@ def test_author_skills_job_creates_snapshot_and_outputs(
 
     job_id = payload["data"]["jobId"]
     final_payload = _wait_job_status(client=client, job_id=job_id, expected="success")
+    expected_model_config = get_effective_model_config()
     assert final_payload["status"] == "success"
     assert final_payload["currentStage"] == "render"
     assert final_payload["progress"] == 100
@@ -88,6 +90,22 @@ def test_author_skills_job_creates_snapshot_and_outputs(
     assert isinstance(method_output, dict)
     assert "chunks" in method_output
     assert "errors" in method_output
+    assert method_output.get("model_name") == expected_model_config["model_name"]
+    assert method_output.get("api_base") == expected_model_config["api_base"]
+
+    main_skill_output_response = client.get(f"/api/jobs/{job_id}/outputs/main_skill_json")
+    main_skill_output = main_skill_output_response.json()["data"]["content"]
+    assert main_skill_output_response.status_code == 200
+    assert isinstance(main_skill_output, dict)
+    assert main_skill_output.get("model_name") == expected_model_config["model_name"]
+    assert main_skill_output.get("api_base") == expected_model_config["api_base"]
+
+    sub_skill_output_response = client.get(f"/api/jobs/{job_id}/outputs/sub_skill_json")
+    sub_skill_output = sub_skill_output_response.json()["data"]["content"]
+    assert sub_skill_output_response.status_code == 200
+    assert isinstance(sub_skill_output, dict)
+    assert sub_skill_output.get("model_name") == expected_model_config["model_name"]
+    assert sub_skill_output.get("api_base") == expected_model_config["api_base"]
 
     main_md_output_response = client.get(f"/api/jobs/{job_id}/outputs/main_skills_md_json")
     main_md_output = main_md_output_response.json()["data"]["content"]
@@ -99,6 +117,8 @@ def test_author_skills_job_creates_snapshot_and_outputs(
         assert "section_id" in first_main
         assert "file_name" in first_main
         assert "markdown" in first_main
+        assert first_main.get("model_name") == expected_model_config["model_name"]
+        assert first_main.get("api_base") == expected_model_config["api_base"]
 
     sub_md_output_response = client.get(f"/api/jobs/{job_id}/outputs/sub_skills_md_json")
     sub_md_output = sub_md_output_response.json()["data"]["content"]
@@ -111,6 +131,8 @@ def test_author_skills_job_creates_snapshot_and_outputs(
         assert "name" in first_sub
         assert "file_name" in first_sub
         assert "markdown" in first_sub
+        assert first_sub.get("model_name") == expected_model_config["model_name"]
+        assert first_sub.get("api_base") == expected_model_config["api_base"]
 
 
 def test_author_answer_job_generates_answer_json(
@@ -131,6 +153,7 @@ def test_author_answer_job_generates_answer_json(
 
     job_id = payload["data"]["jobId"]
     final_payload = _wait_job_status(client=client, job_id=job_id, expected="success")
+    expected_model_config = get_effective_model_config()
     assert final_payload["status"] == "success"
     assert final_payload["currentStage"] == "answer"
     assert final_payload["outputsReady"] is True
@@ -149,6 +172,8 @@ def test_author_answer_job_generates_answer_json(
     assert isinstance(generated_at, str)
     assert generated_at.strip()
     datetime.fromisoformat(generated_at)
+    assert answer_output.get("model_name") == expected_model_config["model_name"]
+    assert answer_output.get("api_base") == expected_model_config["api_base"]
 
 
 def test_outputs_type_validation_and_not_found(

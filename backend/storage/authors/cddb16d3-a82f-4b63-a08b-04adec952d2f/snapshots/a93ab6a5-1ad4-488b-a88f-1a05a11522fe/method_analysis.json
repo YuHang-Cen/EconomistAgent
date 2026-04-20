@@ -479,5 +479,7 @@
       }
     }
   ],
-  "errors": []
+  "errors": [],
+  "model_name": "deepseek-chat",
+  "api_base": "https://api.deepseek.com"
 }

@@ -57,6 +57,8 @@ export function parseAnswerJson(content: unknown): AnswerVM {
   return {
     query: asString(content.query) || "",
     generatedAt: asIsoDatetime(content.generatedAt ?? content.generated_at),
+    modelName: asString(content.modelName ?? content.model_name),
+    apiBase: asString(content.apiBase ?? content.api_base),
     selectedSkillIndex:
       typeof (content.selectedSkillIndex ?? content.selected_skill_index) === "number"
         ? (content.selectedSkillIndex ?? content.selected_skill_index) as number
