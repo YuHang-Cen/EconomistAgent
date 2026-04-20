@@ -3,8 +3,12 @@
 from __future__ import annotations
 
 import base64
+import os
+import shutil
 from collections.abc import Callable
+from pathlib import Path
 from typing import Any
+from uuid import uuid4
 
 from app.infra import storage
 from app.infra.db import Base, engine
@@ -105,6 +109,23 @@ def test_rebuild_db_from_storage_recovers_author_document_segments_and_skills(
     assert isinstance(segments, list)
     assert segments
 
+    # Methodology relies on latest successful author_skills job.
+    recovered_jobs_resp = client.get(
+        f"/api/authors/{author_id}/jobs",
+        params={"jobType": "author_skills", "status": "success", "limit": 1},
+    )
+    assert recovered_jobs_resp.status_code == 200
+    recovered_jobs = recovered_jobs_resp.json()["data"]["items"]
+    assert recovered_jobs
+    recovered_job = recovered_jobs[0]
+    assert recovered_job["outputsReady"] is True
+
+    recovered_main_skill_output = client.get(
+        f"/api/jobs/{recovered_job['jobId']}/outputs/main_skill_json"
+    )
+    assert recovered_main_skill_output.status_code == 200
+    assert isinstance(recovered_main_skill_output.json()["data"]["content"], dict)
+
     # Answer should succeed using rebuilt latest snapshot.
     answer_job_id = client.post(
         f"/api/authors/{author_id}/jobs/answer",
@@ -147,6 +168,44 @@ def test_bootstrap_database_on_startup_auto_recovers_when_db_empty(
     assert any(item["authorId"] == author_id for item in authors)
 
 
+def test_bootstrap_auto_recovery_is_cwd_independent(
+    client: TestClient,
+    create_test_pdf: Callable[[str, list[str] | None], str],
+) -> None:
+    author_response = client.post(
+        "/api/authors",
+        json={
+            "authorName": "CWD Recover Author",
+            "school": "Test School",
+            "avatarUrl": "https://example.com/avatar.png",
+        },
+    )
+    author_id = author_response.json()["data"]["authorId"]
+
+    pdf_uri = create_test_pdf("cwd-recover.pdf")
+    document_response = client.post(
+        f"/api/authors/{author_id}/documents",
+        json={"bookTitle": "CWD Recover Book", "pdfUri": pdf_uri},
+    )
+    payload = document_response.json()["data"]
+    reload_job_id = payload["reloadJobId"]
+    _wait_job_status(client=client, job_id=reload_job_id, expected="success")
+
+    Base.metadata.drop_all(bind=engine)
+    Base.metadata.create_all(bind=engine)
+
+    current_cwd = Path.cwd()
+    repo_root = Path(__file__).resolve().parents[3]
+    try:
+        os.chdir(repo_root)
+        bootstrap_database_on_startup(migration_runner=lambda: 0)
+    finally:
+        os.chdir(current_cwd)
+
+    authors = client.get("/api/authors").json()["data"]
+    assert any(item["authorId"] == author_id for item in authors)
+
+
 def test_rebuild_db_from_storage_recovers_local_avatar_url(client: TestClient) -> None:
     author_response = client.post(
         "/api/authors",
@@ -178,3 +237,21 @@ def test_rebuild_db_from_storage_recovers_local_avatar_url(client: TestClient) -
     public_response = client.get(avatar_url)
     assert public_response.status_code == 200
     assert public_response.headers["content-type"].startswith("image/png")
+
+
+def test_rebuild_db_from_storage_warns_when_authors_path_is_not_directory() -> None:
+    storage_root = Path("storage") / "test_tmp" / f"rebuild-not-dir-{uuid4()}"
+    storage_root.mkdir(parents=True, exist_ok=True)
+    try:
+        (storage_root / "authors").write_text("not a directory", encoding="utf-8")
+
+        summary = rebuild_from_storage(storage_root=storage_root)
+
+        assert summary.authors == 0
+        assert summary.documents == 0
+        assert summary.chapters == 0
+        assert summary.segments == 0
+        assert summary.snapshots == 0
+        assert any("not directory" in warning for warning in summary.warnings)
+    finally:
+        shutil.rmtree(storage_root, ignore_errors=True)

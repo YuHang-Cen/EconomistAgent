@@ -1,9 +1,11 @@
-"""统一加载后端配置并从 backend/.env 读取环境变量。"""
+"""Load backend settings and normalize runtime filesystem paths."""
 
 from __future__ import annotations
 
+import os
 from functools import lru_cache
 from pathlib import Path
+
 from dotenv import load_dotenv
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -12,9 +14,58 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 ENV_FILE = PROJECT_ROOT / ".env"
 load_dotenv(ENV_FILE)
 
+SQLITE_URL_PREFIX = "sqlite:///"
+
+
+def _normalize_windows_drive_path(raw_path: str) -> str:
+    """Normalize '/C:/...' to 'C:/...' for Windows sqlite URLs."""
+    if (
+        os.name == "nt"
+        and len(raw_path) >= 4
+        and raw_path[0] == "/"
+        and raw_path[2] == ":"
+    ):
+        return raw_path[1:]
+    return raw_path
+
+
+def resolve_sqlite_database_path(
+    database_url: str, *, project_root: Path = PROJECT_ROOT
+) -> Path | None:
+    """Resolve sqlite DB file path; relative paths are rooted at project root."""
+    if not database_url.startswith(SQLITE_URL_PREFIX) or database_url.endswith(":memory:"):
+        return None
+
+    raw_path = database_url[len(SQLITE_URL_PREFIX) :]
+    if not raw_path.strip():
+        return None
+    raw_path = _normalize_windows_drive_path(raw_path)
+
+    candidate = Path(raw_path)
+    if not candidate.is_absolute():
+        candidate = project_root / candidate
+    return candidate.resolve()
+
+
+def normalize_database_url(database_url: str, *, project_root: Path = PROJECT_ROOT) -> str:
+    """Return absolute sqlite URL; leave non-sqlite URLs unchanged."""
+    resolved = resolve_sqlite_database_path(database_url, project_root=project_root)
+    if resolved is None:
+        return database_url
+    return f"{SQLITE_URL_PREFIX}{resolved.as_posix()}"
+
+
+def normalize_storage_root(storage_root: str, *, project_root: Path = PROJECT_ROOT) -> Path:
+    """Resolve storage root to absolute path based on project root."""
+    value = storage_root.strip() if isinstance(storage_root, str) else str(storage_root)
+    candidate = Path(value or "storage")
+    if not candidate.is_absolute():
+        candidate = project_root / candidate
+    return candidate.resolve()
+
 
 class Settings(BaseSettings):
-    """后端运行配置。"""
+    """Backend runtime settings."""
 
     app_name: str = "Economist Agent Backend"
     api_key: str = Field(default="")
@@ -45,6 +96,14 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
+    @property
+    def normalized_database_url(self) -> str:
+        return normalize_database_url(self.database_url, project_root=PROJECT_ROOT)
+
+    @property
+    def resolved_storage_root(self) -> Path:
+        return normalize_storage_root(self.storage_root, project_root=PROJECT_ROOT)
+
     def get_cors_allow_origins(self) -> list[str]:
         raw = self.cors_allow_origins
         if isinstance(raw, list):
@@ -58,5 +117,6 @@ class Settings(BaseSettings):
 
 @lru_cache(maxsize=1)
 def get_settings() -> Settings:
-    """获取缓存后的配置对象。"""
+    """Return cached settings object."""
     return Settings()
+

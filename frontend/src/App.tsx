@@ -123,6 +123,7 @@ export default function App() {
   const [answersByJob, setAnswersByJob] = useState<Record<string, AnswerVM>>({});
   const [answerQuery, setAnswerQuery] = useState("");
   const [answerCreating, setAnswerCreating] = useState(false);
+  const [analysisRunningJob, setAnalysisRunningJob] = useState<Job | null>(null);
   const [deletingAnswerJobId, setDeletingAnswerJobId] = useState<string | null>(null);
 
   const currentSegmentAuthor = useMemo(
@@ -314,12 +315,30 @@ export default function App() {
     ensureDocumentsLoaded(selectedSegmentAuthorId)
       .then(() => {
         const docs = documentsByAuthor[selectedSegmentAuthorId] || [];
-        if (!selectedSegmentDocumentId && docs[0]) {
+        if (!docs.length) {
+          setSelectedSegmentDocumentId(null);
+          setSelectedSegmentChapterId(null);
+          setSegments([]);
+          resetSegmentHistory([], []);
+          return;
+        }
+        const hasCurrentSelection =
+          !!selectedSegmentDocumentId &&
+          docs.some((item) => item.documentId === selectedSegmentDocumentId);
+        if (!hasCurrentSelection) {
           setSelectedSegmentDocumentId(docs[0].documentId);
+          setSelectedSegmentChapterId(null);
         }
       })
       .catch(handleError);
-  }, [selectedSegmentAuthorId, selectedSegmentDocumentId, ensureDocumentsLoaded, documentsByAuthor, handleError]);
+  }, [
+    selectedSegmentAuthorId,
+    selectedSegmentDocumentId,
+    ensureDocumentsLoaded,
+    documentsByAuthor,
+    handleError,
+    resetSegmentHistory,
+  ]);
 
   useEffect(() => {
     if (!selectedSegmentAuthorId || !selectedSegmentDocumentId) return;
@@ -580,7 +599,21 @@ export default function App() {
         query: answerQuery.trim(),
         modelConfig: toModelConfigOrUndefined(runtimeSettings.answerModel),
       });
-      const finalJob = await pollJob(created.jobId);
+      const finalJob = await pollJob(created.jobId, {
+        onProgress(job) {
+          setAnalysisRunningJob(job);
+          setAnalysisHistoryByAuthor((prev) => {
+            const existing = prev[job.authorId] || [];
+            const index = existing.findIndex((item) => item.jobId === job.jobId);
+            const next =
+              index >= 0
+                ? existing.map((item, i) => (i === index ? job : item))
+                : [job, ...existing];
+            return { ...prev, [job.authorId]: next };
+          });
+        },
+      });
+      setAnalysisRunningJob(finalJob);
       if (finalJob.status !== "success") {
         throw new Error(finalJob.errorMessage || `answer failed: ${finalJob.status}`);
       }
@@ -591,6 +624,7 @@ export default function App() {
       handleError(error);
     } finally {
       setAnswerCreating(false);
+      setAnalysisRunningJob(null);
     }
   };
 
@@ -700,7 +734,13 @@ export default function App() {
               selectedDocumentId={selectedSegmentDocumentId}
               selectedChapterId={selectedSegmentChapterId}
               onExpandAuthor={(authorId) => ensureDocumentsLoaded(authorId).catch(handleError)}
-              onSelectAuthor={(authorId) => setSelectedSegmentAuthorId(authorId)}
+              onSelectAuthor={(authorId) => {
+                setSelectedSegmentAuthorId(authorId);
+                setSelectedSegmentDocumentId(null);
+                setSelectedSegmentChapterId(null);
+                setSegments([]);
+                resetSegmentHistory([], []);
+              }}
               onSelectDocument={async (authorId, documentId) => {
                 setSelectedSegmentAuthorId(authorId);
                 setSelectedSegmentDocumentId(documentId);
@@ -742,7 +782,11 @@ export default function App() {
             />
             <MethodologyView
               selectedAuthor={selectedMethodologyAuthor}
-              runningJob={methodologyRunningJob}
+              runningJob={
+                methodologyRunningJob?.authorId === selectedMethodologyAuthorId
+                  ? methodologyRunningJob
+                  : null
+              }
               outputs={methodologyOutputs}
               generating={methodologyGenerating}
               deletingSectionId={methodologyDeletingSectionId}
@@ -773,6 +817,11 @@ export default function App() {
               creating={answerCreating}
               selectedAnswer={selectedAnswer}
               selectedJob={selectedAnswerJob}
+              runningJob={
+                analysisRunningJob?.authorId === selectedAnalysisAuthorId
+                  ? analysisRunningJob
+                  : null
+              }
               onSelectAuthor={(authorId) => {
                 setSelectedAnalysisAuthorId(authorId);
                 ensureAnalysisHistory(authorId).catch(handleError);

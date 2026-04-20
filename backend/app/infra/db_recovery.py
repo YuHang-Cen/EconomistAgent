@@ -18,6 +18,7 @@ from app.domain.models import (
 )
 from app.infra import storage
 from app.infra.db import session_scope
+from app.infra.settings import get_settings, resolve_sqlite_database_path
 from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
 
@@ -56,9 +57,17 @@ def run_alembic_migrations() -> int:
 
 def _has_recoverable_storage_data(storage_root: Path) -> bool:
     authors_dir = storage_root / "authors"
-    if not authors_dir.exists():
+    if not authors_dir.exists() or not authors_dir.is_dir():
         return False
-    return any(path.is_dir() for path in authors_dir.iterdir())
+    try:
+        return any(path.is_dir() for path in authors_dir.iterdir())
+    except OSError as exc:
+        logger.warning(
+            "failed to inspect authors storage dir during recovery probe: %s (%s)",
+            authors_dir,
+            exc,
+        )
+        return False
 
 
 def _is_core_data_empty() -> bool:
@@ -71,10 +80,6 @@ def _is_core_data_empty() -> bool:
             int(session.execute(select(func.count()).select_from(AuthorSkillSnapshot)).scalar_one()),
         ]
     return all(count == 0 for count in counts)
-
-
-def _should_run_auto_recovery(storage_root: Path) -> bool:
-    return _is_core_data_empty() and _has_recoverable_storage_data(storage_root)
 
 
 def bootstrap_database_on_startup(
@@ -91,8 +96,28 @@ def bootstrap_database_on_startup(
             f"database migration failed before startup (exit_code={migration_code})"
         )
 
-    root = storage_root or storage.ensure_storage_root()
-    if not _should_run_auto_recovery(root):
+    runtime_settings = get_settings()
+    root = (storage_root or storage.ensure_storage_root()).resolve()
+    sqlite_path = resolve_sqlite_database_path(runtime_settings.normalized_database_url)
+    logger.info(
+        "database bootstrap context: database_url=%s sqlite_path=%s storage_root=%s",
+        runtime_settings.normalized_database_url,
+        sqlite_path,
+        root,
+    )
+
+    core_data_empty = _is_core_data_empty()
+    has_recoverable_storage = _has_recoverable_storage_data(root)
+    if not core_data_empty or not has_recoverable_storage:
+        logger.info(
+            (
+                "automatic database recovery skipped: core_data_empty=%s "
+                "has_recoverable_storage=%s authors_dir=%s"
+            ),
+            core_data_empty,
+            has_recoverable_storage,
+            root / "authors",
+        )
         return
 
     from app.scripts.rebuild_db_from_storage import rebuild_from_storage

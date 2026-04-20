@@ -1,0 +1,117 @@
+{
+  "main_skills": [
+    {
+      "section_id": "758d72bc-900e-4882-bb81-d8e07787d8a9",
+      "main_skill_id": "main_skill_001",
+      "section_title": "4. International Financial and Trade Arrangements",
+      "pattern_summary": {
+        "name": "Comparative Institutional Analysis through Conceptual Clarification",
+        "description": "A method for analyzing economic policy problems by first establishing clear conceptual distinctions and frameworks, then systematically comparing institutional alternatives based on their underlying mechanisms and logical coherence.",
+        "applicability": "Use this method to analyze complex policy dilemmas, institutional design problems, or debates where multiple solutions exist. It is suitable for problems requiring clarification of core concepts, comparison of alternative coordination mechanisms, or diagnosis of policy contradictions. To apply: 1) Define the problem's core conceptual elements, 2) Establish a clear analytical framework, 3) Enumerate and compare all logical policy options, 4) Identify contradictions in current approaches, 5) Derive coherent policy prescriptions based on comparative analysis.",
+        "core_steps": [
+          "Define the core problem by clarifying its fundamental concepts and relationships",
+          "Establish an analytical framework through analogy, historical tracing, or conceptual classification",
+          "Systematically enumerate all logical policy options or adjustment mechanisms",
+          "Compare alternatives by analyzing their underlying principles, mechanisms, and consequences",
+          "Diagnose contradictions in current approaches by identifying incoherent policy combinations",
+          "Prescribe a specific solution by demonstrating its logical superiority over alternatives"
+        ],
+        "pattern_flow": [
+          "Conceptual definition and problem framing",
+          "Framework establishment through analogy or historical analysis",
+          "Systematic enumeration of logical alternatives",
+          "Comparative analysis of mechanisms and consequences",
+          "Contradiction diagnosis in prevailing approaches",
+          "Policy prescription based on comparative superiority"
+        ],
+        "chapter_method_summary": "First, define the core problem by clarifying its fundamental concepts and relationships. Then, establish an analytical framework, either by drawing analogies to familiar institutions or tracing historical evolution. Next, systematically enumerate all logical policy options or adjustment mechanisms available. Compare these alternatives by analyzing their underlying principles, operational mechanisms, and likely consequences under different conditions. Diagnose contradictions in current approaches by identifying incoherent policy combinations that attempt to avoid clear choices. Finally, prescribe a specific solution by demonstrating its logical superiority, coherence with established principles, and ability to avoid the pitfalls of alternative approaches."
+      },
+      "signal_summary": {
+        "perspective": {
+          "value": "Mixed (Macro Analysis & Institutional Analysis)",
+          "notes": "Perspective shifts between Macro and Institutional Analysis, with Institutional Analysis appearing in chunks focused on conceptual clarification and Macro Analysis dominating mechanistic comparisons."
+        },
+        "nature": {
+          "value": "Mixed",
+          "notes": "Consistently blends positive and normative elements, with normative reasoning intensifying during prescription phases while positive analysis dominates mechanistic comparisons."
+        },
+        "time_orientation": {
+          "value": "Static Analysis",
+          "notes": "Predominantly static with occasional historical or dynamic elements for context, but the core comparative analysis remains atemporal."
+        },
+        "system_scope": {
+          "value": "Open System",
+          "notes": "Mostly analyzes open systems, though occasionally shifts to closed systems for controlled hypothetical comparisons."
+        },
+        "equilibrium_view": {
+          "value": "Mixed (Equilibrium & Disequilibrium Analysis)",
+          "notes": "Alternates between equilibrium analysis for comparing adjustment mechanisms and disequilibrium analysis for diagnosing policy contradictions."
+        },
+        "logic": {
+          "value": [
+            "Causal Reasoning",
+            "Comparative Reasoning",
+            "Conceptual Classification Reasoning"
+          ],
+          "notes": "Causal reasoning is consistently present, while comparative and conceptual classification reasoning intensify during framework establishment and alternative evaluation phases."
+        }
+      },
+      "confidence": 0.85
+    },
+    {
+      "section_id": "f2fc4ba9-983c-41ef-8eab-c39743de0526",
+      "main_skill_id": "main_skill_002",
+      "section_title": "2. The Role of Government in a Free Society",
+      "pattern_summary": {
+        "name": "Principle-Constrained Institutional Evaluation",
+        "description": "A method for evaluating government intervention by applying core liberal principles to specific institutional problems through conceptual classification and constraint-based reasoning.",
+        "applicability": "Use this method to determine when government intervention is justified within a liberal framework. First identify a specific policy problem or institutional arrangement, then apply core principles (freedom, property rights, limited government) to analyze it. The method is suitable for evaluating monopoly regulation, neighborhood effects, paternalistic policies, and other areas where market and government functions intersect.",
+        "core_steps": [
+          "Define the core concept or institutional problem requiring analysis",
+          "Establish the relevant evaluative principles or constraints from the liberal framework",
+          "Apply principles to the specific case through classification and constraint testing",
+          "Compare alternative institutional responses using conceptual balance sheets",
+          "Draw conclusions about justification or rejection of government intervention"
+        ],
+        "pattern_flow": [
+          "Concept definition and problem identification",
+          "Principle establishment and constraint specification",
+          "Conceptual application and classification",
+          "Comparative institutional analysis",
+          "Justification determination through constraint testing"
+        ],
+        "chapter_method_summary": "First define the institutional problem or concept requiring analysis, such as monopoly or neighborhood effects. Then establish the relevant evaluative principles from the liberal framework, particularly focusing on constraints around freedom and property rights. Next apply these principles to the specific case by classifying the problem type and testing it against the established constraints. Compare alternative institutional responses using a conceptual balance sheet that weighs advantages and disadvantages. Finally determine whether government intervention is justified by checking if the case passes the constraint tests and falls within the limited permissible functions of government."
+      },
+      "signal_summary": {
+        "perspective": {
+          "value": "Institutional Analysis",
+          "notes": "Consistently maintained across all chunks, focusing on institutional arrangements and their evaluation."
+        },
+        "nature": {
+          "value": "Mixed",
+          "notes": "Shifts from mixed to normative analysis as the chapter progresses, with increasing emphasis on evaluative judgments."
+        },
+        "time_orientation": {
+          "value": "Static Analysis",
+          "notes": "Predominantly static with one dynamic exception, generally analyzing problems at fixed points rather than through temporal development."
+        },
+        "system_scope": {
+          "value": "Closed System",
+          "notes": "Consistently closed system analysis except for one open system instance, generally treating problems as bounded and internally analyzable."
+        },
+        "equilibrium_view": {
+          "value": "Equilibrium Analysis",
+          "notes": "Predominantly equilibrium-focused with one process analysis exception, generally evaluating institutional arrangements as stable configurations."
+        },
+        "logic": {
+          "value": [
+            "Constraint-Based Reasoning",
+            "Conceptual Classification Reasoning"
+          ],
+          "notes": "Consistently employs both reasoning types across all chunks, with comparative and causal reasoning appearing as secondary patterns."
+        }
+      },
+      "confidence": 0.85
+    }
+  ]
+}

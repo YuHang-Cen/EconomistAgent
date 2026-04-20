@@ -11,7 +11,7 @@ from zipfile import ZIP_DEFLATED, ZipFile
 from app.infra.settings import get_settings
 
 settings = get_settings()
-storage_root = Path(settings.storage_root)
+storage_root = settings.resolved_storage_root
 
 
 def ensure_storage_root() -> Path:

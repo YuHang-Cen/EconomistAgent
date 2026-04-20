@@ -10,8 +10,10 @@ from app.domain.models import Author
 from app.infra.db import session_scope
 from app.infra.db_recovery import (
     StartupDatabaseBootstrapError,
+    _has_recoverable_storage_data,
     bootstrap_database_on_startup,
 )
+from app.infra.settings import normalize_database_url, normalize_storage_root
 from app.scripts.rebuild_db_from_storage import RebuildSummary
 from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
@@ -21,6 +23,41 @@ def _make_local_temp_storage_root() -> Path:
     root = Path("storage") / "test_tmp" / f"db-recovery-{uuid4()}"
     root.mkdir(parents=True, exist_ok=True)
     return root
+
+
+def test_normalize_database_url_resolves_relative_sqlite_path() -> None:
+    project_root = (Path("storage") / "test_tmp" / f"settings-{uuid4()}").resolve()
+    project_root.mkdir(parents=True, exist_ok=True)
+    try:
+        normalized = normalize_database_url(
+            "sqlite:///./storage/app.db",
+            project_root=project_root,
+        )
+        expected = (project_root / "storage" / "app.db").resolve().as_posix()
+        assert normalized == f"sqlite:///{expected}"
+    finally:
+        shutil.rmtree(project_root, ignore_errors=True)
+
+
+def test_normalize_storage_root_resolves_relative_path() -> None:
+    project_root = (Path("storage") / "test_tmp" / f"settings-{uuid4()}").resolve()
+    project_root.mkdir(parents=True, exist_ok=True)
+    try:
+        resolved = normalize_storage_root("storage", project_root=project_root)
+        assert resolved == (project_root / "storage").resolve()
+    finally:
+        shutil.rmtree(project_root, ignore_errors=True)
+
+
+def test_has_recoverable_storage_data_returns_false_when_authors_is_file() -> None:
+    storage_root = _make_local_temp_storage_root()
+    try:
+        authors_path = storage_root / "authors"
+        authors_path.parent.mkdir(parents=True, exist_ok=True)
+        authors_path.write_text("not a directory", encoding="utf-8")
+        assert _has_recoverable_storage_data(storage_root) is False
+    finally:
+        shutil.rmtree(storage_root, ignore_errors=True)
 
 
 def test_bootstrap_skips_auto_recovery_when_storage_has_no_authors_dir() -> None:

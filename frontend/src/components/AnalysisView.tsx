@@ -9,6 +9,7 @@ interface AnalysisViewProps {
   creating: boolean;
   selectedAnswer: AnswerVM | null;
   selectedJob: Job | null;
+  runningJob: Job | null;
   onSelectAuthor: (authorId: string) => void;
   onQueryChange: (value: string) => void;
   onGenerate: () => Promise<void> | void;
@@ -21,6 +22,31 @@ function formatGenerateDate(value: string | null | undefined): string {
   return new Date(parsed).toLocaleString();
 }
 
+function formatJobStatus(value: string | null | undefined): string {
+  const text = (value || "queued").trim().toLowerCase();
+  return text.charAt(0).toUpperCase() + text.slice(1);
+}
+
+function formatJobStage(value: string | null | undefined): string {
+  const normalized = (value || "").trim().toLowerCase();
+  const labels: Record<string, string> = {
+    extract: "Extract",
+    segment_sync: "Segment Sync",
+    analyze: "Analyze",
+    main_skill: "Main Skill",
+    sub_skill: "Sub Skill",
+    render: "Render",
+    select_skills: "Select Skills",
+    answer: "Answer",
+  };
+  return labels[normalized] || "Pending";
+}
+
+function normalizeProgress(value: number | null | undefined): number {
+  if (typeof value !== "number" || Number.isNaN(value)) return 0;
+  return Math.max(0, Math.min(100, Math.round(value)));
+}
+
 export default function AnalysisView({
   authors,
   selectedAuthorId,
@@ -28,10 +54,15 @@ export default function AnalysisView({
   creating,
   selectedAnswer,
   selectedJob,
+  runningJob,
   onSelectAuthor,
   onQueryChange,
   onGenerate,
 }: AnalysisViewProps) {
+  const showRunningProgress =
+    !!runningJob && (runningJob.status === "queued" || runningJob.status === "running");
+  const runningProgress = normalizeProgress(runningJob?.progress);
+
   if (selectedAnswer) {
     const generateDateValue = formatGenerateDate(
       selectedAnswer.generatedAt ?? selectedJob?.finishedAt ?? null
@@ -236,6 +267,51 @@ export default function AnalysisView({
                 />
               </div>
             </div>
+
+            {showRunningProgress && runningJob && (
+              <div className="bg-surface-container-lowest border border-outline-variant/20 rounded-sm p-6">
+                <div className="flex items-center justify-between gap-4 mb-4">
+                  <span className="font-label text-[10px] uppercase tracking-widest text-secondary">
+                    Job Progress
+                  </span>
+                  <span className="font-label text-[10px] uppercase tracking-widest text-primary">
+                    {runningProgress}%
+                  </span>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  <div>
+                    <span className="block font-label text-[9px] uppercase tracking-widest text-outline-variant mb-2">
+                      Status
+                    </span>
+                    <span className="font-body text-sm font-semibold text-on-surface">
+                      {formatJobStatus(runningJob.status)}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="block font-label text-[9px] uppercase tracking-widest text-outline-variant mb-2">
+                      Stage
+                    </span>
+                    <span className="font-body text-sm font-semibold text-on-surface">
+                      {formatJobStage(runningJob.currentStage)}
+                    </span>
+                  </div>
+                </div>
+                <div className="h-2 bg-surface-container-low rounded-sm overflow-hidden">
+                  <div
+                    className="h-full bg-primary transition-all duration-300"
+                    style={{ width: `${runningProgress}%` }}
+                  />
+                </div>
+              </div>
+            )}
+
+            {runningJob && !showRunningProgress && (
+              <div className="bg-surface-container-lowest border border-outline-variant/20 rounded-sm px-4 py-3 text-sm text-secondary">
+                {runningJob.status === "success"
+                  ? "Generation completed. Loading result..."
+                  : `Generation ${runningJob.status}. ${runningJob.errorMessage || ""}`.trim()}
+              </div>
+            )}
 
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pt-4">
               <div className="flex flex-col sm:flex-row sm:items-center gap-6">

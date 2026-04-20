@@ -14,13 +14,14 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-from app.domain.enums import OutputType
+from app.domain.enums import JobStatus, JobType, OutputType, Stage
 from app.domain.models import (
     Author,
     AuthorDocument,
     AuthorSkillSnapshot,
     DocumentChapter,
     DocumentSegment,
+    PipelineJob,
 )
 from app.infra import storage
 from app.infra.db import session_scope
@@ -53,6 +54,12 @@ def _parse_iso(value: str) -> datetime | None:
         return None
 
 
+def _recovered_skills_job_id(author_id: str, snapshot_id: str) -> str:
+    """Build a deterministic synthetic job id for recovered author_skills snapshots."""
+    seed = f"rebuild-author-skills:{author_id}:{snapshot_id}"
+    return str(uuid.uuid5(uuid.NAMESPACE_URL, seed))
+
+
 @dataclass(frozen=True)
 class RebuildSummary:
     authors: int
@@ -67,14 +74,14 @@ def rebuild_from_storage(storage_root: Path) -> RebuildSummary:
     warnings: list[str] = []
     now = _now_iso()
     authors_dir = storage_root / "authors"
-    if not authors_dir.exists():
+    if not authors_dir.exists() or not authors_dir.is_dir():
         return RebuildSummary(
             authors=0,
             documents=0,
             chapters=0,
             segments=0,
             snapshots=0,
-            warnings=[f"authors dir not found: {authors_dir}"],
+            warnings=[f"authors dir not found or not directory: {authors_dir}"],
         )
 
     created_authors = 0
@@ -83,7 +90,17 @@ def rebuild_from_storage(storage_root: Path) -> RebuildSummary:
     created_segments = 0
     created_snapshots = 0
 
-    storage_author_dirs = sorted([p for p in authors_dir.iterdir() if p.is_dir()])
+    try:
+        storage_author_dirs = sorted([p for p in authors_dir.iterdir() if p.is_dir()])
+    except OSError as exc:
+        return RebuildSummary(
+            authors=0,
+            documents=0,
+            chapters=0,
+            segments=0,
+            snapshots=0,
+            warnings=[f"failed to iterate authors dir: {authors_dir} ({exc})"],
+        )
     storage_author_ids = {path.name for path in storage_author_dirs}
 
     with session_scope() as session:
@@ -117,6 +134,9 @@ def rebuild_from_storage(storage_root: Path) -> RebuildSummary:
                     delete(AuthorSkillSnapshot).where(
                         AuthorSkillSnapshot.author_id.in_(stale_author_ids)
                     )
+                )
+                session.execute(
+                    delete(PipelineJob).where(PipelineJob.author_id.in_(stale_author_ids))
                 )
                 session.execute(
                     delete(AuthorDocument).where(AuthorDocument.author_id.in_(stale_author_ids))
@@ -305,6 +325,12 @@ def rebuild_from_storage(storage_root: Path) -> RebuildSummary:
 
             # Replace snapshot rows for this author to ensure correct is_latest.
             session.execute(delete(AuthorSkillSnapshot).where(AuthorSkillSnapshot.author_id == author_id))
+            session.execute(
+                delete(PipelineJob).where(
+                    PipelineJob.author_id == author_id,
+                    PipelineJob.job_type == JobType.AUTHOR_SKILLS.value,
+                )
+            )
 
             if snapshot_records:
                 snapshot_records.sort(
@@ -319,6 +345,28 @@ def rebuild_from_storage(storage_root: Path) -> RebuildSummary:
                             is_latest=(snapshot_id == latest_id),
                             outputs_json=json.dumps(outputs, ensure_ascii=False),
                             created_at=created_at_text,
+                        )
+                    )
+                    session.add(
+                        PipelineJob(
+                            job_id=_recovered_skills_job_id(
+                                author_id=author_id,
+                                snapshot_id=snapshot_id,
+                            ),
+                            author_id=author_id,
+                            document_id=None,
+                            job_type=JobType.AUTHOR_SKILLS.value,
+                            status=JobStatus.SUCCESS.value,
+                            current_stage=Stage.RENDER.value,
+                            progress=100,
+                            query=None,
+                            model_config_json="{}",
+                            snapshot_id=snapshot_id,
+                            outputs_json=json.dumps(outputs, ensure_ascii=False),
+                            error_message=None,
+                            created_at=created_at_text,
+                            updated_at=created_at_text,
+                            finished_at=created_at_text,
                         )
                     )
                     created_snapshots += 1

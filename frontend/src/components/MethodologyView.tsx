@@ -33,6 +33,31 @@ function readSubSkills(outputs: SkillOutputs | null): Array<Record<string, unkno
 }
 
 // 辅助组件：渲染小标题
+function formatJobStatus(value: string | null | undefined): string {
+  const text = (value || "queued").trim().toLowerCase();
+  return text.charAt(0).toUpperCase() + text.slice(1);
+}
+
+function formatJobStage(value: string | null | undefined): string {
+  const normalized = (value || "").trim().toLowerCase();
+  const labels: Record<string, string> = {
+    analyze: "Analyze",
+    main_skill: "Main Skill",
+    sub_skill: "Sub Skill",
+    render: "Render",
+    select_skills: "Select Skills",
+    answer: "Answer",
+    extract: "Extract",
+    segment_sync: "Segment Sync",
+  };
+  return labels[normalized] || "Pending";
+}
+
+function normalizeProgress(value: number | null | undefined): number {
+  if (typeof value !== "number" || Number.isNaN(value)) return 0;
+  return Math.max(0, Math.min(100, Math.round(value)));
+}
+
 const SectionHeader = ({ title }: { title: string }) => (
   <div className="flex items-center gap-2 mb-4 mt-10 text-[11px] font-bold tracking-[0.15em] text-secondary uppercase">
     <div className="w-1 h-1 rounded-full bg-secondary"></div>
@@ -67,6 +92,11 @@ export default function MethodologyView({
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"main" | "sub">("main");
   const [selectedSubSkillIndex, setSelectedSubSkillIndex] = useState<number>(0);
+  const showRunningProgress =
+    !!runningJob && (runningJob.status === "queued" || runningJob.status === "running");
+  const showTerminalHint =
+    !!runningJob && (runningJob.status === "failed" || runningJob.status === "canceled");
+  const runningProgress = normalizeProgress(runningJob?.progress);
 
   const mainSkills = useMemo(() => readMainSkills(outputs), [outputs]);
   const subSkills = useMemo(() => readSubSkills(outputs), [outputs]);
@@ -143,6 +173,49 @@ export default function MethodologyView({
           Refresh Latest
         </button>
       </section>
+
+      {showRunningProgress && runningJob && (
+        <section className="mb-10 bg-surface-container-low border border-outline-variant/20 rounded-sm p-6">
+          <div className="flex items-center justify-between gap-4 mb-4">
+            <span className="font-label text-[10px] uppercase tracking-widest text-secondary">
+              Job Progress
+            </span>
+            <span className="font-label text-[10px] uppercase tracking-widest text-primary">
+              {runningProgress}%
+            </span>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+            <div>
+              <span className="block font-label text-[9px] uppercase tracking-widest text-outline-variant mb-2">
+                Status
+              </span>
+              <span className="font-body text-sm font-semibold text-on-surface">
+                {formatJobStatus(runningJob.status)}
+              </span>
+            </div>
+            <div className="md:col-span-2">
+              <span className="block font-label text-[9px] uppercase tracking-widest text-outline-variant mb-2">
+                Stage
+              </span>
+              <span className="font-body text-sm font-semibold text-on-surface">
+                {formatJobStage(runningJob.currentStage)}
+              </span>
+            </div>
+          </div>
+          <div className="h-2 bg-surface-container-high rounded-sm overflow-hidden">
+            <div
+              className="h-full bg-primary transition-all duration-300"
+              style={{ width: `${runningProgress}%` }}
+            />
+          </div>
+        </section>
+      )}
+
+      {showTerminalHint && runningJob && (
+        <section className="mb-10 bg-surface-container-low border border-outline-variant/20 rounded-sm px-4 py-3 text-sm text-secondary">
+          {`Task ${runningJob.status}. ${runningJob.errorMessage || ""}`.trim()}
+        </section>
+      )}
 
       {!outputs ? (
         <div className="py-20 px-6 text-center border-2 border-dashed border-outline-variant/20 rounded-sm bg-surface-container-low/30">
