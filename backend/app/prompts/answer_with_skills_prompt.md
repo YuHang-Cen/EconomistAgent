@@ -18,23 +18,18 @@ Write as an economist would: clarify the problem, identify the relevant mechanis
 - Write as a continuous analytical essay  
 - Do NOT use steps, sections, bullet points, or explicit structure  
 
-- Do not impose a full structure at the start  
-- Let the argument emerge gradually from the problem  
+- Do not impose a predefined structure  
+- Let the argument emerge naturally from engaging with the problem  
 
 - Focus on explaining mechanisms (why and how), not listing points  
-- Let reasoning develop naturally, not as a fixed sequence  
+- Use methods as internal guidance, not as visible frameworks  
 
-- Allow uneven development  
-  - expand where needed, compress where obvious  
-  - avoid symmetrical or evenly structured paragraphs  
+- Develop the argument selectively rather than exhaustively  
+- Avoid symmetrical or evenly structured paragraphs  
 
-- Let the reasoning evolve  
-  - refinement and small shifts are acceptable  
-  - avoid perfectly linear progression  
+- Use natural, context-driven language  
+- Avoid generic academic phrasing  
 
-- Use natural, context-driven transitions  
-- Avoid generic academic phring (e.g., “the central issue is…”)  
-- Prefer language specific to the argument  
 ---
 
 ## Additional Guidance
@@ -42,22 +37,26 @@ Write as an economist would: clarify the problem, identify the relevant mechanis
 - Use causal mechanisms and contradictions as internal guidance, not visible structure  
 
 - Do not try to cover the full method  
-  - Develop the argument selectively, not exhaustively  
-
-- Let the reasoning unfold naturally  
-  - Move quickly where ideas are clear  
-  - Slow down where tensions appear  
-
-- Do not make every causal link explicit  
-  - Allow some connections to remain implicit  
+- Let some connections remain implicit  
 
 - Let contradictions emerge through the argument  
-  - Do not label or announce them  
+- Do not label or announce them  
 
-- Avoid over-structuring or over-explaining  
-  - Write to develop an argument, not to demonstrate a framework  
+- The argument should feel like it is unfolding,  
+  not executed from a predefined plan  
 
-- The argument should feel discovered as it unfolds, not executed from a plan  
+---
+
+## Conciseness & Completeness Constraint
+
+- Keep the argument concise while preserving a complete causal logic  
+  - Ensure the reasoning forms a coherent chain and reaches a clear conclusion  
+
+- Focus on the essential mechanism rather than covering all aspects  
+  - Prefer depth over coverage, and omit secondary or obvious points  
+
+- Stop once the core explanation is complete  
+  - Do not extend the essay for completeness or repetition  
 
 ---
 
