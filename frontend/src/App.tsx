@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "motion/react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   createAnswerJob,
   createAuthor,
@@ -119,6 +119,7 @@ export default function App() {
   const [selectedAnalysisAuthorId, setSelectedAnalysisAuthorId] = useState<string | null>(null);
   const [analysisHistoryByAuthor, setAnalysisHistoryByAuthor] = useState<Record<string, Job[]>>({});
   const [analysisLoadingByAuthor, setAnalysisLoadingByAuthor] = useState<Record<string, boolean>>({});
+  const analysisHistoryInflightRef = useRef<Map<string, Promise<void>>>(new Map());
   const [selectedAnswerJobId, setSelectedAnswerJobId] = useState<string | null>(null);
   const [answersByJob, setAnswersByJob] = useState<Record<string, AnswerVM>>({});
   const [answerQuery, setAnswerQuery] = useState("");
@@ -278,17 +279,29 @@ export default function App() {
   const ensureAnalysisHistory = useCallback(
     async (authorId: string, force = false) => {
       if (!force && analysisHistoryByAuthor[authorId]) return;
-      setAnalysisLoadingByAuthor((prev) => ({ ...prev, [authorId]: true }));
-      try {
-        const result = await listAuthorJobs({
-          authorId,
-          jobType: "author_answer",
-          limit: 50,
-        });
-        setAnalysisHistoryByAuthor((prev) => ({ ...prev, [authorId]: result.items }));
-      } finally {
-        setAnalysisLoadingByAuthor((prev) => ({ ...prev, [authorId]: false }));
+      const inflight = analysisHistoryInflightRef.current.get(authorId);
+      if (inflight) {
+        if (!force) return inflight;
+        await inflight;
       }
+
+      const request = (async () => {
+        setAnalysisLoadingByAuthor((prev) => ({ ...prev, [authorId]: true }));
+        try {
+          const result = await listAuthorJobs({
+            authorId,
+            jobType: "author_answer",
+            limit: 50,
+          });
+          setAnalysisHistoryByAuthor((prev) => ({ ...prev, [authorId]: result.items }));
+        } finally {
+          setAnalysisLoadingByAuthor((prev) => ({ ...prev, [authorId]: false }));
+          analysisHistoryInflightRef.current.delete(authorId);
+        }
+      })();
+
+      analysisHistoryInflightRef.current.set(authorId, request);
+      return request;
     },
     [analysisHistoryByAuthor]
   );
@@ -349,6 +362,13 @@ export default function App() {
     if (activeTab !== "methodology" || !selectedMethodologyAuthorId) return;
     loadLatestSkills(selectedMethodologyAuthorId).catch(handleError);
   }, [activeTab, selectedMethodologyAuthorId, loadLatestSkills, handleError]);
+
+  useEffect(() => {
+    if (activeTab !== "answer" || authors.length === 0) return;
+    authors.forEach((author) => {
+      ensureAnalysisHistory(author.authorId).catch(handleError);
+    });
+  }, [activeTab, authors, ensureAnalysisHistory, handleError]);
 
   useEffect(() => {
     if (activeTab !== "answer" || !selectedAnalysisAuthorId) return;
