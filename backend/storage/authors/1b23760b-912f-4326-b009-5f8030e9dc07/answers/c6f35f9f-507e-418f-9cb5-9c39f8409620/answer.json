@@ -1,0 +1,23 @@
+{
+  "query": "How can we measure the impact of algorithmic management on workers' residual claimancy and incentive compatibility constraints?",
+  "selected_skill_index": 2,
+  "selected_section_id": "dfd3f457-6469-4d71-a875-ff1213ea364e",
+  "selected_main_skill_name": "Structural Dilemma Analysis through Conceptual Contrast",
+  "selected_sub_skill_names": [
+    "Structural Dilemma Analysis",
+    "Comparative Systemic Analysis",
+    "Conceptual Diagnosis and Corrective Clarification",
+    "Historical Moral Trajectory Analysis"
+  ],
+  "selection_mode": "llm",
+  "selection_warning": null,
+  "answer": {
+    "title": "The Algorithmic Dilemma: Measurement as Conceptual Clarification",
+    "topic": "Labor Economics / Digital Management",
+    "summary": "Measuring algorithmic management's impact requires diagnosing a core conceptual shift: the replacement of market-based residual claimancy with engineered incentive compatibility, which systematically obscures worker agency and transforms economic measurement into a problem of revealed preference under constraint.",
+    "markdown": "The challenge of measuring algorithmic management’s impact on workers is not merely technical but conceptual, revealing a deeper structural dilemma in the organization of work. At its core lies a tension between two opposing coordination principles: the traditional market logic of residual claimancy, where the worker retains a claim on the marginal product of their effort, and the engineered logic of algorithmic control, which seeks to directly program behavior through incentive compatibility constraints. The measurement problem arises because the latter principle actively subsumes and obscures the former.\n\nResidual claimancy is a market phenomenon—it emerges from a decentralized process where compensation is loosely coupled to output, preserving a zone of discretion and allowing the worker to capture some surplus from adaptation and initiative. Algorithmic management, by contrast, operates through a logic of conscious design. It seeks to make incentives 'compatible' by monitoring inputs and outputs with such precision that the worker’s optimal strategy is algorithmically predetermined. The very act of measurement in this system is not passive observation but an active force that reshapes the employment relationship. Key metrics—productivity rates, task completion times, behavioral scores—are no longer neutral indicators; they become the constitutive elements of a new incentive architecture.\n\nConsequently, measuring the impact on residual claimancy requires diagnosing a disappearance. As algorithmic systems tighten the linkage between monitored performance and pay, the residual—the discretionary surplus that was neither specified nor captured by the initial contract—is systematically eliminated. The worker’s role shifts from a semi-autonomous agent making adaptive choices within a market-like framework to an operand within a closed feedback loop. The true metric of this shift is the narrowing gap between the maximum theoretically extractable effort and the actual enforced effort. Incentive compatibility constraints are not just measured; they are implemented through measurement, creating a system where revealed preference (what the worker actually does) converges perfectly with designed preference (what the algorithm dictates).\n\nTherefore, effective measurement must move beyond quantifying discrete changes in pay or satisfaction. It must trace the conceptual inversion: the transformation of economic agency from a claim on an uncertain future output to a predictable response to a engineered present stimulus. The impact is seen in the erosion of the very variables—discretion, adaptation, entrepreneurial effort—that defined residual claimancy. The solution is to measure not the presence of new constraints, but the absence of the old freedom; to track the systematic replacement of market discovery with algorithmic determinism, where the worker’s residual claim is not redistributed but dissolved."
+  },
+  "generated_at": "2026-04-20T15:04:16.381948+00:00",
+  "model_name": "deepseek-chat",
+  "api_base": "https://api.deepseek.com"
+}
