@@ -33,6 +33,14 @@ def dev() -> None:
     raise SystemExit(_run(["uvicorn", "app.main:app", "--reload"]))
 
 
+def serve() -> None:
+    """Start FastAPI server for stable/non-reload runtime (e.g. Docker)."""
+    _bootstrap_or_exit()
+    raise SystemExit(
+        _run(["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"])
+    )
+
+
 def _build_worker_options(
     platform: str | None = None,
     env: Mapping[str, str] | None = None,

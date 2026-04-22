@@ -31,6 +31,8 @@ backend/.ruff_cache/
 backend/.coverage
 backend/htmlcov/
 backend/.env
+backend/storage/
+backend/storage/**
 
 # Node (frontend)
 frontend/node_modules/

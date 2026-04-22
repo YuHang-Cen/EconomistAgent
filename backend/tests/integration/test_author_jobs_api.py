@@ -7,6 +7,7 @@ from typing import Any
 
 from app.domain.models import PipelineJob
 from app.infra.db import session_scope
+from app.infra.settings import get_settings
 from app.services import job_service
 from fastapi.testclient import TestClient
 
@@ -154,3 +155,24 @@ def test_job_create_model_config_passthrough_and_default(
     assert answer_cfg.get("api_key") == "sk-test-answer"
 
     assert default_cfg == {}
+
+
+def test_job_create_requires_api_key_when_missing(client: TestClient, monkeypatch: Any) -> None:
+    """skills/answer create APIs should return 422 when no model API key is configured."""
+    monkeypatch.setenv("DEEPSEEK_API_KEY", "")
+    monkeypatch.setenv("CELERY_TASK_ALWAYS_EAGER", "false")
+    get_settings.cache_clear()
+    author_id = _create_author(client, "Author Missing Key")
+
+    skills_response = client.post(f"/api/authors/{author_id}/jobs/skills")
+    assert skills_response.status_code == 422
+    assert "missing model api key" in skills_response.json()["error"]["message"]
+
+    answer_response = client.post(
+        f"/api/authors/{author_id}/jobs/answer",
+        json={"query": "test missing key"},
+    )
+    assert answer_response.status_code == 422
+    assert "missing model api key" in answer_response.json()["error"]["message"]
+
+    get_settings.cache_clear()

@@ -1,0 +1,23 @@
+{
+  "query": "How does the proliferation of Generative AI alter the equilibrium of 'signaling' in the labor market and the marginal returns to education?",
+  "selected_skill_index": 4,
+  "selected_section_id": "a89729ec-c65d-45e0-af78-6291312f3fc6",
+  "selected_main_skill_name": "Systemic Selection Pressure Analysis",
+  "selected_sub_skill_names": [
+    "Systemic Causal Derivation",
+    "Comparative System Analysis",
+    "Conceptual Contradiction Analysis",
+    "Functional Selection Pressure Analysis"
+  ],
+  "selection_mode": "llm",
+  "selection_warning": null,
+  "answer": {
+    "title": "The AI Disruption of Human Capital Signaling",
+    "topic": "Labor Economics & Technological Change",
+    "summary": "Generative AI systematically devalues traditional educational credentials as signals of productive skill by decoupling the demonstration of cognitive ability from human learning, thereby compressing the wage premium for formal education and shifting labor market competition toward traits AI cannot replicate.",
+    "markdown": "The proliferation of Generative AI introduces a fundamental shock to the labor market’s signaling equilibrium by altering what credentials actually signal. In a traditional model, educational attainment—degrees, certifications, test scores—serves as a costly signal of underlying cognitive ability, diligence, and social acclimation. Employers rely on these signals because directly observing productivity is costly. AI disrupts this by enabling individuals to produce outputs—code, analysis, prose, design—that previously required years of disciplined training, without possessing the underlying human capital that training was meant to cultivate. The signal becomes noisy, even deceptive, as the credential no longer reliably indicates a unique human capacity to perform the task.\n\nThis erosion of the signal’s value creates a systemic selection pressure. As AI-augmented output becomes the new baseline, the marginal return to education as a mere credential declines. The wage premium compresses for roles where the core function is the generation of standardized cognitive artifacts, because the artifact itself can no longer be traced definitively to human skill. The labor market’s selective machinery must therefore adapt, seeking new, harder-to-fake signals. Competition shifts toward signaling traits that AI cannot replicate or amplify: genuine creativity at the frontier, interpersonal judgment, physical dexterity in unstructured environments, or the moral authority and trust required for leadership and high-stakes negotiation.\n\nConsequently, the equilibrium transforms from one where educational institutions act as the primary filtering and certifying mechanism to one where their function is partially displaced. The returns to education bifurcate: they diminish for its role as a generic cognitive signal but may intensify for its role in fostering precisely those non-codifiable human traits and networks that become newly salient. The system begins to select for a different mix of aptitudes, rewarding not the ability to execute learned procedures but the capacity to define problems, manage ambiguity, and exercise wisdom in contexts where AI provides data but not meaning. This transition generates inequality along a new axis, privileging those with innate or cultivated strengths in these AI-resistant domains while devaluing accumulated human capital that is now functionally obsolete."
+  },
+  "generated_at": "2026-04-21T15:39:19.268182+00:00",
+  "model_name": "deepseek-chat",
+  "api_base": "https://api.deepseek.com"
+}

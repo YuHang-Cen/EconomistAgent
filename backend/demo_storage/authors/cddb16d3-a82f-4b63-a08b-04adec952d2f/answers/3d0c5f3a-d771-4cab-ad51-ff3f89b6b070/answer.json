@@ -1,0 +1,25 @@
+{
+  "query": "How does the proliferation of Generative AI alter the equilibrium of 'signaling' in the labor market and the marginal returns to education?",
+  "selected_skill_index": 1,
+  "selected_section_id": "758d72bc-900e-4882-bb81-d8e07787d8a9",
+  "selected_main_skill_name": "Comparative Institutional Analysis through Conceptual Clarification",
+  "selected_sub_skill_names": [
+    "Comparative System Analysis",
+    "Conceptual Contradiction Resolution",
+    "Equilibrium Disturbance and Adjustment Analysis",
+    "Coherence Enforcement through Exhaustive Option Analysis",
+    "Historical Evolution Analysis",
+    "Mechanism Analysis via Equilibrium Modeling"
+  ],
+  "selection_mode": "llm",
+  "selection_warning": null,
+  "answer": {
+    "title": "The Devaluation of Educational Signaling in the Age of Generative AI",
+    "topic": "Labor Economics, Human Capital",
+    "summary": "Generative AI disrupts the labor market's signaling equilibrium by decoupling the production of credible signals from human educational investment, compressing the wage premium for credentials that certify mere information processing and shifting marginal returns toward education that cultivates uniquely human judgment, creativity, and complex social coordination.",
+    "markdown": "The labor market has long relied on educational credentials as a costly signal of underlying productivity—a mechanism that separates high-ability from low-ability workers. Generative AI fundamentally disrupts this equilibrium by massively reducing the cost of producing the outputs that credentials were meant to signal. When an AI can draft reports, solve standardized problems, and synthesize information, the ability to perform these tasks ceases to be a reliable indicator of human skill acquired through years of education. The signal becomes noisy, as the observable output can no longer be confidently attributed to the worker’s human capital.\n\nThis erosion triggers a revaluation of educational investment. The marginal return to education that primarily certifies proficiency in replicable cognitive tasks—the kind that AI now commoditizes—plummets. The wage premium for such credentials compresses because they no longer guarantee a scarce productive capability. Simultaneously, the returns shift toward forms of learning that develop difficult-to-automate human complements: the judgment to interpret AI outputs in context, the creativity to define novel problems, and the interpersonal skills to manage collaboration and ethical ambiguity. The equilibrium doesn't eliminate signaling but changes what is worth signaling. Educational institutions that merely process information will see their signaling value atrophy, while those that can verifiably cultivate distinctively human capacities will command a new premium. The systemic danger is a transitional mismatch, where legacy educational investments continue to be made while the market has already devalued their signal, leading to a wasteful accumulation of human capital in obsolete forms and a temporary but painful inflation of credentialing requirements as employers struggle to find new filters."
+  },
+  "generated_at": "2026-04-21T15:37:31.350821+00:00",
+  "model_name": "deepseek-chat",
+  "api_base": "https://api.deepseek.com"
+}

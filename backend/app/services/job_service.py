@@ -13,7 +13,7 @@ from app.domain.models import Author, AuthorDocument, PipelineJob
 from app.infra import storage
 from app.infra.db import session_scope
 from app.infra.settings import get_settings
-from app.services import pipeline_service
+from app.services import llm_utils, pipeline_service
 from fastapi import HTTPException
 from sqlalchemy import and_, desc, or_, select
 
@@ -85,6 +85,25 @@ def _normalize_model_config(model_config: dict[str, Any] | None) -> dict[str, st
         if isinstance(value, str) and value.strip():
             normalized[key] = value.strip()
     return normalized
+
+
+def _require_model_api_key(model_config: dict[str, Any] | None) -> None:
+    """Ensure model API key is available before enqueuing LLM-backed jobs."""
+    settings = get_settings()
+    if settings.celery_task_always_eager:
+        return
+
+    with llm_utils.model_config_override_scope(model_config):
+        effective = llm_utils.get_effective_model_config()
+    if effective.get("api_key", "").strip():
+        return
+    raise HTTPException(
+        status_code=422,
+        detail=(
+            "missing model api key; set DEEPSEEK_API_KEY in backend/.env "
+            "or provide modelConfig.apiKey in request"
+        ),
+    )
 
 
 def _encode_cursor(created_at: str, job_id: str) -> str:
@@ -231,6 +250,7 @@ def create_author_skills_job(
     model_config: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """创建 author_skills 任务并自动入队。"""
+    _require_model_api_key(model_config)
     now = _now_iso()
     with session_scope() as session:
         author = session.get(Author, author_id)
@@ -297,6 +317,7 @@ def create_author_answer_job(
     model_config: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """创建 author_answer 任务并自动入队。"""
+    _require_model_api_key(model_config)
     if not query.strip():
         raise HTTPException(status_code=422, detail="query is required")
     now = _now_iso()
@@ -477,7 +498,10 @@ def delete_author_answer_job(author_id: str, job_id: str) -> dict[str, Any]:
         try:
             storage.delete_answer_root(author_id=author_id, job_id=job_id)
         except OSError as exc:
-            raise HTTPException(status_code=500, detail=f"failed to delete answer artifacts: {exc}") from exc
+            raise HTTPException(
+                status_code=500,
+                detail=f"failed to delete answer artifacts: {exc}",
+            ) from exc
 
         session.delete(job)
 
@@ -519,7 +543,10 @@ def list_author_jobs(
                 )
             )
 
-        stmt = stmt.order_by(desc(PipelineJob.created_at), desc(PipelineJob.job_id)).limit(limit + 1)
+        stmt = stmt.order_by(
+            desc(PipelineJob.created_at),
+            desc(PipelineJob.job_id),
+        ).limit(limit + 1)
         rows = list(session.execute(stmt).scalars())
 
     has_more = len(rows) > limit

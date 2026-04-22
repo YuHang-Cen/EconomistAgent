@@ -1,20 +1,20 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# Frontend
 
-# Run and deploy your AI Studio app
+The frontend is a Vite + React app that talks to the backend API.
 
-This contains everything you need to run your app locally.
-
-View your app in AI Studio: https://ai.studio/apps/4d2b7fb9-69f0-437b-a978-676cdeddaeee
-
-## Run Locally
-
-**Prerequisites:**  Node.js
-
+## Local development (without Docker)
 
 1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+   ```bash
+   npm install
+   ```
+2. Create env file:
+   ```bash
+   cp .env.example .env
+   ```
+3. Start:
+   ```bash
+   npm run dev
+   ```
+
+By default the app calls `http://127.0.0.1:8000/api`.

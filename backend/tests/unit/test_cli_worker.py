@@ -4,6 +4,7 @@ import pytest
 from app.cli import (
     _build_worker_command,
     _build_worker_options,
+    serve,
     worker,
 )
 from app.infra.db_recovery import StartupDatabaseBootstrapError
@@ -78,3 +79,24 @@ def test_worker_exits_when_bootstrap_fails(monkeypatch: pytest.MonkeyPatch) -> N
         worker()
 
     assert exc.value.code == 1
+
+
+def test_serve_bootstraps_database_before_running_command(monkeypatch: pytest.MonkeyPatch) -> None:
+    events: list[str] = []
+
+    def fake_bootstrap() -> None:
+        events.append("bootstrap")
+
+    def fake_run(command: list[str]) -> int:
+        events.append("run")
+        assert command == ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+        return 0
+
+    monkeypatch.setattr("app.cli.bootstrap_database_on_startup", fake_bootstrap)
+    monkeypatch.setattr("app.cli._run", fake_run)
+
+    with pytest.raises(SystemExit) as exc:
+        serve()
+
+    assert exc.value.code == 0
+    assert events == ["bootstrap", "run"]

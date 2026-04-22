@@ -1,0 +1,48 @@
+services:
+  redis:
+    image: redis:7.4-alpine
+    ports:
+      - "6379:6379"
+
+  backend:
+    build:
+      context: ./backend
+    env_file:
+      - ./backend/.env
+    environment:
+      REDIS_URL: redis://redis:6379/0
+      DATABASE_URL: sqlite:///./storage/app.db
+      STORAGE_ROOT: storage
+    depends_on:
+      - redis
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend/storage:/app/storage
+    command: sh -c "python scripts/bootstrap_storage.py && uv run serve"
+
+  worker:
+    build:
+      context: ./backend
+    env_file:
+      - ./backend/.env
+    environment:
+      REDIS_URL: redis://redis:6379/0
+      DATABASE_URL: sqlite:///./storage/app.db
+      STORAGE_ROOT: storage
+      CELERY_WORKER_POOL: solo
+      CELERY_WORKER_CONCURRENCY: "1"
+    depends_on:
+      - redis
+      - backend
+    volumes:
+      - ./backend/storage:/app/storage
+    command: sh -c "python scripts/bootstrap_storage.py && uv run worker"
+
+  frontend:
+    build:
+      context: ./frontend
+    depends_on:
+      - backend
+    ports:
+      - "3000:80"
