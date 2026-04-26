@@ -123,8 +123,68 @@ def test_multipart_upload_document_creates_reload_job(
     assert final_payload["progress"] == 100
 
 
-def test_multipart_upload_rejects_non_pdf(client: TestClient) -> None:
-    """Multipart upload should reject non-pdf file extension."""
+def test_upload_epub_document_creates_reload_job(
+    client: TestClient,
+    create_test_epub: Callable[[str], str],
+) -> None:
+    """Uploading a valid local EPUB should create and complete document_reload job."""
+    create_author_response = client.post(
+        "/api/authors",
+        json={"authorName": "EPUB Author", "school": "Test", "avatarUrl": ""},
+    )
+    author_id = create_author_response.json()["data"]["authorId"]
+    epub_uri = create_test_epub("big-country-big-city.epub")
+
+    upload_response = client.post(
+        f"/api/authors/{author_id}/documents",
+        json={"bookTitle": "Big Country Big City", "pdfUri": epub_uri},
+    )
+    payload = upload_response.json()
+    assert upload_response.status_code == 200
+    assert payload["success"] is True
+    assert payload["data"]["documentId"]
+    assert payload["data"]["reloadJobId"]
+
+    job_id = payload["data"]["reloadJobId"]
+    final_payload = _wait_job_status(client=client, job_id=job_id, expected="success")
+    assert final_payload["status"] == "success"
+    assert final_payload["currentStage"] == "segment_sync"
+    assert final_payload["progress"] == 100
+
+
+def test_multipart_upload_epub_document_creates_reload_job(
+    client: TestClient,
+    create_test_epub: Callable[[str], str],
+) -> None:
+    """Uploading an EPUB file via multipart should create and complete reload job."""
+    create_author_response = client.post(
+        "/api/authors",
+        json={"authorName": "Multipart EPUB Author", "school": "Test", "avatarUrl": ""},
+    )
+    author_id = create_author_response.json()["data"]["authorId"]
+    epub_uri = create_test_epub("multipart-upload.epub")
+    epub_path = Path(epub_uri)
+    epub_bytes = epub_path.read_bytes()
+
+    upload_response = client.post(
+        f"/api/authors/{author_id}/documents/upload",
+        data={"bookTitle": "Multipart EPUB Book"},
+        files={"file": ("multipart-upload.epub", epub_bytes, "application/epub+zip")},
+    )
+    payload = upload_response.json()
+    assert upload_response.status_code == 200
+    assert payload["success"] is True
+    assert payload["data"]["documentId"]
+    assert payload["data"]["reloadJobId"]
+
+    job_id = payload["data"]["reloadJobId"]
+    final_payload = _wait_job_status(client=client, job_id=job_id, expected="success")
+    assert final_payload["status"] == "success"
+    assert final_payload["progress"] == 100
+
+
+def test_multipart_upload_rejects_unsupported_document(client: TestClient) -> None:
+    """Multipart upload should reject unsupported document extensions."""
     create_author_response = client.post(
         "/api/authors",
         json={"authorName": "Multipart Bad Suffix", "school": "Test", "avatarUrl": ""},
@@ -139,7 +199,7 @@ def test_multipart_upload_rejects_non_pdf(client: TestClient) -> None:
     payload = upload_response.json()
     assert upload_response.status_code == 422
     assert payload["error"]["code"] == "INVALID_ARGUMENT"
-    assert "must end with .pdf" in payload["error"]["message"]
+    assert "must end with .pdf or .epub" in payload["error"]["message"]
 
 
 def test_multipart_upload_returns_404_when_author_missing(
@@ -212,8 +272,8 @@ def test_document_reload_fails_when_pdf_path_missing(client: TestClient) -> None
     assert _find_document_status(client, author_id, payload["documentId"]) == "failed"
 
 
-def test_document_reload_fails_when_path_not_pdf(client: TestClient) -> None:
-    """Non-PDF file extension should fail reload job."""
+def test_document_reload_fails_when_path_not_supported_document(client: TestClient) -> None:
+    """Unsupported file extension should fail reload job."""
     create_author_response = client.post(
         "/api/authors",
         json={"authorName": "Bad Suffix", "school": "Test", "avatarUrl": ""},
@@ -233,7 +293,7 @@ def test_document_reload_fails_when_path_not_pdf(client: TestClient) -> None:
 
     final_payload = _wait_job_status(client, payload["reloadJobId"], "failed")
     assert final_payload["status"] == "failed"
-    assert "must end with .pdf" in str(final_payload["errorMessage"])
+    assert "must end with .pdf or .epub" in str(final_payload["errorMessage"])
     assert final_payload["outputsReady"] is False
     assert _find_document_status(client, author_id, payload["documentId"]) == "failed"
 

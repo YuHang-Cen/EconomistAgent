@@ -34,6 +34,7 @@ from sqlalchemy import delete, func, select, update
 logger = logging.getLogger(__name__)
 
 MAX_AVATAR_BYTES = 5 * 1024 * 1024
+ALLOWED_DOCUMENT_SUFFIXES = {".pdf", ".epub"}
 ALLOWED_AVATAR_SUFFIXES: dict[str, str] = {
     ".jpg": "image/jpeg",
     ".jpeg": "image/jpeg",
@@ -322,9 +323,10 @@ def upload_document(author_id: str, payload: AuthorDocumentUploadRequest) -> dic
 
 
 def upload_document_file(author_id: str, book_title: str, filename: str, content: bytes) -> dict[str, str]:
-    """Upload one PDF file from multipart payload, persist it, and enqueue reload job."""
-    if not filename.lower().endswith(".pdf"):
-        raise HTTPException(status_code=422, detail="uploaded file must end with .pdf")
+    """Upload one document file from multipart payload, persist it, and enqueue reload job."""
+    suffix = Path(filename).suffix.lower()
+    if suffix not in ALLOWED_DOCUMENT_SUFFIXES:
+        raise HTTPException(status_code=422, detail="uploaded file must end with .pdf or .epub")
 
     # Ensure author exists before writing storage files.
     with session_scope() as session:
@@ -334,7 +336,7 @@ def upload_document_file(author_id: str, book_title: str, filename: str, content
 
     document_id = str(uuid.uuid4())
     document_dir = storage.document_root(author_id=author_id, document_id=document_id)
-    source_path = document_dir / "source.pdf"
+    source_path = document_dir / f"source{suffix}"
     source_path.write_bytes(content)
     stored_pdf_uri = str(Path(source_path).resolve())
 

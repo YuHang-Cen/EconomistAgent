@@ -78,15 +78,15 @@ export default function Sidebar({
 
           <label className="block">
             <span className="font-label text-[10px] uppercase tracking-widest text-secondary block mb-2">
-              PDF File
+              PDF/EPUB File
             </span>
             <div className="border-2 border-dashed border-outline-variant/30 rounded-sm p-4 bg-white/50">
               <label className="flex items-center gap-3 cursor-pointer text-sm text-secondary">
                 <FileUp className="w-4 h-4" />
-                <span>{file ? file.name : "Choose a PDF file"}</span>
+                <span>{file ? file.name : "Choose a PDF/EPUB file"}</span>
                 <input
                   type="file"
-                  accept=".pdf,application/pdf"
+                  accept=".pdf,application/pdf,.epub,application/epub+zip"
                   className="hidden"
                   onChange={(event) => setFile(event.target.files?.[0] || null)}
                 />
