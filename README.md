@@ -39,6 +39,21 @@ chmod +x start.sh stop.sh
 - Windows： ./stop.bat  
 - macOS / Linux： ./stop.sh  
 
+### 启动与停止机制说明
+
+- `./start.bat` / `./start.sh` 内部执行的是 `docker compose up -d --build`
+- 其中 `-d` 表示 detached（后台运行），所以脚本本身在启动完成后会退出，但 `frontend`、`backend`、`worker`、`redis` 这几个容器会继续在 Docker 中运行
+- 因此，启动脚本执行完以后，再在当前终端按 `Ctrl+C`，只能中断当前前台终端操作，不能停止已经在后台运行的 Docker 容器
+- 正确的停止方式是执行 `./stop.bat` / `./stop.sh`，它们内部调用 `docker compose down`，会把当前项目相关的容器和网络一起停止
+
+如果你希望使用 `Ctrl+C` 直接停止服务，可以改为手动执行前台模式：
+
+```bash
+docker compose up --build
+```
+
+这种方式不带 `-d`，日志会持续占用当前终端；按 `Ctrl+C` 时，会直接停止这次 `docker compose` 会话。
+
 ---
 
 ## 环境配置（Environment）
