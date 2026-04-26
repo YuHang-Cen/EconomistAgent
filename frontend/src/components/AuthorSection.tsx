@@ -137,7 +137,7 @@ export default function AuthorSection({
           >
             {avatarSrc ? (
               <img
-                className="w-16 h-16 object-cover rounded-full filter grayscale hover:grayscale-0 transition-all duration-500 editorial-shadow"
+                className="w-16 h-16 object-cover rounded-full transition-all duration-500 editorial-shadow"
                 src={avatarSrc}
                 alt={author.authorName}
                 referrerPolicy="no-referrer"
