@@ -3,11 +3,13 @@
 from __future__ import annotations
 
 import json
+import re
 from typing import Any
 
+from app.domain.language import normalize_author_language
 from app.services.llm_utils import (
     build_optional_llm,
-    load_prompt,
+    load_prompt_by_language,
     normalize_message_content,
     parse_json_with_recovery,
     render_prompt,
@@ -27,8 +29,25 @@ def _empty_selection(selection_warning: str | None = None) -> dict[str, Any]:
 
 
 def _tokenize(text: str) -> list[str]:
-    """Normalize input text into lowercase tokens."""
-    return [token for token in text.lower().replace("_", " ").split() if token]
+    """Normalize mixed Chinese/English text into matchable tokens."""
+    lowered = text.lower().replace("_", " ")
+    ascii_tokens = re.findall(r"[a-z0-9]+", lowered)
+
+    cjk_tokens: list[str] = []
+    for seq in re.findall(r"[\u4e00-\u9fff]+", text):
+        if len(seq) >= 2:
+            cjk_tokens.append(seq)
+            cjk_tokens.extend(seq[idx : idx + 2] for idx in range(len(seq) - 1))
+
+    # Preserve order while deduplicating.
+    seen: set[str] = set()
+    merged: list[str] = []
+    for token in [*ascii_tokens, *cjk_tokens]:
+        if token in seen:
+            continue
+        seen.add(token)
+        merged.append(token)
+    return merged
 
 
 def _score(query_tokens: list[str], text: str) -> int:
@@ -97,14 +116,18 @@ def _fallback_select_skill_index(query: str, templates: list[dict[str, Any]]) ->
 
 
 def _select_with_llm(
-    query: str, templates: list[dict[str, Any]]
+    query: str,
+    templates: list[dict[str, Any]],
+    *,
+    language: str,
 ) -> tuple[int | None, str | None]:
     llm = build_optional_llm()
     if llm is None:
         return None, "llm_unavailable"
 
-    prompt_template = load_prompt(
+    prompt_template = load_prompt_by_language(
         "select_skills_prompt.md",
+        language=language,
         required_placeholders=[QUERY_PLACEHOLDER, TEMPLATES_PLACEHOLDER],
     )
     prompt = render_prompt(
@@ -135,13 +158,23 @@ def _select_with_llm(
     return skill_index, None
 
 
-def run_select_skills(snapshot_outputs: dict[str, Any], query: str) -> dict[str, Any]:
+def run_select_skills(
+    snapshot_outputs: dict[str, Any],
+    query: str,
+    *,
+    language: str = "english",
+) -> dict[str, Any]:
     """Select one skill by index and map it to section_id."""
     templates = _build_skill_templates(snapshot_outputs)
     if not templates:
         return _empty_selection("fallback_used: no_skill_templates")
 
-    selected_skill_index, llm_error_reason = _select_with_llm(query=query, templates=templates)
+    normalized_language = normalize_author_language(language)
+    selected_skill_index, llm_error_reason = _select_with_llm(
+        query=query,
+        templates=templates,
+        language=normalized_language,
+    )
     selection_mode = "llm"
     selection_warning: str | None = None
 

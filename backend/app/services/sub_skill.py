@@ -9,7 +9,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from app.infra.settings import get_settings
-from app.services.llm_utils import build_required_llm, load_prompt, render_prompt
+from app.services.llm_utils import build_required_llm, load_prompt_by_language, render_prompt
 
 PROMPT_PLACEHOLDER = "{{GROUP_METHOD_PATTERNS_JSON}}"
 
@@ -301,7 +301,10 @@ def _enrich_non_llm_fields(
 
 
 def run_sub_skill(
-    main_skill_json: dict[str, Any], method_analysis: dict[str, Any]
+    main_skill_json: dict[str, Any],
+    method_analysis: dict[str, Any],
+    *,
+    language: str = "english",
 ) -> dict[str, Any]:
     """按章节主技能与方法模式生成子技能列表。"""
     records = _extract_method_pattern_records(main_skill_json, method_analysis)
@@ -309,7 +312,11 @@ def run_sub_skill(
         return {"sub_skills": []}
 
     grouped = _group_by_section_and_normalized_pattern(records)
-    prompt_template = load_prompt("sub_skills_prompt.md", required_placeholders=[PROMPT_PLACEHOLDER])
+    prompt_template = load_prompt_by_language(
+        "sub_skills_prompt.md",
+        language=language,
+        required_placeholders=[PROMPT_PLACEHOLDER],
+    )
     settings = get_settings()
     llm = _build_llm(settings)
 

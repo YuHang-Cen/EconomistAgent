@@ -40,6 +40,22 @@ if errorlevel 1 (
 )
 popd
 
+echo [INFO] Waiting for backend health...
+set "HEALTH_URL=http://localhost:8000/health"
+set /a ATTEMPTS=0
+
+:wait_backend
+set /a ATTEMPTS+=1
+powershell -NoProfile -Command "try { $r = Invoke-WebRequest -UseBasicParsing -Uri '%HEALTH_URL%' -TimeoutSec 2; if ($r.StatusCode -eq 200) { exit 0 } else { exit 1 } } catch { exit 1 }"
+if not errorlevel 1 goto backend_ready
+if %ATTEMPTS% GEQ 60 (
+  echo [ERROR] Backend health check timed out. Check logs with: docker compose logs backend
+  exit /b 1
+)
+timeout /t 2 /nobreak >nul
+goto wait_backend
+
+:backend_ready
 echo [OK] Services started.
 echo Frontend: http://localhost:3000
 echo Backend:  http://localhost:8000/health

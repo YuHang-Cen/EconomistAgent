@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 
+from app.domain.language import DEFAULT_AUTHOR_LANGUAGE
 from app.infra.db import Base
 from sqlalchemy import Boolean, Integer, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
@@ -17,6 +18,11 @@ class Author(Base):
     author_id: Mapped[str] = mapped_column(String(64), primary_key=True)
     author_name: Mapped[str] = mapped_column(String(255), nullable=False)
     school: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    language: Mapped[str] = mapped_column(
+        String(16),
+        nullable=False,
+        default=DEFAULT_AUTHOR_LANGUAGE,
+    )
     avatar_url: Mapped[str | None] = mapped_column(String(512), nullable=True)
     created_at: Mapped[str] = mapped_column(String(64), nullable=False)
     updated_at: Mapped[str] = mapped_column(String(64), nullable=False)

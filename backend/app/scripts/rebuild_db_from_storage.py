@@ -15,6 +15,7 @@ from pathlib import Path
 from typing import Any
 
 from app.domain.enums import JobStatus, JobType, OutputType, Stage
+from app.domain.language import normalize_author_language
 from app.domain.models import (
     Author,
     AuthorDocument,
@@ -165,6 +166,7 @@ def rebuild_from_storage(storage_root: Path) -> RebuildSummary:
             if isinstance(author_meta, dict):
                 author_name = str(author_meta.get("author_name") or author_id)
                 school = author_meta.get("school")
+                language = normalize_author_language(author_meta.get("language"))
                 avatar_url = author_meta.get("avatar_url")
                 created_at = str(author_meta.get("created_at") or now)
                 updated_at = str(author_meta.get("updated_at") or created_at)
@@ -172,6 +174,7 @@ def rebuild_from_storage(storage_root: Path) -> RebuildSummary:
                 warnings.append(f"missing/invalid author_meta.json for author_id={author_id}")
                 author_name = author_id
                 school = None
+                language = normalize_author_language(None)
                 avatar_url = None
                 created_at = now
                 updated_at = now
@@ -183,6 +186,7 @@ def rebuild_from_storage(storage_root: Path) -> RebuildSummary:
                         author_id=author_id,
                         author_name=author_name,
                         school=school,
+                        language=language,
                         avatar_url=avatar_url,
                         created_at=created_at,
                         updated_at=updated_at,
@@ -192,6 +196,7 @@ def rebuild_from_storage(storage_root: Path) -> RebuildSummary:
             else:
                 existing_author.author_name = author_name
                 existing_author.school = school
+                existing_author.language = language
                 existing_author.avatar_url = avatar_url
                 existing_author.updated_at = updated_at
 

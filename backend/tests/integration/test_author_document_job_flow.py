@@ -44,7 +44,23 @@ def test_create_author(client: TestClient) -> None:
     assert response.status_code == 200
     assert payload["success"] is True
     assert payload["data"]["authorName"] == "Friedrich Hayek"
+    assert payload["data"]["language"] == "english"
     assert payload["data"]["manuscriptsCount"] == 0
+
+
+def test_create_author_with_chinese_language(client: TestClient) -> None:
+    """Author create endpoint should persist explicit chinese language choice."""
+    response = client.post(
+        "/api/authors",
+        json={
+            "authorName": "约翰·梅纳德·凯恩斯",
+            "language": "chinese",
+        },
+    )
+    payload = response.json()
+    assert response.status_code == 200
+    assert payload["success"] is True
+    assert payload["data"]["language"] == "chinese"
 
 
 def test_upload_document_creates_reload_job(

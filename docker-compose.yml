@@ -3,6 +3,11 @@ services:
     image: redis:7.4-alpine
     ports:
       - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
 
   backend:
     build:
@@ -14,12 +19,24 @@ services:
       DATABASE_URL: sqlite:///./storage/app.db
       STORAGE_ROOT: storage
     depends_on:
-      - redis
+      redis:
+        condition: service_healthy
     ports:
       - "8000:8000"
     volumes:
       - ./backend/storage:/app/storage
-    command: sh -c "python scripts/bootstrap_storage.py && uv run serve"
+    command: sh -c "python scripts/bootstrap_storage.py && serve"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import json,sys,urllib.request; data=json.load(urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=2)); sys.exit(0 if data.get('success') else 1)",
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 30
 
   worker:
     build:
@@ -33,16 +50,19 @@ services:
       CELERY_WORKER_POOL: solo
       CELERY_WORKER_CONCURRENCY: "1"
     depends_on:
-      - redis
-      - backend
+      redis:
+        condition: service_healthy
+      backend:
+        condition: service_healthy
     volumes:
       - ./backend/storage:/app/storage
-    command: sh -c "python scripts/bootstrap_storage.py && uv run worker"
+    command: sh -c "python scripts/bootstrap_storage.py && worker"
 
   frontend:
     build:
       context: ./frontend
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     ports:
       - "3000:80"

@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Any
 
 from app.domain.enums import JobStatus, OutputType
+from app.domain.language import normalize_author_language
 from app.domain.models import (
     Author,
     AuthorDocument,
@@ -52,6 +53,7 @@ def _author_manifest(author: Author) -> dict[str, str | None]:
         "author_id": author.author_id,
         "author_name": author.author_name,
         "school": author.school,
+        "language": normalize_author_language(getattr(author, "language", None)),
         "avatar_url": author.avatar_url,
         "created_at": author.created_at,
         "updated_at": author.updated_at,
@@ -233,6 +235,7 @@ def create_author(payload: AuthorCreateRequest) -> AuthorResponse:
         author_id=str(uuid.uuid4()),
         author_name=payload.author_name,
         school=payload.school,
+        language=normalize_author_language(payload.language),
         avatar_url=payload.avatar_url,
         created_at=now,
         updated_at=now,
@@ -244,6 +247,7 @@ def create_author(payload: AuthorCreateRequest) -> AuthorResponse:
         author_id=author.author_id,
         author_name=author.author_name,
         school=author.school,
+        language=normalize_author_language(author.language),
         avatar_url=author.avatar_url,
         manuscripts_count=0,
     )
@@ -271,6 +275,7 @@ def update_author(author_id: str, payload: AuthorUpdateRequest) -> AuthorRespons
         author_id=str(manifest_data["author_id"]),
         author_name=str(manifest_data["author_name"]),
         school=str(manifest_data["school"]) if manifest_data["school"] is not None else None,
+        language=normalize_author_language(manifest_data.get("language")),
         avatar_url=str(manifest_data["avatar_url"]) if manifest_data["avatar_url"] else None,
         manuscripts_count=manuscripts_count,
     )
@@ -284,6 +289,7 @@ def list_authors() -> list[AuthorResponse]:
                 Author.author_id,
                 Author.author_name,
                 Author.school,
+                Author.language,
                 Author.avatar_url,
                 func.count(AuthorDocument.document_id).label("manuscripts_count"),
             )
@@ -298,6 +304,7 @@ def list_authors() -> list[AuthorResponse]:
             author_id=row.author_id,
             author_name=row.author_name,
             school=row.school,
+            language=normalize_author_language(row.language),
             avatar_url=row.avatar_url,
             manuscripts_count=int(row.manuscripts_count),
         )
@@ -406,6 +413,7 @@ def upload_author_avatar(
         author_id=str(manifest_data["author_id"]),
         author_name=str(manifest_data["author_name"]),
         school=str(manifest_data["school"]) if manifest_data["school"] is not None else None,
+        language=normalize_author_language(manifest_data.get("language")),
         avatar_url=str(manifest_data["avatar_url"]) if manifest_data["avatar_url"] else None,
         manuscripts_count=manuscripts_count,
     )

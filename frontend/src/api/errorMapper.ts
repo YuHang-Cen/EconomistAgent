@@ -16,6 +16,12 @@ export function mapApiErrorToUi(error: unknown): UiError {
   }
 
   switch (error.code) {
+    case "NETWORK_ERROR":
+      return {
+        title: "Network Error",
+        message: "Backend not reachable yet. Please wait a few seconds and retry.",
+        retryable: true,
+      };
     case "UNAUTHORIZED":
       return {
         title: "Unauthorized",
@@ -49,6 +55,13 @@ export function mapApiErrorToUi(error: unknown): UiError {
         retryable: false,
       };
     default:
+      if (error.status === 502 || error.status === 503 || error.status === 504) {
+        return {
+          title: "Backend Starting",
+          message: "Backend is still starting up. Please retry in a few seconds.",
+          retryable: true,
+        };
+      }
       return {
         title: "Server Error",
         message: error.message || "Backend internal error. Please retry later.",

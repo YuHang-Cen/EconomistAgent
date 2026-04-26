@@ -385,14 +385,14 @@ export default function App() {
 
   const handleCreateAuthor = async (payload: {
     authorName: string;
-    school?: string;
+    language: "english" | "chinese";
     avatarFile?: File;
   }) => {
     try {
       setCreatingAuthor(true);
       const created = await createAuthor({
         authorName: payload.authorName,
-        school: payload.school,
+        language: payload.language,
       });
       if (payload.avatarFile) {
         await uploadAuthorAvatar({
@@ -434,21 +434,6 @@ export default function App() {
       setRenameSavingAuthorId(null);
     }
   };
-
-  const handleUpdateAuthorSchool = async (authorId: string, newSchool: string) => {
-    // 1. 更新内存状态，让 UI 实时变动
-    setAuthors(prev => prev.map(a => 
-      a.authorId === authorId ? { ...a, school: newSchool } : a
-    ));
-
-    // 2. 如果你需要持久化（刷新不丢失），请更新缓存或调用后端 API
-    const cache = JSON.parse(localStorage.getItem('author_data_cache') || '{}');
-    if(!cache[authorId]) cache[authorId] = {};
-    cache[authorId].school = newSchool;
-    localStorage.setItem('author_data_cache', JSON.stringify(cache));
-  };
-
-
 
   const handleUploadDocument = async (payload: { authorId: string; bookTitle: string; file: File }) => {
     try {
@@ -755,7 +740,6 @@ export default function App() {
                     onDeleteAuthor={() => handleDeleteAuthor(author.authorId)}
                     onUploadAvatar={(file) => handleUploadAvatar(author.authorId, file)}
                     onRenameAuthor={(authorName) => handleRenameAuthor(author.authorId, authorName)}
-                    onUpdateSchool={(newSchool) => handleUpdateAuthorSchool(author.authorId, newSchool)} // 确保学派能存
                   />
                 ))}
               </section>

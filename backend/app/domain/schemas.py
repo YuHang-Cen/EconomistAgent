@@ -5,6 +5,7 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from typing import Any
 
+from app.domain.language import DEFAULT_AUTHOR_LANGUAGE, AuthorLanguage
 from pydantic import BaseModel, ConfigDict, Field
 
 
@@ -72,6 +73,7 @@ class AuthorCreateRequest(CamelModel):
 
     author_name: str = Field(min_length=1, max_length=255)
     school: str | None = Field(default=None, max_length=255)
+    language: AuthorLanguage = Field(default=DEFAULT_AUTHOR_LANGUAGE)
     avatar_url: str | None = Field(default=None, max_length=512)
 
 
@@ -87,6 +89,7 @@ class AuthorResponse(CamelModel):
     author_id: str
     author_name: str
     school: str | None = None
+    language: AuthorLanguage = DEFAULT_AUTHOR_LANGUAGE
     avatar_url: str | None = None
     manuscripts_count: int = 0
 

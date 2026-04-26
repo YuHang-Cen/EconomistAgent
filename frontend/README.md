@@ -17,4 +17,4 @@ The frontend is a Vite + React app that talks to the backend API.
    npm run dev
    ```
 
-By default the app calls `http://127.0.0.1:8000/api`.
+By default the app calls `/api` (same-origin). In Docker, Nginx proxies it to the backend service; in local Vite dev, `vite.config.ts` proxies `/api` to `http://127.0.0.1:8000`.

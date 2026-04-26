@@ -16,8 +16,10 @@ interface AuthorSectionProps {
   onDeleteAuthor: () => Promise<void> | void;
   onUploadAvatar: (file: File) => Promise<void> | void;
   onRenameAuthor: (authorName: string) => Promise<void> | void;
-  // 1. 增加修改学派的回调函数
-  onUpdateSchool: (school: string) => Promise<void> | void; 
+}
+
+function formatLanguageLabel(language: string | null | undefined): string {
+  return language === "chinese" ? "Chinese" : "English";
 }
 
 export default function AuthorSection({
@@ -31,54 +33,28 @@ export default function AuthorSection({
   onDeleteAuthor,
   onUploadAvatar,
   onRenameAuthor,
-  onUpdateSchool, // 接收回调
 }: AuthorSectionProps) {
   const [confirmAuthorDelete, setConfirmAuthorDelete] = useState(false);
-  
-  // 姓名编辑状态
   const [isEditingName, setIsEditingName] = useState(false);
   const [nameDraft, setNameDraft] = useState(author.authorName);
-  
-  // 2. 增加学派编辑相关的状态
-  const [isEditingSchool, setIsEditingSchool] = useState(false);
-  const [schoolDraft, setSchoolDraft] = useState(author.school || "");
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const nameInputRef = useRef<HTMLInputElement>(null);
-  
-  // 3. 增加学派输入的 Ref
-  const schoolInputRef = useRef<HTMLInputElement>(null);
   const skipBlurCommitRef = useRef(false);
   const committingNameRef = useRef(false);
-  const committingSchoolRef = useRef(false); // 增加学派提交标识
 
   const avatarSrc = resolvePublicAssetUrl(author.avatarUrl);
 
-  // 同步姓名草稿
   useEffect(() => {
     if (!isEditingName) setNameDraft(author.authorName);
   }, [author.authorName, isEditingName]);
 
-  // 4. 同步学派草稿
-  useEffect(() => {
-    if (!isEditingSchool) setSchoolDraft(author.school || "");
-  }, [author.school, isEditingSchool]);
-
-  // 姓名输入框自动聚焦
   useEffect(() => {
     if (isEditingName && nameInputRef.current) {
       nameInputRef.current.focus();
       nameInputRef.current.select();
     }
   }, [isEditingName]);
-
-  // 5. 学派输入框自动聚焦
-  useEffect(() => {
-    if (isEditingSchool && schoolInputRef.current) {
-      schoolInputRef.current.focus();
-      schoolInputRef.current.select();
-    }
-  }, [isEditingSchool]);
 
   const handleAvatarClick = () => {
     if (avatarUploading) return;
@@ -95,7 +71,6 @@ export default function AuthorSection({
     }
   };
 
-  // --- 姓名编辑逻辑 ---
   const cancelNameEdit = () => {
     setNameDraft(author.authorName);
     setIsEditingName(false);
@@ -120,32 +95,6 @@ export default function AuthorSection({
     }
   };
 
-  // --- 6. 增加学派编辑逻辑 ---
-  const cancelSchoolEdit = () => {
-    setSchoolDraft(author.school || "");
-    setIsEditingSchool(false);
-  };
-
-  const commitSchoolEdit = async () => {
-    if (!isEditingSchool || renameSaving || committingSchoolRef.current) return;
-    const nextSchool = schoolDraft.trim();
-    // 如果没变则取消
-    if (nextSchool === (author.school || "").trim()) {
-      cancelSchoolEdit();
-      return;
-    }
-    committingSchoolRef.current = true;
-    try {
-      await onUpdateSchool(nextSchool);
-      setIsEditingSchool(false);
-    } catch {
-      setSchoolDraft(author.school || "");
-      setIsEditingSchool(false);
-    } finally {
-      committingSchoolRef.current = false;
-    }
-  };
-
   const handleNameKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Enter") {
       event.preventDefault();
@@ -156,20 +105,6 @@ export default function AuthorSection({
       event.preventDefault();
       skipBlurCommitRef.current = true;
       cancelNameEdit();
-    }
-  };
-
-  // 7. 学派按键处理
-  const handleSchoolKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === "Enter") {
-      event.preventDefault();
-      void commitSchoolEdit();
-      return;
-    }
-    if (event.key === "Escape") {
-      event.preventDefault();
-      skipBlurCommitRef.current = true;
-      cancelSchoolEdit();
     }
   };
 
@@ -252,39 +187,10 @@ export default function AuthorSection({
               </button>
             )}
 
-            {/* 8. 修改学派展示部分为可编辑状态 */}
             <div className="font-label text-[10px] text-outline-variant uppercase tracking-widest mt-1 flex items-center gap-2">
-              {isEditingSchool ? (
-                <input
-                  ref={schoolInputRef}
-                  type="text"
-                  value={schoolDraft}
-                  maxLength={100}
-                  disabled={renameSaving}
-                  onChange={(e) => setSchoolDraft(e.target.value)}
-                  onKeyDown={handleSchoolKeyDown}
-                  onBlur={() => {
-                    if (skipBlurCommitRef.current) {
-                      skipBlurCommitRef.current = false;
-                      return;
-                    }
-                    void commitSchoolEdit();
-                  }}
-                  className="bg-transparent border-b border-primary/40 outline-none focus:border-primary transition-colors text-primary py-0.5"
-                  placeholder="Enter school..."
-                />
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => setIsEditingSchool(true)}
-                  className="hover:text-primary transition-colors hover:underline underline-offset-2"
-                  title="Click to edit school"
-                >
-                  {author.school || "Unknown school"}
-                </button>
-              )}
+              <span>{formatLanguageLabel(author.language)}</span>
               <span>- {documents.length} Documents</span>
-              {(renameSaving || committingSchoolRef.current) && <Loader2 className="w-3 h-3 animate-spin" />}
+              {(renameSaving || committingNameRef.current) && <Loader2 className="w-3 h-3 animate-spin" />}
             </div>
           </div>
         </div>
@@ -298,7 +204,6 @@ export default function AuthorSection({
         </button>
       </div>
 
-      {/* ... 剩下的表格渲染和 ConfirmDialog 保持不变 ... */}
       {documents.length > 0 ? (
         <div className="bg-surface-container-low rounded-sm overflow-hidden">
           <table className="w-full text-left font-body text-sm border-collapse">

@@ -10,7 +10,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from app.infra.settings import get_settings
-from app.services.llm_utils import build_required_llm, load_prompt, render_prompt
+from app.services.llm_utils import build_required_llm, load_prompt_by_language, render_prompt
 
 PROMPT_PLACEHOLDER = "{{MAIN_SKILL_INPUT_JSON}}"
 DEFAULT_SINGLE_SECTION_TITLE = "Full Book"
@@ -345,9 +345,18 @@ def _normalize_main_skill_shape(data: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def _invoke_main_skill(section_payload: dict[str, Any], llm: ChatOpenAI) -> dict[str, Any]:
+def _invoke_main_skill(
+    section_payload: dict[str, Any],
+    llm: ChatOpenAI,
+    *,
+    language: str,
+) -> dict[str, Any]:
     """调用 Prompt+LLM 生成章节主技能。"""
-    template = load_prompt("main_skills_prompt.md", required_placeholders=[PROMPT_PLACEHOLDER])
+    template = load_prompt_by_language(
+        "main_skills_prompt.md",
+        language=language,
+        required_placeholders=[PROMPT_PLACEHOLDER],
+    )
     prompt = render_prompt(
         template,
         {PROMPT_PLACEHOLDER: json.dumps(section_payload, ensure_ascii=False, indent=2)},
@@ -373,7 +382,10 @@ def _drop_low_confidence(items: list[dict[str, Any]]) -> list[dict[str, Any]]:
 
 
 def run_main_skill(
-    method_analysis: dict[str, Any], *, drop_low_confidence: bool = True
+    method_analysis: dict[str, Any],
+    *,
+    language: str = "english",
+    drop_low_confidence: bool = True,
 ) -> dict[str, Any]:
     """从 method_analysis 聚合生成章节主技能。"""
     if not isinstance(method_analysis, dict):
@@ -390,7 +402,11 @@ def run_main_skill(
     main_skills: list[dict[str, Any]] = []
     for index, (section_id, section_title, section_records) in enumerate(section_groups, start=1):
         section_payload = _build_intermediate_payload(section_records)
-        generated = _invoke_main_skill(section_payload=section_payload, llm=llm)
+        generated = _invoke_main_skill(
+            section_payload=section_payload,
+            llm=llm,
+            language=language,
+        )
         if not str(generated.get("pattern_summary", {}).get("name", "")).strip():
             generated["pattern_summary"]["name"] = section_title or f"main_skill_{index:03d}"
 

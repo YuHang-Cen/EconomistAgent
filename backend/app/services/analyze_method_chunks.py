@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from app.infra.settings import get_settings
-from app.services.llm_utils import build_required_llm, load_prompt, render_prompt
+from app.services.llm_utils import build_required_llm, load_prompt_by_language, render_prompt
 
 PROMPT_PLACEHOLDER = "{{CHUNK_TEXT}}"
 
@@ -300,7 +300,11 @@ def _analyze_chunk(
     return _normalize_analysis_shape(parsed)
 
 
-def run_analyze_method_chunks(segments: list[dict[str, Any]]) -> dict[str, Any]:
+def run_analyze_method_chunks(
+    segments: list[dict[str, Any]],
+    *,
+    language: str = "english",
+) -> dict[str, Any]:
     """执行 analyze 阶段并返回 method_analysis JSON。"""
     if not segments:
         return {"chunks": [], "errors": []}
@@ -313,8 +317,9 @@ def run_analyze_method_chunks(segments: list[dict[str, Any]]) -> dict[str, Any]:
     max_words = max(100, int(getattr(settings, "method_chunk_max_words", 800)))
     chunk_inputs = _create_chunks(paragraphs=paragraphs, max_words=max_words)
 
-    prompt_template = load_prompt(
+    prompt_template = load_prompt_by_language(
         "method_analysis_prompt.md",
+        language=language,
         required_placeholders=[PROMPT_PLACEHOLDER],
     )
     llm = _build_llm(settings)

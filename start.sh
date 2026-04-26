@@ -30,6 +30,21 @@ mkdir -p "${STORAGE_DIR}"
 cd "${ROOT_DIR}"
 docker compose up -d --build
 
+echo "[INFO] Waiting for backend health..."
+ready=0
+for _ in $(seq 1 60); do
+  if curl -fsS "http://localhost:8000/health" >/dev/null 2>&1; then
+    ready=1
+    break
+  fi
+  sleep 2
+done
+
+if [[ "${ready}" -ne 1 ]]; then
+  echo "[ERROR] Backend health check timed out. Check logs with: docker compose logs backend"
+  exit 1
+fi
+
 echo "[OK] Services started."
 echo "Frontend: http://localhost:3000"
 echo "Backend:  http://localhost:8000/health"

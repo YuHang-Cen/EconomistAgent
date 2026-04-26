@@ -236,8 +236,8 @@ export default function AnalysisView({
           <h1 className="font-headline text-5xl font-light text-on-surface mb-6 tracking-tight leading-tight">
             Synthesize an economic perspective through academic rigor.
           </h1>
-          <p className="font-body text-lg text-secondary max-w-2xl leading-relaxed">
-            Trigger backend answer jobs and read `answer_json` outputs with selected skill traceability.
+          <p className="font-body text-lg text-secondary max-w-5xl leading-relaxed">
+            Trigger backend answer jobs and read answer_json outputs with selected skill traceability.
           </p>
         </header>
 

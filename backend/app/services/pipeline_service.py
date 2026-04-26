@@ -10,6 +10,7 @@ from datetime import UTC, datetime
 from typing import Any
 
 from app.domain.enums import JobStatus, OutputType, Stage
+from app.domain.language import normalize_author_language
 from app.domain.models import (
     Author,
     AuthorDocument,
@@ -311,12 +312,100 @@ def _filter_sub_skills_by_main_ids(
     return filtered
 
 
-def _run_main_skill_without_drop(method_analysis: dict[str, Any]) -> dict[str, Any]:
+def _run_main_skill_without_drop(method_analysis: dict[str, Any], *, language: str) -> dict[str, Any]:
     try:
-        return run_main_skill(method_analysis=method_analysis, drop_low_confidence=False)
+        return run_main_skill(
+            method_analysis=method_analysis,
+            language=language,
+            drop_low_confidence=False,
+        )
     except TypeError:
         # Compatibility path for monkeypatched test doubles without the new argument.
         return run_main_skill(method_analysis=method_analysis)
+
+
+def _run_analyze_with_language(
+    segments: list[dict[str, Any]],
+    *,
+    language: str,
+) -> dict[str, Any]:
+    try:
+        return run_analyze_method_chunks(segments=segments, language=language)
+    except TypeError:
+        return run_analyze_method_chunks(segments=segments)
+
+
+def _run_sub_skill_with_language(
+    main_skill_json: dict[str, Any],
+    method_analysis: dict[str, Any],
+    *,
+    language: str,
+) -> dict[str, Any]:
+    try:
+        return run_sub_skill(
+            main_skill_json=main_skill_json,
+            method_analysis=method_analysis,
+            language=language,
+        )
+    except TypeError:
+        return run_sub_skill(
+            main_skill_json=main_skill_json,
+            method_analysis=method_analysis,
+        )
+
+
+def _run_render_with_language(
+    main_skill_json: dict[str, Any],
+    sub_skill_json: dict[str, Any],
+    *,
+    language: str,
+) -> dict[str, Any]:
+    try:
+        return run_render(
+            main_skill_json=main_skill_json,
+            sub_skill_json=sub_skill_json,
+            language=language,
+        )
+    except TypeError:
+        return run_render(main_skill_json=main_skill_json, sub_skill_json=sub_skill_json)
+
+
+def _run_select_skills_with_language(
+    snapshot_outputs: dict[str, Any],
+    query: str,
+    *,
+    language: str,
+) -> dict[str, Any]:
+    try:
+        return run_select_skills(
+            snapshot_outputs=snapshot_outputs,
+            query=query,
+            language=language,
+        )
+    except TypeError:
+        return run_select_skills(snapshot_outputs=snapshot_outputs, query=query)
+
+
+def _run_answer_with_skills_with_language(
+    query: str,
+    selected: dict[str, Any],
+    snapshot_outputs: dict[str, Any],
+    *,
+    language: str,
+) -> dict[str, Any]:
+    try:
+        return run_answer_with_skills(
+            query=query,
+            selected=selected,
+            snapshot_outputs=snapshot_outputs,
+            language=language,
+        )
+    except TypeError:
+        return run_answer_with_skills(
+            query=query,
+            selected=selected,
+            snapshot_outputs=snapshot_outputs,
+        )
 
 
 def _load_job_model_config(job: PipelineJob) -> dict[str, Any]:
@@ -469,6 +558,7 @@ def run_author_skills(session: Session, job: PipelineJob) -> None:
     author = session.get(Author, job.author_id)
     if author is None:
         raise ValueError("author not found for author_skills")
+    author_language = normalize_author_language(getattr(author, "language", None))
     settings = get_settings()
     batch_size = max(1, int(getattr(settings, "skills_batch_size", 2)))
     max_main_skills = max(1, int(getattr(settings, "skills_max_main_skills", 6)))
@@ -520,18 +610,25 @@ def run_author_skills(session: Session, job: PipelineJob) -> None:
             "model_name": effective_model_config["model_name"],
             "api_base": effective_model_config["api_base"],
         }
-        method_analysis = run_analyze_method_chunks(segments=selected_segments)
+        method_analysis = _run_analyze_with_language(
+            segments=selected_segments,
+            language=author_language,
+        )
 
         _ensure_not_canceled(session, job)
         _persist_stage_progress(session=session, job=job, stage=Stage.MAIN_SKILL, progress=55)
-        new_main_skill_json = _run_main_skill_without_drop(method_analysis=method_analysis)
+        new_main_skill_json = _run_main_skill_without_drop(
+            method_analysis=method_analysis,
+            language=author_language,
+        )
         new_main_skills = _safe_main_skills(new_main_skill_json)
 
         _ensure_not_canceled(session, job)
         _persist_stage_progress(session=session, job=job, stage=Stage.SUB_SKILL, progress=70)
-        new_sub_skill_json = run_sub_skill(
+        new_sub_skill_json = _run_sub_skill_with_language(
             main_skill_json={"main_skills": new_main_skills},
             method_analysis=method_analysis,
+            language=author_language,
         )
         new_sub_skills = _safe_sub_skills(new_sub_skill_json)
 
@@ -568,9 +665,10 @@ def run_author_skills(session: Session, job: PipelineJob) -> None:
 
     _ensure_not_canceled(session, job)
     _persist_stage_progress(session=session, job=job, stage=Stage.RENDER, progress=85)
-    rendered = run_render(
+    rendered = _run_render_with_language(
         main_skill_json=merged_main_skill_json,
         sub_skill_json=merged_sub_skill_json,
+        language=author_language,
     )
 
     _ensure_not_canceled(session, job)
@@ -620,6 +718,10 @@ def run_author_answer(session: Session, job: PipelineJob) -> None:
     """     author_answer           ?answer_json ?"""
     if not job.query:
         raise ValueError("author_answer requires non-empty query")
+    author = session.get(Author, job.author_id)
+    if author is None:
+        raise ValueError("author not found for author_answer")
+    author_language = normalize_author_language(getattr(author, "language", None))
 
     latest_snapshot = (
         session.execute(
@@ -676,17 +778,22 @@ def run_author_answer(session: Session, job: PipelineJob) -> None:
             "model_name": effective_model_config["model_name"],
             "api_base": effective_model_config["api_base"],
         }
-        selection = run_select_skills(snapshot_outputs=snapshot_outputs, query=job.query)
+        selection = _run_select_skills_with_language(
+            snapshot_outputs=snapshot_outputs,
+            query=job.query,
+            language=author_language,
+        )
         if not selection.get("selected_section_id"):
             raise ValueError("no available skill selected for author_answer")
 
         _ensure_not_canceled(session, job)
         job.current_stage = Stage.ANSWER.value
         job.updated_at = _now_iso()
-        answer_json = run_answer_with_skills(
+        answer_json = _run_answer_with_skills_with_language(
             query=job.query,
             selected=selection,
             snapshot_outputs=snapshot_outputs,
+            language=author_language,
         )
     generated_at = _now_iso()
     answer_json["generated_at"] = generated_at

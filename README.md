@@ -18,7 +18,7 @@
 ### Windows
 运行：
 ```bash
-start.bat
+./start.bat
 ```
 
 ### macOS / Linux
@@ -36,7 +36,7 @@ chmod +x start.sh stop.sh
 
 停止服务：
 
-- Windows： stop.bat  
+- Windows： ./stop.bat  
 - macOS / Linux： ./stop.sh  
 
 ---

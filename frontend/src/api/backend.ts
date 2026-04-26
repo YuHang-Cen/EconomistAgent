@@ -17,7 +17,7 @@ export function listAuthors(): Promise<AuthorVM[]> {
 
 export function createAuthor(input: {
   authorName: string;
-  school?: string;
+  language: "english" | "chinese";
   avatarUrl?: string;
 }): Promise<AuthorVM> {
   return apiRequest<AuthorVM>("/authors", {

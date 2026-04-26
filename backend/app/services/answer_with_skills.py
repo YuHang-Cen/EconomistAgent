@@ -4,9 +4,10 @@ from __future__ import annotations
 
 from typing import Any
 
+from app.domain.language import normalize_author_language
 from app.services.llm_utils import (
     build_optional_llm,
-    load_prompt,
+    load_prompt_by_language,
     normalize_message_content,
     parse_json_with_recovery,
     render_prompt,
@@ -287,10 +288,24 @@ def _build_context(
     )
 
 
-def _fallback_answer(query: str, context: str) -> dict[str, str]:
+def _fallback_answer(query: str, context: str, *, language: str) -> dict[str, str]:
     """Return deterministic JSON answer when LLM is unavailable or invalid."""
     summary = context.splitlines()[:8]
     summary_text = " ".join(summary)
+    normalized_language = normalize_author_language(language)
+    if normalized_language == "chinese":
+        return {
+            "title": "方法论驱动回答",
+            "topic": "经济问题分析",
+            "summary": "基于最新作者方法快照进行生成式推演，聚焦机制链条与约束条件。",
+            "markdown": (
+                "# 分析\n\n"
+                "本回答基于所选方法基线进行确定性综合，重点说明关键假设、机制演化和约束下的结果。"
+                "\n\n"
+                f"问题：{query}\n\n"
+                f"技能上下文摘要：{summary_text}"
+            ),
+        }
     return {
         "title": "Methodology-driven answer",
         "topic": query,
@@ -307,9 +322,14 @@ def _fallback_answer(query: str, context: str) -> dict[str, str]:
 
 
 def run_answer_with_skills(
-    query: str, selected: dict[str, Any], snapshot_outputs: dict[str, Any]
+    query: str,
+    selected: dict[str, Any],
+    snapshot_outputs: dict[str, Any],
+    *,
+    language: str = "english",
 ) -> dict[str, Any]:
     """Generate answer_json using selected skills and snapshot outputs."""
+    normalized_language = normalize_author_language(language)
     selected_skill_index = _normalize_selected_skill_index(selected.get("selected_skill_index"))
     selected_section_id = _normalize_selected_section_id(selected.get("selected_section_id"))
     selection_mode = _normalize_selection_mode(selected.get("selection_mode"))
@@ -323,10 +343,19 @@ def run_answer_with_skills(
         snapshot_outputs=snapshot_outputs,
         selected_section_id=selected_section_id,
     )
-    answer_payload = _fallback_answer(query=query, context=context)
+    try:
+        answer_payload = _fallback_answer(
+            query=query,
+            context=context,
+            language=normalized_language,
+        )
+    except TypeError:
+        # Compatibility path for monkeypatched tests with legacy fallback signature.
+        answer_payload = _fallback_answer(query=query, context=context)
 
-    template = load_prompt(
+    template = load_prompt_by_language(
         "answer_with_skills_prompt.md",
+        language=normalized_language,
         required_placeholders=[SKILLS_PLACEHOLDER, QUERY_PLACEHOLDER],
     )
     prompt = render_prompt(

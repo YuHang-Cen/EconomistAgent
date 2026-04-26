@@ -9,6 +9,7 @@ from typing import Any
 from zipfile import ZipFile
 
 from app.domain.enums import JobStatus, JobType, OutputType, Stage
+from app.domain.language import normalize_author_language
 from app.domain.models import Author, AuthorDocument, PipelineJob
 from app.infra import storage
 from app.infra.db import session_scope
@@ -87,7 +88,7 @@ def _normalize_model_config(model_config: dict[str, Any] | None) -> dict[str, st
     return normalized
 
 
-def _require_model_api_key(model_config: dict[str, Any] | None) -> None:
+def _require_model_api_key(model_config: dict[str, Any] | None, *, language: str = "english") -> None:
     """Ensure model API key is available before enqueuing LLM-backed jobs."""
     settings = get_settings()
     if settings.celery_task_always_eager:
@@ -97,12 +98,20 @@ def _require_model_api_key(model_config: dict[str, Any] | None) -> None:
         effective = llm_utils.get_effective_model_config()
     if effective.get("api_key", "").strip():
         return
-    raise HTTPException(
-        status_code=422,
-        detail=(
+    normalized_language = normalize_author_language(language)
+    if normalized_language == "chinese":
+        detail = (
+            "缺少模型 API Key；请在 backend/.env 配置 DEEPSEEK_API_KEY，"
+            "或在请求中提供 modelConfig.apiKey"
+        )
+    else:
+        detail = (
             "missing model api key; set DEEPSEEK_API_KEY in backend/.env "
             "or provide modelConfig.apiKey in request"
-        ),
+        )
+    raise HTTPException(
+        status_code=422,
+        detail=detail,
     )
 
 
@@ -250,12 +259,12 @@ def create_author_skills_job(
     model_config: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """创建 author_skills 任务并自动入队。"""
-    _require_model_api_key(model_config)
     now = _now_iso()
     with session_scope() as session:
         author = session.get(Author, author_id)
         if author is None:
             raise HTTPException(status_code=404, detail="author not found")
+        _require_model_api_key(model_config, language=getattr(author, "language", None))
         job = PipelineJob(
             job_id=str(uuid.uuid4()),
             author_id=author_id,
@@ -317,7 +326,6 @@ def create_author_answer_job(
     model_config: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """创建 author_answer 任务并自动入队。"""
-    _require_model_api_key(model_config)
     if not query.strip():
         raise HTTPException(status_code=422, detail="query is required")
     now = _now_iso()
@@ -325,6 +333,7 @@ def create_author_answer_job(
         author = session.get(Author, author_id)
         if author is None:
             raise HTTPException(status_code=404, detail="author not found")
+        _require_model_api_key(model_config, language=getattr(author, "language", None))
         job = PipelineJob(
             job_id=str(uuid.uuid4()),
             author_id=author_id,

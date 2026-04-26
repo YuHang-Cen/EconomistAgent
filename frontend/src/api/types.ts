@@ -36,6 +36,7 @@ export interface AuthorVM {
   authorId: string;
   authorName: string;
   school: string | null;
+  language: "english" | "chinese";
   avatarUrl: string | null;
   manuscriptsCount: number;
 }

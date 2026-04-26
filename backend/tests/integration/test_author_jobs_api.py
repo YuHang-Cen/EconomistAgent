@@ -12,12 +12,13 @@ from app.services import job_service
 from fastapi.testclient import TestClient
 
 
-def _create_author(client: TestClient, name: str) -> str:
+def _create_author(client: TestClient, name: str, *, language: str = "english") -> str:
     response = client.post(
         "/api/authors",
         json={
             "authorName": name,
             "school": "Cambridge",
+            "language": language,
             "avatarUrl": "https://example.com/avatar.png",
         },
     )
@@ -174,5 +175,28 @@ def test_job_create_requires_api_key_when_missing(client: TestClient, monkeypatc
     )
     assert answer_response.status_code == 422
     assert "missing model api key" in answer_response.json()["error"]["message"]
+
+    get_settings.cache_clear()
+
+
+def test_job_create_requires_api_key_message_is_localized_for_chinese_author(
+    client: TestClient, monkeypatch: Any
+) -> None:
+    """Missing-key errors should be readable in Chinese when author language is chinese."""
+    monkeypatch.setenv("DEEPSEEK_API_KEY", "")
+    monkeypatch.setenv("CELERY_TASK_ALWAYS_EAGER", "false")
+    get_settings.cache_clear()
+    author_id = _create_author(client, "Chinese Author Missing Key", language="chinese")
+
+    skills_response = client.post(f"/api/authors/{author_id}/jobs/skills")
+    assert skills_response.status_code == 422
+    assert "缺少模型 API Key" in skills_response.json()["error"]["message"]
+
+    answer_response = client.post(
+        f"/api/authors/{author_id}/jobs/answer",
+        json={"query": "测试缺少 key"},
+    )
+    assert answer_response.status_code == 422
+    assert "缺少模型 API Key" in answer_response.json()["error"]["message"]
 
     get_settings.cache_clear()

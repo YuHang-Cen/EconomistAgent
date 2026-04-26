@@ -8,7 +8,7 @@ interface CreateAuthorModalProps {
   onClose: () => void;
   onCreate: (payload: {
     authorName: string;
-    school?: string;
+    language: "english" | "chinese";
     avatarFile?: File;
   }) => Promise<void> | void;
 }
@@ -20,7 +20,7 @@ export default function CreateAuthorModal({
   onCreate,
 }: CreateAuthorModalProps) {
   const [authorName, setAuthorName] = useState("");
-  const [school, setSchool] = useState("");
+  const [language, setLanguage] = useState<"english" | "chinese">("english");
   const [avatarPreview, setAvatarPreview] = useState("");
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -77,11 +77,11 @@ export default function CreateAuthorModal({
             if (!authorName.trim() || submitting) return;
             await onCreate({
               authorName: authorName.trim(),
-              school: school.trim() || undefined,
+              language,
               avatarFile: avatarFile || undefined,
             });
             setAuthorName("");
-            setSchool("");
+            setLanguage("english");
             setAvatarPreview("");
             setAvatarFile(null);
             if (fileInputRef.current) fileInputRef.current.value = "";
@@ -103,15 +103,18 @@ export default function CreateAuthorModal({
 
           <div className="space-y-2">
             <label className="font-label text-[10px] uppercase tracking-widest text-secondary block">
-              School of Thought
+              Author Language
             </label>
-            <input
-              type="text"
-              value={school}
-              onChange={(event) => setSchool(event.target.value)}
-              placeholder="e.g. Keynesian"
+            <select
+              value={language}
+              onChange={(event) =>
+                setLanguage(event.target.value === "chinese" ? "chinese" : "english")
+              }
               className="w-full bg-surface-container-low border-none font-body text-sm py-3 px-4 outline-none focus:ring-1 focus:ring-primary rounded-sm transition-all"
-            />
+            >
+              <option value="english">English</option>
+              <option value="chinese">Chinese</option>
+            </select>
           </div>
 
           <div className="space-y-2">

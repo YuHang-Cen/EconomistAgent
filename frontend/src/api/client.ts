@@ -1,8 +1,11 @@
 import type { ApiEnvelope } from "./types";
 
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL as string | undefined)?.trim() ||
-  "http://127.0.0.1:8000/api";
+  "/api";
 const API_KEY = (import.meta.env.VITE_API_KEY as string | undefined)?.trim() || "";
+const TRANSIENT_HTTP_STATUS = new Set([502, 503, 504]);
+const RETRY_MAX_ATTEMPTS = 5;
+const RETRY_BASE_DELAY_MS = 300;
 
 export class ApiClientError extends Error {
   public readonly code: string;
@@ -37,11 +40,59 @@ function buildHeaders(initHeaders?: HeadersInit, body?: BodyInit | null): Header
   return headers;
 }
 
+function getRequestMethod(init?: RequestInit): string {
+  return (init?.method || "GET").toUpperCase();
+}
+
+function isRetryableRequest(init?: RequestInit): boolean {
+  const method = getRequestMethod(init);
+  return method === "GET" || method === "HEAD";
+}
+
+function shouldRetryResponse(response: Response, init?: RequestInit): boolean {
+  return isRetryableRequest(init) && TRANSIENT_HTTP_STATUS.has(response.status);
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function fetchWithRetry(url: string, init?: RequestInit): Promise<Response> {
+  for (let attempt = 1; attempt <= RETRY_MAX_ATTEMPTS; attempt += 1) {
+    try {
+      const response = await fetch(url, init);
+      if (shouldRetryResponse(response, init) && attempt < RETRY_MAX_ATTEMPTS) {
+        await sleep(RETRY_BASE_DELAY_MS * attempt);
+        continue;
+      }
+      return response;
+    } catch (error) {
+      if (!isRetryableRequest(init) || attempt >= RETRY_MAX_ATTEMPTS) {
+        throw error;
+      }
+      await sleep(RETRY_BASE_DELAY_MS * attempt);
+    }
+  }
+  throw new Error("unreachable");
+}
+
 export async function apiRequest<T>(path: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(`${API_BASE_URL}${path}`, {
+  const requestInit: RequestInit = {
     ...init,
     headers: buildHeaders(init?.headers, init?.body),
-  });
+  };
+  const url = `${API_BASE_URL}${path}`;
+
+  let response: Response;
+  try {
+    response = await fetchWithRetry(url, requestInit);
+  } catch (error) {
+    throw new ApiClientError({
+      code: "NETWORK_ERROR",
+      message: error instanceof Error ? error.message : "network request failed",
+      status: 0,
+    });
+  }
 
   let payload: ApiEnvelope<T> | null = null;
   try {

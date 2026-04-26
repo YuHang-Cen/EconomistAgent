@@ -9,6 +9,7 @@ from contextvars import ContextVar
 from pathlib import Path
 from typing import Any
 
+from app.domain.language import normalize_author_language
 from app.infra.settings import get_settings
 from langchain_openai import ChatOpenAI
 from pydantic import SecretStr
@@ -76,6 +77,33 @@ def load_prompt(prompt_filename: str, required_placeholders: list[str] | None = 
         if placeholder not in template:
             raise ValueError(f"prompt missing placeholder: {placeholder}")
     return template
+
+
+def localized_prompt_filename(prompt_filename: str, language: str) -> str:
+    """Resolve language-specific prompt filename, requiring explicit Chinese templates."""
+    normalized_language = normalize_author_language(language)
+    if normalized_language != "chinese":
+        return prompt_filename
+
+    path = Path(prompt_filename)
+    zh_name = f"{path.stem}_zh{path.suffix}"
+    zh_path = PROMPT_DIR / zh_name
+    if not zh_path.exists():
+        raise FileNotFoundError(
+            f"chinese prompt file not found: {zh_path}; required for language=chinese"
+        )
+    return zh_name
+
+
+def load_prompt_by_language(
+    prompt_filename: str,
+    *,
+    language: str,
+    required_placeholders: list[str] | None = None,
+) -> str:
+    """Load prompt template by author language."""
+    resolved = localized_prompt_filename(prompt_filename=prompt_filename, language=language)
+    return load_prompt(resolved, required_placeholders=required_placeholders)
 
 
 def render_prompt(template: str, mapping: dict[str, str]) -> str:
