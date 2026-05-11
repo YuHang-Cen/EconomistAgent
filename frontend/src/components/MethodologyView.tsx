@@ -1,5 +1,5 @@
-import { ChevronRight, Download, Terminal, Trash2 } from "lucide-react";
-import type { Author, Job } from "../types";
+import { BookOpen, ChevronRight, Download, Terminal, Trash2 } from "lucide-react";
+import type { Author, Chapter, Document, Job } from "../types";
 import { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import React from "react";
@@ -13,12 +13,16 @@ interface SkillOutputs {
 
 interface MethodologyViewProps {
   selectedAuthor: Author | null;
+  documents: Document[];
+  chaptersByDocument: Record<string, Chapter[]>;
+  selectedSectionId: string | null;
   runningJob: Job | null;
   outputs: SkillOutputs | null;
   generating: boolean;
   deletingSectionId: string | null;
   onGenerate: () => Promise<void> | void;
   onRefresh?: () => Promise<void> | void;
+  onSelectSection: (sectionId: string | null) => void;
   onDeleteMainSkill: (sectionId: string) => Promise<void> | void;
 }
 
@@ -30,6 +34,24 @@ function readMainSkills(outputs: SkillOutputs | null): Array<Record<string, unkn
 function readSubSkills(outputs: SkillOutputs | null): Array<Record<string, unknown>> {
   const list = outputs?.subSkillJson?.sub_skills;
   return Array.isArray(list) ? list.filter((item): item is Record<string, unknown> => !!item && typeof item === "object") : [];
+}
+
+function buildSectionContextIndex(
+  documents: Document[],
+  chaptersByDocument: Record<string, Chapter[]>
+): Record<string, { documentId: string; bookTitle: string; chapterTitle: string }> {
+  const index: Record<string, { documentId: string; bookTitle: string; chapterTitle: string }> = {};
+  for (const document of documents) {
+    const chapters = chaptersByDocument[document.documentId] || [];
+    for (const chapter of chapters) {
+      index[chapter.chapterId] = {
+        documentId: document.documentId,
+        bookTitle: document.bookTitle,
+        chapterTitle: chapter.chapterTitle,
+      };
+    }
+  }
+  return index;
 }
 
 // 辅助组件：渲染小标题
@@ -117,14 +139,17 @@ const ExecutionSkeletonList = ({ steps }: { steps: any[] }) => (
 
 export default function MethodologyView({
   selectedAuthor,
+  documents,
+  chaptersByDocument,
+  selectedSectionId,
   runningJob,
   outputs,
   generating,
   deletingSectionId,
   onGenerate,
+  onSelectSection,
   onDeleteMainSkill,
 }: MethodologyViewProps) {
-  const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"main" | "sub">("main");
   const [selectedSubSkillIndex, setSelectedSubSkillIndex] = useState<number>(0);
   const showRunningProgress =
@@ -135,9 +160,19 @@ export default function MethodologyView({
 
   const mainSkills = useMemo(() => readMainSkills(outputs), [outputs]);
   const subSkills = useMemo(() => readSubSkills(outputs), [outputs]);
+  const sectionContextIndex = useMemo(
+    () => buildSectionContextIndex(documents, chaptersByDocument),
+    [chaptersByDocument, documents]
+  );
+  const visibleMainSkills = useMemo(() => {
+    if (!selectedSectionId) return mainSkills;
+    return mainSkills.filter((item) => String(item.section_id || "") === selectedSectionId);
+  }, [mainSkills, selectedSectionId]);
 
   const selectedMain = useMemo(() => {
-    const section = selectedSectionId || (typeof mainSkills[0]?.section_id === "string" ? String(mainSkills[0].section_id) : null);
+    const section =
+      selectedSectionId ||
+      (typeof mainSkills[0]?.section_id === "string" ? String(mainSkills[0].section_id) : null);
     if (!section) return null;
     return mainSkills.find((item) => String(item.section_id || "") === section) || null;
   }, [mainSkills, selectedSectionId]);
@@ -147,22 +182,33 @@ export default function MethodologyView({
     ? subSkills.filter((item) => String(item.section_id || "") === selectedSection)
     : [];
   const llmMetadata = useMemo(() => readLlmMetadata(outputs), [outputs]);
+  const selectedSectionContext = selectedSection ? sectionContextIndex[selectedSection] || null : null;
 
   useEffect(() => {
-    if (!selectedSectionId) return;
-    const stillExists = mainSkills.some(
-      (item) => String(item.section_id || "") === selectedSectionId
-    );
-    if (stillExists) return;
+    if (mainSkills.length === 0) {
+      if (selectedSectionId) onSelectSection(null);
+      return;
+    }
+    if (selectedSectionId) {
+      const stillExists = mainSkills.some(
+        (item) => String(item.section_id || "") === selectedSectionId
+      );
+      if (stillExists) return;
+    }
     const fallback = mainSkills[0];
     const fallbackSectionId =
       fallback && fallback.section_id !== undefined && fallback.section_id !== null
         ? String(fallback.section_id)
         : null;
-    setSelectedSectionId(fallbackSectionId);
+    if (fallbackSectionId !== selectedSectionId) {
+      onSelectSection(fallbackSectionId);
+    }
+  }, [mainSkills, onSelectSection, selectedSectionId]);
+
+  useEffect(() => {
     setActiveTab("main");
     setSelectedSubSkillIndex(0);
-  }, [mainSkills, selectedSectionId]);
+  }, [selectedSectionId]);
 
   // Main Skill 提取字段
   const mainPattern = (selectedMain?.pattern_summary || {}) as Record<string, unknown>;
@@ -260,7 +306,7 @@ export default function MethodologyView({
             <section>
               <h3 className="text-xs font-label text-primary uppercase tracking-[0.2em] mb-6 font-bold">Main Skills</h3>
               <div className="space-y-3">
-                {mainSkills.map((skill, index) => {
+                {visibleMainSkills.map((skill, index) => {
                   const sectionId = String(skill.section_id || "");
                   const pattern = (skill.pattern_summary || {}) as Record<string, unknown>;
                   const name = String(pattern.name || skill.section_title || `main_${index + 1}`);
@@ -273,7 +319,7 @@ export default function MethodologyView({
                       whileHover={{ x: 4 }}
                       whileTap={{ scale: 0.98 }}
                       onClick={() => {
-                        setSelectedSectionId(sectionId);
+                        onSelectSection(sectionId);
                         setActiveTab("main");
                         setSelectedSubSkillIndex(0);
                       }}
@@ -305,6 +351,11 @@ export default function MethodologyView({
                     </motion.div>
                   );
                 })}
+                {visibleMainSkills.length === 0 && (
+                  <p className="text-[10px] text-outline-variant italic uppercase tracking-widest">
+                    No generated main skills for the selected chapter.
+                  </p>
+                )}
               </div>
             </section>
 
@@ -378,6 +429,27 @@ export default function MethodologyView({
                       {activeTab === "main" ? "#MS" : "#SS"}
                     </div>
                   </div>
+
+                  {selectedSectionContext && (
+                    <div className="mb-8 rounded-sm border border-outline-variant/15 bg-surface-container-low px-5 py-4">
+                      <div className="mb-3 text-[10px] font-bold tracking-[0.2em] uppercase text-secondary">
+                        Source Chapter
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <div className="mt-0.5 rounded-sm border border-outline-variant/15 bg-white p-2 text-primary">
+                          <BookOpen className="h-4 w-4" />
+                        </div>
+                        <div className="min-w-0">
+                          <div className="font-headline text-lg font-bold text-on-background leading-tight">
+                            {selectedSectionContext.bookTitle}
+                          </div>
+                          <div className="mt-1 text-sm text-secondary leading-relaxed">
+                            {selectedSectionContext.chapterTitle}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
                   {activeTab === "main" && selectedMain ? (
                     // ================== Main Skill 视图 ==================

@@ -83,6 +83,67 @@ def _seed_author_with_sections(author_id: str, section_count: int) -> None:
                 )
 
 
+def _seed_author_with_book_layout(author_id: str, books: list[tuple[str, int]]) -> None:
+    now = _now_iso()
+
+    with session_scope() as session:
+        session.add(
+            Author(
+                author_id=author_id,
+                author_name=f"Author-{author_id[:8]}",
+                school=None,
+                avatar_url=None,
+                created_at=now,
+                updated_at=now,
+            )
+        )
+
+        section_number = 1
+        for document_index, (book_title, chapter_count) in enumerate(books, start=1):
+            document_id = f"document-{document_index:02d}"
+            session.add(
+                AuthorDocument(
+                    document_id=document_id,
+                    author_id=author_id,
+                    book_title=book_title,
+                    pdf_uri=f"memory://{document_id}.pdf",
+                    status="active",
+                    created_at=now,
+                    updated_at=now,
+                )
+            )
+
+            for chapter_offset in range(chapter_count):
+                section_id = f"section-{section_number:02d}"
+                section_number += 1
+                session.add(
+                    DocumentChapter(
+                        chapter_id=section_id,
+                        document_id=document_id,
+                        chapter_title=f"{book_title} Chapter {chapter_offset + 1}",
+                        order_index=chapter_offset,
+                        is_deleted=False,
+                        deleted_at=None,
+                        created_at=now,
+                        updated_at=now,
+                    )
+                )
+                session.add(
+                    DocumentSegment(
+                        segment_id=str(uuid4()),
+                        document_id=document_id,
+                        chapter_id=section_id,
+                        chunk_id=f"{section_id}-chunk-1",
+                        content=f"{book_title} content {chapter_offset + 1}",
+                        order_index=0,
+                        is_deleted=False,
+                        deleted_at=None,
+                        created_at=now,
+                        updated_at=now,
+                    )
+                )
+
+
 def _extract_section_number(section_id: str) -> int:
     try:
         return int(section_id.split("-")[-1])
@@ -392,3 +453,25 @@ def test_trim_by_max_confidence_and_latest_snapshot_scope(monkeypatch: object) -
     sections3 = {str(item.get("section_id", "")) for item in main3 if isinstance(item, dict)}
     assert sections3 == {"section-03", "section-04"}
     assert counters == {"analyze": 3, "main": 3, "sub": 3, "render": 3}
+
+
+def test_generation_prioritizes_book_coverage_before_same_book_extra_sections(
+    monkeypatch: object,
+) -> None:
+    author_id = str(uuid4())
+    _seed_author_with_book_layout(
+        author_id=author_id,
+        books=[
+            ("Book A", 2),
+            ("Book B", 1),
+        ],
+    )
+    _install_incremental_fakes(monkeypatch, batch_size=2, max_main_skills=6)
+
+    _execute_skills_once(author_id)
+    snapshot = _latest_snapshot(author_id)
+    assert snapshot is not None
+
+    main_skills = _read_main_skills(snapshot)
+    sections = {str(item.get("section_id", "")) for item in main_skills if isinstance(item, dict)}
+    assert sections == {"section-01", "section-03"}

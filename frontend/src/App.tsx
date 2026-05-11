@@ -119,6 +119,7 @@ export default function App() {
   const [segmentHistoryIndex, setSegmentHistoryIndex] = useState(0);
 
   const [selectedMethodologyAuthorId, setSelectedMethodologyAuthorId] = useState<string | null>(null);
+  const [selectedMethodologySectionId, setSelectedMethodologySectionId] = useState<string | null>(null);
   const [methodologyRunningJob, setMethodologyRunningJob] = useState<Job | null>(null);
   const [methodologyOutputs, setMethodologyOutputs] = useState<SkillOutputs | null>(null);
   const [methodologyGenerating, setMethodologyGenerating] = useState(false);
@@ -158,6 +159,21 @@ export default function App() {
     () => authors.find((item) => item.authorId === selectedMethodologyAuthorId) || null,
     [authors, selectedMethodologyAuthorId]
   );
+  const selectedMethodologyDocuments = useMemo(
+    () => (selectedMethodologyAuthorId ? documentsByAuthor[selectedMethodologyAuthorId] || [] : []),
+    [documentsByAuthor, selectedMethodologyAuthorId]
+  );
+  const methodologyGeneratedSectionIds = useMemo(() => {
+    const list = methodologyOutputs?.mainSkillJson?.main_skills;
+    if (!Array.isArray(list)) return [];
+    return list
+      .map((item) =>
+        item && typeof item === "object" && typeof item.section_id === "string"
+          ? item.section_id
+          : null
+      )
+      .filter((item): item is string => !!item);
+  }, [methodologyOutputs]);
   const selectedAnalysisAuthor = useMemo(
     () => authors.find((item) => item.authorId === selectedAnalysisAuthorId) || null,
     [authors, selectedAnalysisAuthorId]
@@ -206,6 +222,29 @@ export default function App() {
       }
     },
     [documentsByAuthor, loadingDocumentsByAuthor]
+  );
+
+  const ensureMethodologyLibraryLoaded = useCallback(
+    async (authorId: string, force = false) => {
+      let docs = documentsByAuthor[authorId] || [];
+      if (force || docs.length === 0) {
+        docs = await listDocuments(authorId);
+        setDocumentsByAuthor((prev) => ({ ...prev, [authorId]: docs }));
+      }
+      if (docs.length === 0) return;
+
+      const chapterEntries = await Promise.all(
+        docs.map(async (document) => [document.documentId, await listChapters(authorId, document.documentId)] as const)
+      );
+      setChaptersByDocument((prev) => {
+        const next = { ...prev };
+        for (const [documentId, chapters] of chapterEntries) {
+          next[documentId] = chapters;
+        }
+        return next;
+      });
+    },
+    [documentsByAuthor]
   );
 
   const syncSegmentView = useCallback(
@@ -368,8 +407,15 @@ export default function App() {
 
   useEffect(() => {
     if (activeTab !== "methodology" || !selectedMethodologyAuthorId) return;
+    ensureMethodologyLibraryLoaded(selectedMethodologyAuthorId).catch(handleError);
     loadLatestSkills(selectedMethodologyAuthorId).catch(handleError);
-  }, [activeTab, selectedMethodologyAuthorId, loadLatestSkills, handleError]);
+  }, [
+    activeTab,
+    selectedMethodologyAuthorId,
+    ensureMethodologyLibraryLoaded,
+    loadLatestSkills,
+    handleError,
+  ]);
 
   useEffect(() => {
     if (activeTab !== "answer" || authors.length === 0) return;
@@ -572,6 +618,7 @@ export default function App() {
         throw new Error(finalJob.errorMessage || `skills failed: ${finalJob.status}`);
       }
       await loadLatestSkills(selectedMethodologyAuthorId);
+      await ensureMethodologyLibraryLoaded(selectedMethodologyAuthorId);
     } catch (error) {
       handleError(error);
     } finally {
@@ -581,7 +628,10 @@ export default function App() {
 
   const handleRefreshMethodology = async () => {
     if (!selectedMethodologyAuthorId) return;
-    await loadLatestSkills(selectedMethodologyAuthorId).catch(handleError);
+    await Promise.all([
+      ensureMethodologyLibraryLoaded(selectedMethodologyAuthorId).catch(handleError),
+      loadLatestSkills(selectedMethodologyAuthorId).catch(handleError),
+    ]);
   };
 
   const handleDeleteMethodologySection = async (sectionId: string) => {
@@ -798,11 +848,25 @@ export default function App() {
           <div className="flex flex-1 overflow-hidden">
             <MethodologySidebar
               authors={authors}
+              documentsByAuthor={documentsByAuthor}
+              chaptersByDocument={chaptersByDocument}
+              generatedSectionIds={methodologyGeneratedSectionIds}
               selectedAuthorId={selectedMethodologyAuthorId}
-              onSelect={(authorId) => setSelectedMethodologyAuthorId(authorId)}
+              selectedSectionId={selectedMethodologySectionId}
+              onExpandAuthor={(authorId) => ensureMethodologyLibraryLoaded(authorId).catch(handleError)}
+              onSelectAuthor={(authorId) => {
+                setSelectedMethodologyAuthorId(authorId);
+                setSelectedMethodologySectionId(null);
+                setMethodologyOutputs(null);
+                ensureMethodologyLibraryLoaded(authorId).catch(handleError);
+              }}
+              onSelectSection={setSelectedMethodologySectionId}
             />
             <MethodologyView
               selectedAuthor={selectedMethodologyAuthor}
+              documents={selectedMethodologyDocuments}
+              chaptersByDocument={chaptersByDocument}
+              selectedSectionId={selectedMethodologySectionId}
               runningJob={
                 methodologyRunningJob?.authorId === selectedMethodologyAuthorId
                   ? methodologyRunningJob
@@ -813,6 +877,7 @@ export default function App() {
               deletingSectionId={methodologyDeletingSectionId}
               onGenerate={handleGenerateSkills}
               onRefresh={handleRefreshMethodology}
+              onSelectSection={setSelectedMethodologySectionId}
               onDeleteMainSkill={handleDeleteMethodologySection}
             />
           </div>

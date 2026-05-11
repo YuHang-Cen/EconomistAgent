@@ -96,6 +96,7 @@ def _load_author_segments(session: Session, author_id: str) -> list[dict[str, An
     if not document_rows:
         return []
     document_ids = [item.document_id for item in document_rows]
+    document_by_id = {item.document_id: item for item in document_rows}
 
     chapters = session.execute(
         select(DocumentChapter).where(
@@ -124,6 +125,7 @@ def _load_author_segments(session: Session, author_id: str) -> list[dict[str, An
         result.append(
             {
                 "document_id": segment.document_id,
+                "book_title": str(getattr(document_by_id.get(segment.document_id), "book_title", "") or ""),
                 "chapter_id": segment.chapter_id,
                 "chapter_title": chapter.chapter_title,
                 "chunk_id": segment.chunk_id,
@@ -198,23 +200,62 @@ def _load_generated_section_history(session: Session, author_id: str) -> set[str
     return generated
 
 
-def _collect_sections_from_segments(segments: list[dict[str, Any]]) -> dict[str, str]:
-    section_titles: dict[str, str] = {}
+def _collect_sections_from_segments(segments: list[dict[str, Any]]) -> dict[str, dict[str, str]]:
+    section_contexts: dict[str, dict[str, str]] = {}
     for item in segments:
         section_id = str(item.get("chapter_id", "")).strip()
-        section_title = str(item.get("chapter_title", "")).strip()
-        if section_id and section_id not in section_titles:
-            section_titles[section_id] = section_title
-    return section_titles
+        if not section_id or section_id in section_contexts:
+            continue
+        section_contexts[section_id] = {
+            "document_id": str(item.get("document_id", "")).strip() or section_id,
+            "book_title": str(item.get("book_title", "")).strip(),
+            "chapter_title": str(item.get("chapter_title", "")).strip(),
+        }
+    return section_contexts
 
 
 def _sample_sections_for_generation(
-    remaining_section_ids: list[str], batch_size: int
+    remaining_section_ids: list[str],
+    section_contexts: dict[str, dict[str, str]],
+    batch_size: int,
 ) -> set[str]:
     if len(remaining_section_ids) <= batch_size:
         return set(remaining_section_ids)
-    sampled = random.sample(remaining_section_ids, batch_size)
-    return set(sampled)
+
+    sections_by_document: dict[str, list[str]] = {}
+    for section_id in remaining_section_ids:
+        context = section_contexts.get(section_id, {})
+        document_id = str(context.get("document_id", "")).strip() or section_id
+        sections_by_document.setdefault(document_id, []).append(section_id)
+
+    selected: list[str] = []
+    document_ids = list(sections_by_document.keys())
+    doc_pick_count = min(batch_size, len(document_ids))
+    chosen_document_ids = (
+        list(document_ids)
+        if doc_pick_count >= len(document_ids)
+        else random.sample(document_ids, doc_pick_count)
+    )
+
+    for document_id in chosen_document_ids:
+        document_sections = sections_by_document.get(document_id, [])
+        if not document_sections:
+            continue
+        chosen_section = (
+            document_sections[0]
+            if len(document_sections) == 1
+            else random.sample(document_sections, 1)[0]
+        )
+        selected.append(chosen_section)
+
+    if len(selected) < batch_size:
+        leftovers = [section_id for section_id in remaining_section_ids if section_id not in selected]
+        extra_count = min(batch_size - len(selected), len(leftovers))
+        if extra_count > 0:
+            extras = leftovers if extra_count >= len(leftovers) else random.sample(leftovers, extra_count)
+            selected.extend(extras)
+
+    return set(selected)
 
 
 def _filter_segments_by_sections(
@@ -570,11 +611,13 @@ def run_author_skills(session: Session, job: PipelineJob) -> None:
     if not segments:
         raise ValueError("no active segments found for author_skills")
 
-    current_sections = _collect_sections_from_segments(segments)
-    if not current_sections:
+    section_contexts = _collect_sections_from_segments(segments)
+    if not section_contexts:
         raise ValueError("no available sections found for author_skills")
     generated_history = _load_generated_section_history(session=session, author_id=job.author_id)
-    remaining_section_ids = sorted(set(current_sections.keys()) - generated_history)
+    remaining_section_ids = [
+        section_id for section_id in section_contexts.keys() if section_id not in generated_history
+    ]
     latest_snapshot = _load_latest_snapshot(session=session, author_id=job.author_id)
 
     if not remaining_section_ids:
@@ -594,6 +637,7 @@ def run_author_skills(session: Session, job: PipelineJob) -> None:
 
     selected_section_ids = _sample_sections_for_generation(
         remaining_section_ids=remaining_section_ids,
+        section_contexts=section_contexts,
         batch_size=batch_size,
     )
     selected_segments = _filter_segments_by_sections(
