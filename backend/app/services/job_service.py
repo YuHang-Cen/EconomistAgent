@@ -437,6 +437,17 @@ def get_output(job_id: str, output_type: str) -> dict[str, Any]:
         output_uri = outputs.get(output_type)
         if not isinstance(output_uri, str) or not output_uri.strip():
             raise HTTPException(status_code=404, detail="output not found")
+        if job.job_type == JobType.AUTHOR_SKILLS.value and output_type in {
+            OutputType.MAIN_SKILL_JSON.value,
+            OutputType.SUB_SKILL_JSON.value,
+            OutputType.MAIN_SKILLS_MD_JSON.value,
+            OutputType.SUB_SKILLS_MD_JSON.value,
+        }:
+            pipeline_service.upgrade_snapshot_source_contexts(
+                session,
+                author_id=job.author_id,
+                outputs=outputs,
+            )
         content = _read_output_content(output_uri)
         return {"type": output_type, "content": content}
 

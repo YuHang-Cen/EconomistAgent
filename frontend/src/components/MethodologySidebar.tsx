@@ -8,13 +8,13 @@ import {
 } from "lucide-react";
 import { motion } from "motion/react";
 import { useEffect, useMemo, useState } from "react";
-import type { Author, Chapter, Document } from "../types";
+import type { Author, Document } from "../types";
+import type { ResolvedMethodologySection } from "../methodologySource";
 
 interface MethodologySidebarProps {
   authors: Author[];
   documentsByAuthor: Record<string, Document[]>;
-  chaptersByDocument: Record<string, Chapter[]>;
-  generatedSectionIds: string[];
+  generatedSections: ResolvedMethodologySection[];
   selectedAuthorId: string | null;
   selectedSectionId: string | null;
   onExpandAuthor: (authorId: string) => void;
@@ -25,8 +25,7 @@ interface MethodologySidebarProps {
 export default function MethodologySidebar({
   authors,
   documentsByAuthor,
-  chaptersByDocument,
-  generatedSectionIds,
+  generatedSections,
   selectedAuthorId,
   selectedSectionId,
   onExpandAuthor,
@@ -37,19 +36,23 @@ export default function MethodologySidebar({
   const [expandedAuthors, setExpandedAuthors] = useState<Set<string>>(new Set());
   const [expandedDocuments, setExpandedDocuments] = useState<Set<string>>(new Set());
 
-  const generatedSectionIdSet = useMemo(() => new Set(generatedSectionIds), [generatedSectionIds]);
-
-  const selectedDocumentId = useMemo(() => {
-    if (!selectedAuthorId || !selectedSectionId) return null;
-    const documents = documentsByAuthor[selectedAuthorId] || [];
-    for (const document of documents) {
-      const chapters = chaptersByDocument[document.documentId] || [];
-      if (chapters.some((chapter) => chapter.chapterId === selectedSectionId)) {
-        return document.documentId;
-      }
+  const sectionsByDocumentId = useMemo(() => {
+    const grouped: Record<string, ResolvedMethodologySection[]> = {};
+    for (const item of generatedSections) {
+      const key = item.documentId || "__legacy__";
+      const bucket = grouped[key] || [];
+      bucket.push(item);
+      grouped[key] = bucket;
     }
-    return null;
-  }, [chaptersByDocument, documentsByAuthor, selectedAuthorId, selectedSectionId]);
+    return grouped;
+  }, [generatedSections]);
+
+  const selectedBookKey = useMemo(() => {
+    if (!selectedSectionId) return null;
+    const matchedSection = generatedSections.find((item) => item.sectionId === selectedSectionId);
+    if (!matchedSection) return null;
+    return matchedSection.documentId || "__legacy__";
+  }, [generatedSections, selectedSectionId]);
 
   useEffect(() => {
     if (!selectedAuthorId) return;
@@ -57,13 +60,13 @@ export default function MethodologySidebar({
   }, [selectedAuthorId]);
 
   useEffect(() => {
-    if (!selectedDocumentId) return;
+    if (!selectedBookKey) return;
     setExpandedDocuments((prev) => {
       const next = new Set(prev);
-      next.add(selectedDocumentId);
+      next.add(selectedBookKey);
       return next;
     });
-  }, [selectedDocumentId]);
+  }, [selectedBookKey]);
 
   function toggleAuthor(authorId: string) {
     if (isCollapsed) return;
@@ -112,6 +115,8 @@ export default function MethodologySidebar({
             const authorId = author.authorId;
             const documents = documentsByAuthor[authorId] || [];
             const isAuthorSelected = selectedAuthorId === authorId;
+            const authorSections = isAuthorSelected ? generatedSections : [];
+            const unresolvedSections = authorSections.filter((item) => !item.documentId);
 
             return (
               <div key={authorId}>
@@ -137,11 +142,8 @@ export default function MethodologySidebar({
                       <div className="px-4 py-2 text-xs text-secondary italic">No documents</div>
                     ) : (
                       documents.map((document) => {
-                        const chapters = chaptersByDocument[document.documentId] || [];
-                        const skillChapters = chapters.filter((chapter) =>
-                          generatedSectionIdSet.has(chapter.chapterId)
-                        );
-                        const isDocumentSelected = selectedDocumentId === document.documentId;
+                        const skillChapters = sectionsByDocumentId[document.documentId] || [];
+                        const isDocumentSelected = selectedBookKey === document.documentId;
                         const isExpanded = expandedDocuments.has(document.documentId);
 
                         return (
@@ -173,11 +175,11 @@ export default function MethodologySidebar({
                                   </div>
                                 ) : (
                                   skillChapters.map((chapter) => {
-                                    const isChapterSelected = selectedSectionId === chapter.chapterId;
+                                    const isChapterSelected = selectedSectionId === chapter.sectionId;
                                     return (
                                       <button
-                                        key={chapter.chapterId}
-                                        onClick={() => onSelectSection(chapter.chapterId)}
+                                        key={chapter.sectionId}
+                                        onClick={() => onSelectSection(chapter.sectionId)}
                                         className={`flex w-full items-center gap-3 px-4 py-2 text-left text-xs transition-all ${
                                           isChapterSelected
                                             ? "text-primary font-semibold bg-primary/10 rounded-sm"
@@ -193,7 +195,55 @@ export default function MethodologySidebar({
                             )}
                           </div>
                         );
-                      })
+                      }).concat(
+                        unresolvedSections.length === 0
+                          ? []
+                          : [
+                              <div key="__legacy__">
+                                <div
+                                  onClick={() => toggleDocument("__legacy__")}
+                                  className={`flex items-center gap-3 px-4 py-2.5 cursor-pointer transition-all ${
+                                    selectedBookKey === "__legacy__"
+                                      ? "text-primary font-medium"
+                                      : "text-secondary hover:translate-x-1"
+                                  }`}
+                                >
+                                  {expandedDocuments.has("__legacy__") ? (
+                                    <ChevronDown className="w-4 h-4" />
+                                  ) : (
+                                    <ChevronRight className="w-4 h-4" />
+                                  )}
+                                  <BookOpen
+                                    className={`w-4 h-4 ${
+                                      selectedBookKey === "__legacy__" ? "text-primary" : "text-primary/70"
+                                    }`}
+                                  />
+                                  <span className="text-sm truncate">Legacy Snapshot</span>
+                                </div>
+
+                                {expandedDocuments.has("__legacy__") && (
+                                  <div className="ml-8 space-y-1 border-l border-outline-variant/20">
+                                    {unresolvedSections.map((chapter) => {
+                                      const isChapterSelected = selectedSectionId === chapter.sectionId;
+                                      return (
+                                        <button
+                                          key={chapter.sectionId}
+                                          onClick={() => onSelectSection(chapter.sectionId)}
+                                          className={`flex w-full items-center gap-3 px-4 py-2 text-left text-xs transition-all ${
+                                            isChapterSelected
+                                              ? "text-primary font-semibold bg-primary/10 rounded-sm"
+                                              : "text-secondary hover:text-primary hover:translate-x-1"
+                                          }`}
+                                        >
+                                          <span className="truncate">{chapter.chapterTitle}</span>
+                                        </button>
+                                      );
+                                    })}
+                                  </div>
+                                )}
+                              </div>,
+                            ]
+                      )
                     )}
                   </div>
                 )}

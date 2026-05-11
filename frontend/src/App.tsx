@@ -37,6 +37,10 @@ import SegmentSidebar from "./components/SegmentSidebar";
 import SegmentView from "./components/SegmentView";
 import SettingsModal, { RuntimeSettingsState } from "./components/SettingsModal";
 import Sidebar from "./components/Sidebar";
+import {
+  buildResolvedMethodologySections,
+  type ResolvedMethodologySection,
+} from "./methodologySource";
 
 type Tab = "archive" | "analysis" | "methodology" | "answer" | "landing";
 
@@ -163,17 +167,15 @@ export default function App() {
     () => (selectedMethodologyAuthorId ? documentsByAuthor[selectedMethodologyAuthorId] || [] : []),
     [documentsByAuthor, selectedMethodologyAuthorId]
   );
-  const methodologyGeneratedSectionIds = useMemo(() => {
-    const list = methodologyOutputs?.mainSkillJson?.main_skills;
-    if (!Array.isArray(list)) return [];
-    return list
-      .map((item) =>
-        item && typeof item === "object" && typeof item.section_id === "string"
-          ? item.section_id
-          : null
-      )
-      .filter((item): item is string => !!item);
-  }, [methodologyOutputs]);
+  const methodologySections = useMemo<ResolvedMethodologySection[]>(
+    () =>
+      buildResolvedMethodologySections(
+        methodologyOutputs,
+        selectedMethodologyDocuments,
+        chaptersByDocument
+      ),
+    [chaptersByDocument, methodologyOutputs, selectedMethodologyDocuments]
+  );
   const selectedAnalysisAuthor = useMemo(
     () => authors.find((item) => item.authorId === selectedAnalysisAuthorId) || null,
     [authors, selectedAnalysisAuthorId]
@@ -849,8 +851,7 @@ export default function App() {
             <MethodologySidebar
               authors={authors}
               documentsByAuthor={documentsByAuthor}
-              chaptersByDocument={chaptersByDocument}
-              generatedSectionIds={methodologyGeneratedSectionIds}
+              generatedSections={methodologySections}
               selectedAuthorId={selectedMethodologyAuthorId}
               selectedSectionId={selectedMethodologySectionId}
               onExpandAuthor={(authorId) => ensureMethodologyLibraryLoaded(authorId).catch(handleError)}
@@ -864,8 +865,7 @@ export default function App() {
             />
             <MethodologyView
               selectedAuthor={selectedMethodologyAuthor}
-              documents={selectedMethodologyDocuments}
-              chaptersByDocument={chaptersByDocument}
+              resolvedSections={methodologySections}
               selectedSectionId={selectedMethodologySectionId}
               runningJob={
                 methodologyRunningJob?.authorId === selectedMethodologyAuthorId

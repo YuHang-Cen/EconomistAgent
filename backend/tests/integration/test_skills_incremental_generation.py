@@ -362,6 +362,20 @@ def _read_sub_skills(snapshot: AuthorSkillSnapshot) -> list[dict[str, object]]:
     return sub_skills if isinstance(sub_skills, list) else []
 
 
+def _read_main_skills_md(snapshot: AuthorSkillSnapshot) -> list[dict[str, object]]:
+    outputs = json.loads(snapshot.outputs_json)
+    uri = outputs["main_skills_md_json"]
+    payload = json.loads(storage.resolve_storage_uri(uri).read_text(encoding="utf-8"))
+    return payload if isinstance(payload, list) else []
+
+
+def _read_sub_skills_md(snapshot: AuthorSkillSnapshot) -> list[dict[str, object]]:
+    outputs = json.loads(snapshot.outputs_json)
+    uri = outputs["sub_skills_md_json"]
+    payload = json.loads(storage.resolve_storage_uri(uri).read_text(encoding="utf-8"))
+    return payload if isinstance(payload, list) else []
+
+
 def _execute_skills_once(author_id: str) -> str:
     job = job_service.create_author_skills_job(author_id=author_id, auto_run=False)
     job_id = job["jobId"]
@@ -475,3 +489,143 @@ def test_generation_prioritizes_book_coverage_before_same_book_extra_sections(
     main_skills = _read_main_skills(snapshot)
     sections = {str(item.get("section_id", "")) for item in main_skills if isinstance(item, dict)}
     assert sections == {"section-01", "section-03"}
+
+    main_contexts = {
+        str(item.get("section_id", "")): item.get("source_context")
+        for item in main_skills
+        if isinstance(item, dict)
+    }
+    assert main_contexts["section-01"] == {
+        "document_id": "document-01",
+        "book_title": "Book A",
+        "chapter_title": "Book A Chapter 1",
+    }
+    assert main_contexts["section-03"] == {
+        "document_id": "document-02",
+        "book_title": "Book B",
+        "chapter_title": "Book B Chapter 1",
+    }
+
+    sub_skills = _read_sub_skills(snapshot)
+    assert {
+        str(item.get("section_id", "")): item.get("source_context")
+        for item in sub_skills
+        if isinstance(item, dict)
+    } == main_contexts
+
+    main_md_items = _read_main_skills_md(snapshot)
+    assert {
+        str(item.get("section_id", "")): item.get("source_context")
+        for item in main_md_items
+        if isinstance(item, dict)
+    } == main_contexts
+
+    sub_md_items = _read_sub_skills_md(snapshot)
+    assert {
+        str(item.get("section_id", "")): item.get("source_context")
+        for item in sub_md_items
+        if isinstance(item, dict)
+    } == main_contexts
+
+
+def test_upgrade_snapshot_source_contexts_backfills_legacy_section_titles() -> None:
+    author_id = str(uuid4())
+    _seed_author_with_book_layout(
+        author_id=author_id,
+        books=[("Book A", 1)],
+    )
+
+    snapshot_id = str(uuid4())
+    snapshot_root = storage.snapshot_root(author_id=author_id, snapshot_id=snapshot_id)
+    outputs = {
+        "main_skill_json": storage.write_json(
+            snapshot_root / "main_skill.json",
+            {
+                "main_skills": [
+                    {
+                        "section_id": "legacy-section-01",
+                        "main_skill_id": "main_skill_001",
+                        "section_title": "Book A Chapter 1",
+                        "pattern_summary": {"name": "Legacy Skill"},
+                    }
+                ]
+            },
+        ),
+        "sub_skill_json": storage.write_json(
+            snapshot_root / "sub_skill.json",
+            {
+                "sub_skills": [
+                    {
+                        "section_id": "legacy-section-01",
+                        "main_skill_id": "main_skill_001",
+                        "name": "Legacy Sub Skill",
+                        "normalized_pattern": "legacy-pattern",
+                    }
+                ]
+            },
+        ),
+        "main_skills_md_json": storage.write_json(
+            snapshot_root / "main_skills_md.json",
+            [
+                {
+                    "main_skill_id": "main_skill_001",
+                    "section_id": "legacy-section-01",
+                    "section_title": "Book A Chapter 1",
+                    "name": "Legacy Skill",
+                    "file_name": "legacy_main.md",
+                    "markdown": "MAIN",
+                }
+            ],
+        ),
+        "sub_skills_md_json": storage.write_json(
+            snapshot_root / "sub_skills_md.json",
+            [
+                {
+                    "main_skill_id": "main_skill_001",
+                    "section_id": "legacy-section-01",
+                    "name": "Legacy Sub Skill",
+                    "normalized_pattern": "legacy-pattern",
+                    "file_name": "legacy_sub.md",
+                    "markdown": "SUB",
+                }
+            ],
+        ),
+    }
+
+    with session_scope() as session:
+        changed = pipeline_service.upgrade_snapshot_source_contexts(
+            session=session,
+            author_id=author_id,
+            outputs=outputs,
+        )
+
+    assert changed is True
+
+    main_skill_payload = json.loads(
+        storage.resolve_storage_uri(outputs["main_skill_json"]).read_text(encoding="utf-8")
+    )
+    main_skill = main_skill_payload["main_skills"][0]
+    assert main_skill["document_id"] == "document-01"
+    assert main_skill["book_title"] == "Book A"
+    assert main_skill["chapter_title"] == "Book A Chapter 1"
+    assert main_skill["source_context"] == {
+        "document_id": "document-01",
+        "book_title": "Book A",
+        "chapter_title": "Book A Chapter 1",
+    }
+
+    sub_skill_payload = json.loads(
+        storage.resolve_storage_uri(outputs["sub_skill_json"]).read_text(encoding="utf-8")
+    )
+    sub_skill = sub_skill_payload["sub_skills"][0]
+    assert sub_skill["source_context"] == main_skill["source_context"]
+
+    main_md_payload = json.loads(
+        storage.resolve_storage_uri(outputs["main_skills_md_json"]).read_text(encoding="utf-8")
+    )
+    assert main_md_payload[0]["source_context"] == main_skill["source_context"]
+
+    sub_md_payload = json.loads(
+        storage.resolve_storage_uri(outputs["sub_skills_md_json"]).read_text(encoding="utf-8")
+    )
+    assert sub_md_payload[0]["source_context"] == main_skill["source_context"]

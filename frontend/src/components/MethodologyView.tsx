@@ -1,8 +1,9 @@
 import { BookOpen, ChevronRight, Download, Terminal, Trash2 } from "lucide-react";
-import type { Author, Chapter, Document, Job } from "../types";
+import type { Author, Job } from "../types";
 import { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import React from "react";
+import type { ResolvedMethodologySection } from "../methodologySource";
 
 interface SkillOutputs {
   mainSkillJson: Record<string, unknown> | null;
@@ -13,8 +14,7 @@ interface SkillOutputs {
 
 interface MethodologyViewProps {
   selectedAuthor: Author | null;
-  documents: Document[];
-  chaptersByDocument: Record<string, Chapter[]>;
+  resolvedSections: ResolvedMethodologySection[];
   selectedSectionId: string | null;
   runningJob: Job | null;
   outputs: SkillOutputs | null;
@@ -34,24 +34,6 @@ function readMainSkills(outputs: SkillOutputs | null): Array<Record<string, unkn
 function readSubSkills(outputs: SkillOutputs | null): Array<Record<string, unknown>> {
   const list = outputs?.subSkillJson?.sub_skills;
   return Array.isArray(list) ? list.filter((item): item is Record<string, unknown> => !!item && typeof item === "object") : [];
-}
-
-function buildSectionContextIndex(
-  documents: Document[],
-  chaptersByDocument: Record<string, Chapter[]>
-): Record<string, { documentId: string; bookTitle: string; chapterTitle: string }> {
-  const index: Record<string, { documentId: string; bookTitle: string; chapterTitle: string }> = {};
-  for (const document of documents) {
-    const chapters = chaptersByDocument[document.documentId] || [];
-    for (const chapter of chapters) {
-      index[chapter.chapterId] = {
-        documentId: document.documentId,
-        bookTitle: document.bookTitle,
-        chapterTitle: chapter.chapterTitle,
-      };
-    }
-  }
-  return index;
 }
 
 // 辅助组件：渲染小标题
@@ -139,8 +121,7 @@ const ExecutionSkeletonList = ({ steps }: { steps: any[] }) => (
 
 export default function MethodologyView({
   selectedAuthor,
-  documents,
-  chaptersByDocument,
+  resolvedSections,
   selectedSectionId,
   runningJob,
   outputs,
@@ -160,10 +141,13 @@ export default function MethodologyView({
 
   const mainSkills = useMemo(() => readMainSkills(outputs), [outputs]);
   const subSkills = useMemo(() => readSubSkills(outputs), [outputs]);
-  const sectionContextIndex = useMemo(
-    () => buildSectionContextIndex(documents, chaptersByDocument),
-    [chaptersByDocument, documents]
-  );
+  const sectionContextIndex = useMemo(() => {
+    const index: Record<string, ResolvedMethodologySection> = {};
+    for (const item of resolvedSections) {
+      index[item.sectionId] = item;
+    }
+    return index;
+  }, [resolvedSections]);
   const visibleMainSkills = useMemo(() => {
     if (!selectedSectionId) return mainSkills;
     return mainSkills.filter((item) => String(item.section_id || "") === selectedSectionId);
