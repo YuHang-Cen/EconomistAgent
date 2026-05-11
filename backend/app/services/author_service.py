@@ -34,7 +34,7 @@ from sqlalchemy import delete, func, select, update
 logger = logging.getLogger(__name__)
 
 MAX_AVATAR_BYTES = 5 * 1024 * 1024
-ALLOWED_DOCUMENT_SUFFIXES = {".pdf", ".epub"}
+ALLOWED_DOCUMENT_SUFFIXES = {".pdf", ".epub", ".md"}
 ALLOWED_AVATAR_SUFFIXES: dict[str, str] = {
     ".jpg": "image/jpeg",
     ".jpeg": "image/jpeg",
@@ -326,7 +326,7 @@ def upload_document_file(author_id: str, book_title: str, filename: str, content
     """Upload one document file from multipart payload, persist it, and enqueue reload job."""
     suffix = Path(filename).suffix.lower()
     if suffix not in ALLOWED_DOCUMENT_SUFFIXES:
-        raise HTTPException(status_code=422, detail="uploaded file must end with .pdf or .epub")
+        raise HTTPException(status_code=422, detail="uploaded file must end with .pdf, .epub, or .md")
 
     # Ensure author exists before writing storage files.
     with session_scope() as session:

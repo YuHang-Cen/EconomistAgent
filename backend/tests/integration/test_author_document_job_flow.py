@@ -30,6 +30,22 @@ def _find_document_status(client: TestClient, author_id: str, document_id: str) 
     return str(matched["status"])
 
 
+def _list_document_chapters(
+    client: TestClient, author_id: str, document_id: str
+) -> list[dict[str, Any]]:
+    response = client.get(f"/api/authors/{author_id}/documents/{document_id}/chapters")
+    return list(response.json()["data"])
+
+
+def _list_chapter_segments(
+    client: TestClient, author_id: str, document_id: str, chapter_id: str
+) -> list[dict[str, Any]]:
+    response = client.get(
+        f"/api/authors/{author_id}/documents/{document_id}/chapters/{chapter_id}/segments"
+    )
+    return list(response.json()["data"])
+
+
 def test_create_author(client: TestClient) -> None:
     """Author create endpoint should return camelCase payload."""
     response = client.post(
@@ -183,6 +199,47 @@ def test_multipart_upload_epub_document_creates_reload_job(
     assert final_payload["progress"] == 100
 
 
+def test_multipart_upload_markdown_document_creates_reload_job(
+    client: TestClient,
+    create_test_markdown: Callable[[str, str | None], str],
+) -> None:
+    """Uploading a Markdown file via multipart should create segments in one chapter."""
+    create_author_response = client.post(
+        "/api/authors",
+        json={"authorName": "Multipart Markdown Author", "school": "Test", "avatarUrl": ""},
+    )
+    author_id = create_author_response.json()["data"]["authorId"]
+    markdown_uri = create_test_markdown("multipart-upload.md")
+    markdown_path = Path(markdown_uri)
+    markdown_bytes = markdown_path.read_bytes()
+
+    upload_response = client.post(
+        f"/api/authors/{author_id}/documents/upload",
+        data={"bookTitle": "Multipart Markdown Book"},
+        files={"file": ("multipart-upload.md", markdown_bytes, "text/markdown")},
+    )
+    payload = upload_response.json()
+    assert upload_response.status_code == 200
+    assert payload["success"] is True
+    assert payload["data"]["documentId"]
+    assert payload["data"]["reloadJobId"]
+
+    document_id = payload["data"]["documentId"]
+    job_id = payload["data"]["reloadJobId"]
+    final_payload = _wait_job_status(client=client, job_id=job_id, expected="success")
+    assert final_payload["status"] == "success"
+    assert final_payload["progress"] == 100
+    assert _find_document_status(client, author_id, document_id) == "active"
+
+    chapters = _list_document_chapters(client, author_id, document_id)
+    assert len(chapters) == 1
+    assert chapters[0]["chapterTitle"] == "Markdown Import Title"
+
+    segments = _list_chapter_segments(client, author_id, document_id, chapters[0]["chapterId"])
+    assert segments
+    assert any("Section Context" in str(item["content"]) for item in segments)
+
+
 def test_multipart_upload_rejects_unsupported_document(client: TestClient) -> None:
     """Multipart upload should reject unsupported document extensions."""
     create_author_response = client.post(
@@ -199,7 +256,7 @@ def test_multipart_upload_rejects_unsupported_document(client: TestClient) -> No
     payload = upload_response.json()
     assert upload_response.status_code == 422
     assert payload["error"]["code"] == "INVALID_ARGUMENT"
-    assert "must end with .pdf or .epub" in payload["error"]["message"]
+    assert "must end with .pdf, .epub, or .md" in payload["error"]["message"]
 
 
 def test_multipart_upload_returns_404_when_author_missing(
@@ -293,7 +350,7 @@ def test_document_reload_fails_when_path_not_supported_document(client: TestClie
 
     final_payload = _wait_job_status(client, payload["reloadJobId"], "failed")
     assert final_payload["status"] == "failed"
-    assert "must end with .pdf or .epub" in str(final_payload["errorMessage"])
+    assert "must end with .pdf, .epub, or .md" in str(final_payload["errorMessage"])
     assert final_payload["outputsReady"] is False
     assert _find_document_status(client, author_id, payload["documentId"]) == "failed"
 

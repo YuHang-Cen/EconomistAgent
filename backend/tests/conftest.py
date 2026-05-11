@@ -214,3 +214,35 @@ def create_test_epub() -> Callable[[str], str]:
         return str(path)
 
     return _create
+
+
+@pytest.fixture()
+def create_test_markdown() -> Callable[[str, str | None], str]:
+    """Create a temporary UTF-8 Markdown file and return its absolute path."""
+    input_root = Path(os.environ["STORAGE_ROOT"]) / "test_inputs"
+    input_root.mkdir(parents=True, exist_ok=True)
+
+    default_content = """---
+title: Ignored Front Matter
+author: Test
+---
+# Markdown Import Title
+
+Opening paragraph with **bold** text and a [reference link](https://example.com).
+
+### Section Context
+
+Paragraph after a heading should keep the heading context without creating a new chapter.
+
+#### Detail Notes
+
+- First bullet point
+- Second bullet point with `inline code`
+"""
+
+    def _create(filename: str = "sample.md", content: str | None = None) -> str:
+        path = input_root / f"{uuid4()}-{filename}"
+        path.write_text(content or default_content, encoding="utf-8-sig")
+        return str(path)
+
+    return _create
