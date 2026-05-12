@@ -106,6 +106,18 @@ export function reloadDocument(
   );
 }
 
+export function deleteDocument(
+  authorId: string,
+  documentId: string
+): Promise<{ deleted: true; authorId: string; documentId: string }> {
+  return apiRequest<{ deleted: true; authorId: string; documentId: string }>(
+    `/authors/${authorId}/documents/${documentId}`,
+    {
+      method: "DELETE",
+    }
+  );
+}
+
 export function listChapters(authorId: string, documentId: string): Promise<ChapterVM[]> {
   return apiRequest<ChapterVM[]>(`/authors/${authorId}/documents/${documentId}/chapters`);
 }

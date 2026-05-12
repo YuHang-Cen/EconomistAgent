@@ -132,6 +132,17 @@ def list_documents(
     return build_success_response(request_id=request_id, data=documents)
 
 
+@router.delete("/authors/{author_id}/documents/{document_id}")
+def delete_document(
+    author_id: str,
+    document_id: str,
+    request_id: Annotated[str, Depends(get_request_id)],
+) -> dict[str, Any]:
+    """Delete one document and its related storage/segments."""
+    result = author_service.delete_document(author_id=author_id, document_id=document_id)
+    return build_success_response(request_id=request_id, data=result)
+
+
 @router.post("/authors/{author_id}/documents/{document_id}/reload")
 def reload_document(
     author_id: str,

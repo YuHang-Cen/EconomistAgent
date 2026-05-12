@@ -9,10 +9,12 @@ interface AuthorSectionProps {
   author: Author;
   documents: Document[];
   reloadingDocumentId?: string | null;
+  deletingDocumentId?: string | null;
   deletingAuthor?: boolean;
   avatarUploading?: boolean;
   renameSaving?: boolean;
   onReloadDocument: (documentId: string) => Promise<void> | void;
+  onDeleteDocument: (documentId: string) => Promise<void> | void;
   onDeleteAuthor: () => Promise<void> | void;
   onUploadAvatar: (file: File) => Promise<void> | void;
   onRenameAuthor: (authorName: string) => Promise<void> | void;
@@ -26,15 +28,18 @@ export default function AuthorSection({
   author,
   documents,
   reloadingDocumentId = null,
+  deletingDocumentId = null,
   deletingAuthor = false,
   avatarUploading = false,
   renameSaving = false,
   onReloadDocument,
+  onDeleteDocument,
   onDeleteAuthor,
   onUploadAvatar,
   onRenameAuthor,
 }: AuthorSectionProps) {
   const [confirmAuthorDelete, setConfirmAuthorDelete] = useState(false);
+  const [confirmDocumentDeleteId, setConfirmDocumentDeleteId] = useState<string | null>(null);
   const [isEditingName, setIsEditingName] = useState(false);
   const [nameDraft, setNameDraft] = useState(author.authorName);
 
@@ -236,18 +241,33 @@ export default function AuthorSection({
                     </span>
                   </td>
                   <td className="px-6 py-5 text-right">
-                    <button
-                      className="text-primary hover:underline underline-offset-4 inline-flex items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
-                      disabled={reloadingDocumentId === document.documentId}
-                      onClick={() => onReloadDocument(document.documentId)}
-                    >
-                      <RefreshCw
-                        className={`w-3 h-3 ${
-                          reloadingDocumentId === document.documentId ? "animate-spin" : ""
-                        }`}
-                      />
-                      {reloadingDocumentId === document.documentId ? "Reloading..." : "Reload"}
-                    </button>
+                    <div className="inline-flex items-center gap-4">
+                      <button
+                        className="text-primary hover:underline underline-offset-4 inline-flex items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+                        disabled={
+                          reloadingDocumentId === document.documentId ||
+                          deletingDocumentId === document.documentId
+                        }
+                        onClick={() => onReloadDocument(document.documentId)}
+                      >
+                        <RefreshCw
+                          className={`w-3 h-3 ${
+                            reloadingDocumentId === document.documentId ? "animate-spin" : ""
+                          }`}
+                        />
+                        {reloadingDocumentId === document.documentId ? "Reloading..." : "Reload"}
+                      </button>
+                      <button
+                        type="button"
+                        disabled={deletingDocumentId === document.documentId}
+                        onClick={() => setConfirmDocumentDeleteId(document.documentId)}
+                        className="text-error/60 hover:text-error transition-colors inline-flex items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+                        title="Delete Document"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                        {deletingDocumentId === document.documentId ? "Deleting..." : "Delete"}
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -270,6 +290,29 @@ export default function AuthorSection({
           setConfirmAuthorDelete(false);
         }}
         onCancel={() => setConfirmAuthorDelete(false)}
+      />
+
+      <ConfirmDialog
+        isOpen={!!confirmDocumentDeleteId}
+        title="Delete Book"
+        message={
+          confirmDocumentDeleteId
+            ? `Delete "${
+                documents.find((item) => item.documentId === confirmDocumentDeleteId)?.bookTitle || "this book"
+              }" and all related chapters/segments? Its generated Methodology skills will also be removed. This cannot be undone.`
+            : ""
+        }
+        confirmLabel={
+          deletingDocumentId && confirmDocumentDeleteId === deletingDocumentId
+            ? "Deleting..."
+            : "Delete Book"
+        }
+        onConfirm={async () => {
+          if (!confirmDocumentDeleteId) return;
+          await onDeleteDocument(confirmDocumentDeleteId);
+          setConfirmDocumentDeleteId(null);
+        }}
+        onCancel={() => setConfirmDocumentDeleteId(null)}
       />
     </motion.div>
   );

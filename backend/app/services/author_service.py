@@ -229,6 +229,181 @@ def _write_json_artifact(path: Path, payload: Any) -> None:
     path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
+def _normalize_optional_string(value: Any) -> str:
+    return value.strip() if isinstance(value, str) else ""
+
+
+def _read_item_document_id(item: dict[str, Any]) -> str:
+    source_context = item.get("source_context")
+    if not isinstance(source_context, dict):
+        source_context = {}
+    return (
+        _normalize_optional_string(item.get("document_id"))
+        or _normalize_optional_string(item.get("documentId"))
+        or _normalize_optional_string(source_context.get("document_id"))
+        or _normalize_optional_string(source_context.get("documentId"))
+    )
+
+
+def _rewrite_sub_skill_zip(outputs: dict[str, str], kept_sub_md_items: list[dict[str, Any]]) -> None:
+    sub_zip_uri = outputs.get(OutputType.SUB_SKILLS_MD_ZIP.value)
+    if not isinstance(sub_zip_uri, str):
+        return
+    sub_zip_path = storage.resolve_storage_uri(sub_zip_uri)
+    zip_files: list[tuple[str, str]] = []
+    for item in kept_sub_md_items:
+        file_name = item.get("file_name")
+        if not isinstance(file_name, str):
+            file_name = item.get("name")
+        markdown = item.get("markdown")
+        if not isinstance(markdown, str):
+            markdown = item.get("content")
+        if isinstance(file_name, str) and file_name and isinstance(markdown, str):
+            zip_files.append((file_name, markdown))
+    storage.write_zip_from_files(sub_zip_path, zip_files)
+
+
+def _drop_document_from_latest_snapshot(
+    *,
+    session: Any,
+    author_id: str,
+    document_id: str,
+    chapter_ids: set[str],
+) -> None:
+    latest_snapshot = (
+        session.execute(
+            select(AuthorSkillSnapshot)
+            .where(
+                AuthorSkillSnapshot.author_id == author_id,
+                AuthorSkillSnapshot.is_latest.is_(True),
+            )
+            .order_by(AuthorSkillSnapshot.created_at.desc())
+        )
+        .scalars()
+        .first()
+    )
+    if latest_snapshot is None:
+        return
+
+    outputs = _parse_outputs(latest_snapshot.outputs_json)
+    if not outputs:
+        return
+
+    from app.services import pipeline_service
+
+    pipeline_service.upgrade_snapshot_source_contexts(
+        session=session,
+        author_id=author_id,
+        outputs=outputs,
+    )
+
+    main_skill_path, main_skill_payload = _read_json_artifact(outputs, OutputType.MAIN_SKILL_JSON)
+    main_md_path, main_md_payload = _read_json_artifact(outputs, OutputType.MAIN_SKILLS_MD_JSON)
+    sub_skill_path, sub_skill_payload = _read_json_artifact(outputs, OutputType.SUB_SKILL_JSON)
+    sub_md_path, sub_md_payload = _read_json_artifact(outputs, OutputType.SUB_SKILLS_MD_JSON)
+    method_analysis_path, method_analysis_payload = _read_json_artifact(
+        outputs, OutputType.METHOD_ANALYSIS_JSON
+    )
+
+    removed_main_skill_ids: set[str] = set()
+    removed_section_ids: set[str] = set()
+
+    main_skills_raw = main_skill_payload.get("main_skills", []) if isinstance(main_skill_payload, dict) else []
+    main_skills = [item for item in main_skills_raw if isinstance(item, dict)]
+    kept_main_skills: list[dict[str, Any]] = []
+    for item in main_skills:
+        item_section_id = _normalize_optional_string(item.get("section_id"))
+        if _read_item_document_id(item) == document_id or (
+            item_section_id and item_section_id in chapter_ids
+        ):
+            if item_section_id:
+                removed_section_ids.add(item_section_id)
+            main_skill_id = _normalize_optional_string(item.get("main_skill_id"))
+            if main_skill_id:
+                removed_main_skill_ids.add(main_skill_id)
+            continue
+        kept_main_skills.append(item)
+
+    main_md_items = main_md_payload if isinstance(main_md_payload, list) else []
+    kept_main_md_items: list[dict[str, Any]] = []
+    for item in main_md_items:
+        if not isinstance(item, dict):
+            continue
+        item_section_id = _normalize_optional_string(item.get("section_id"))
+        if _read_item_document_id(item) == document_id or (
+            item_section_id and item_section_id in chapter_ids
+        ):
+            if item_section_id:
+                removed_section_ids.add(item_section_id)
+            main_skill_id = _normalize_optional_string(item.get("main_skill_id"))
+            if main_skill_id:
+                removed_main_skill_ids.add(main_skill_id)
+            continue
+        kept_main_md_items.append(item)
+
+    def _should_drop_sub_item(item: dict[str, Any]) -> bool:
+        item_document_id = _read_item_document_id(item)
+        item_main_skill_id = _normalize_optional_string(item.get("main_skill_id"))
+        item_section_id = _normalize_optional_string(item.get("section_id"))
+        if item_document_id == document_id:
+            return True
+        if item_section_id and item_section_id in chapter_ids:
+            return True
+        if item_main_skill_id and item_main_skill_id in removed_main_skill_ids:
+            return True
+        return False
+
+    sub_skills_raw = sub_skill_payload.get("sub_skills", []) if isinstance(sub_skill_payload, dict) else []
+    sub_skills = [item for item in sub_skills_raw if isinstance(item, dict)]
+    kept_sub_skills = [item for item in sub_skills if not _should_drop_sub_item(item)]
+
+    sub_md_items = sub_md_payload if isinstance(sub_md_payload, list) else []
+    kept_sub_md_items: list[dict[str, Any]] = []
+    for item in sub_md_items:
+        if not isinstance(item, dict):
+            continue
+        if _should_drop_sub_item(item):
+            continue
+        kept_sub_md_items.append(item)
+
+    chunks_raw = method_analysis_payload.get("chunks", []) if isinstance(method_analysis_payload, dict) else []
+    chunks = [item for item in chunks_raw if isinstance(item, dict)]
+    kept_chunks: list[dict[str, Any]] = []
+    for item in chunks:
+        item_section_id = _normalize_optional_string(item.get("section_id"))
+        if (
+            (item_section_id and item_section_id in chapter_ids)
+            or (item_section_id and item_section_id in removed_section_ids)
+            or _read_item_document_id(item) == document_id
+        ):
+            continue
+        kept_chunks.append(item)
+
+    next_main_skill_payload = (
+        dict(main_skill_payload) if isinstance(main_skill_payload, dict) else {"main_skills": []}
+    )
+    next_main_skill_payload["main_skills"] = kept_main_skills
+
+    next_sub_skill_payload = (
+        dict(sub_skill_payload) if isinstance(sub_skill_payload, dict) else {"sub_skills": []}
+    )
+    next_sub_skill_payload["sub_skills"] = kept_sub_skills
+
+    next_method_analysis_payload = (
+        dict(method_analysis_payload)
+        if isinstance(method_analysis_payload, dict)
+        else {"chunks": [], "errors": []}
+    )
+    next_method_analysis_payload["chunks"] = kept_chunks
+
+    _write_json_artifact(main_skill_path, next_main_skill_payload)
+    _write_json_artifact(main_md_path, kept_main_md_items)
+    _write_json_artifact(sub_skill_path, next_sub_skill_payload)
+    _write_json_artifact(sub_md_path, kept_sub_md_items)
+    _write_json_artifact(method_analysis_path, next_method_analysis_payload)
+    _rewrite_sub_skill_zip(outputs, kept_sub_md_items)
+
+
 def create_author(payload: AuthorCreateRequest) -> AuthorResponse:
     """Create an author record."""
     now = _now_iso()
@@ -468,6 +643,71 @@ def reload_document(author_id: str, document_id: str) -> dict[str, str]:
         author_id=author_id, document_id=document_id, auto_run=True
     )
     return {"reload_job_id": str(job["jobId"])}
+
+
+def delete_document(author_id: str, document_id: str) -> dict[str, str | bool]:
+    """Hard-delete one document and remove its latest methodology contributions."""
+    now = _now_iso()
+    with session_scope() as session:
+        author = session.get(Author, author_id)
+        if author is None:
+            raise HTTPException(status_code=404, detail="author not found")
+
+        document = session.get(AuthorDocument, document_id)
+        if document is None or document.author_id != author_id:
+            raise HTTPException(status_code=404, detail="document not found")
+
+        chapter_ids = {
+            chapter_id
+            for chapter_id in session.execute(
+                select(DocumentChapter.chapter_id).where(
+                    DocumentChapter.document_id == document_id
+                )
+            ).scalars()
+        }
+
+        _drop_document_from_latest_snapshot(
+            session=session,
+            author_id=author_id,
+            document_id=document_id,
+            chapter_ids=chapter_ids,
+        )
+
+        session.execute(
+            update(PipelineJob)
+            .where(
+                PipelineJob.author_id == author_id,
+                PipelineJob.document_id == document_id,
+                PipelineJob.job_type == "document_reload",
+                PipelineJob.status.in_([JobStatus.QUEUED.value, JobStatus.RUNNING.value]),
+            )
+            .values(
+                status=JobStatus.CANCELED.value,
+                updated_at=now,
+                finished_at=now,
+                error_message="document deleted",
+            )
+        )
+
+        session.execute(delete(DocumentSegment).where(DocumentSegment.document_id == document_id))
+        session.execute(delete(DocumentChapter).where(DocumentChapter.document_id == document_id))
+        session.delete(document)
+
+    try:
+        storage.delete_document_root(author_id=author_id, document_id=document_id)
+    except OSError as exc:
+        logger.warning(
+            "failed to cleanup document storage directory: author_id=%s, document_id=%s, error=%s",
+            author_id,
+            document_id,
+            exc,
+        )
+
+    return {
+        "deleted": True,
+        "authorId": author_id,
+        "documentId": document_id,
+    }
 
 
 def delete_main_skill_section(author_id: str, section_id: str) -> dict[str, str | bool]:

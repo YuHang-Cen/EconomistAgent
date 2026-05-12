@@ -4,6 +4,7 @@ import {
   createAnswerJob,
   createAuthor,
   createSkillsJob,
+  deleteDocument,
   deleteMainSkillSection,
   deleteAuthorAnswerJob,
   deleteAuthor,
@@ -110,6 +111,7 @@ export default function App() {
   const [renameSavingAuthorId, setRenameSavingAuthorId] = useState<string | null>(null);
   const [uploadingDocument, setUploadingDocument] = useState(false);
   const [reloadingDocumentId, setReloadingDocumentId] = useState<string | null>(null);
+  const [deletingDocumentId, setDeletingDocumentId] = useState<string | null>(null);
   const [globalError, setGlobalError] = useState<string | null>(null);
 
   const [selectedArchiveAuthorId, setSelectedArchiveAuthorId] = useState<string | null>(null);
@@ -535,6 +537,59 @@ export default function App() {
     }
   };
 
+  const handleDeleteDocument = async (authorId: string, documentId: string) => {
+    try {
+      setDeletingDocumentId(documentId);
+      await deleteDocument(authorId, documentId);
+
+      const previousDocuments = documentsByAuthor[authorId] || [];
+      const remainingDocuments = previousDocuments.filter((item) => item.documentId !== documentId);
+
+      setDocumentsByAuthor((prev) => ({
+        ...prev,
+        [authorId]: remainingDocuments,
+      }));
+      setChaptersByDocument((prev) => {
+        const next = { ...prev };
+        delete next[documentId];
+        return next;
+      });
+
+      if (selectedSegmentAuthorId === authorId && selectedSegmentDocumentId === documentId) {
+        const fallbackDocumentId = remainingDocuments[0]?.documentId || null;
+        setSelectedSegmentDocumentId(fallbackDocumentId);
+        setSelectedSegmentChapterId(null);
+        if (fallbackDocumentId) {
+          await syncSegmentView(authorId, fallbackDocumentId, null).catch(handleError);
+        } else {
+          setSegments([]);
+          resetSegmentHistory([], []);
+        }
+      }
+
+      if (selectedMethodologyAuthorId === authorId) {
+        const selectedMethodologySection = methodologySections.find(
+          (item) => item.sectionId === selectedMethodologySectionId
+        );
+        if (selectedMethodologySection?.documentId === documentId) {
+          setSelectedMethodologySectionId(null);
+        }
+        await Promise.all([
+          ensureMethodologyLibraryLoaded(authorId, true),
+          loadLatestSkills(authorId),
+        ]);
+      } else {
+        await ensureDocumentsLoaded(authorId, true);
+      }
+
+      await refreshAuthors();
+    } catch (error) {
+      handleError(error);
+    } finally {
+      setDeletingDocumentId(null);
+    }
+  };
+
   const handleDeleteChapter = async (authorId: string, documentId: string, chapterId: string) => {
     const currentChapters = chaptersByDocument[documentId] || [];
     const nextChapters = currentChapters.filter((item) => item.chapterId !== chapterId);
@@ -785,10 +840,12 @@ export default function App() {
                     author={author}
                     documents={documentsByAuthor[author.authorId] || []}
                     reloadingDocumentId={reloadingDocumentId}
+                    deletingDocumentId={deletingDocumentId}
                     deletingAuthor={deletingAuthorId === author.authorId}
                     avatarUploading={avatarUploadingAuthorId === author.authorId}
                     renameSaving={renameSavingAuthorId === author.authorId}
                     onReloadDocument={(documentId) => handleReloadDocument(author.authorId, documentId)}
+                    onDeleteDocument={(documentId) => handleDeleteDocument(author.authorId, documentId)}
                     onDeleteAuthor={() => handleDeleteAuthor(author.authorId)}
                     onUploadAvatar={(file) => handleUploadAvatar(author.authorId, file)}
                     onRenameAuthor={(authorName) => handleRenameAuthor(author.authorId, authorName)}
