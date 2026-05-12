@@ -7,6 +7,7 @@ import re
 from typing import Any
 
 from app.domain.language import normalize_author_language
+from app.infra.settings import get_settings
 from app.services.llm_utils import (
     build_optional_llm,
     load_prompt_by_language,
@@ -115,6 +116,35 @@ def _fallback_select_skill_index(query: str, templates: list[dict[str, Any]]) ->
     return skill_index if isinstance(skill_index, int) else None
 
 
+def _recall_skill_templates(
+    query: str,
+    templates: list[dict[str, Any]],
+    *,
+    recall_limit: int | None,
+) -> list[dict[str, Any]]:
+    if not templates:
+        return []
+    if recall_limit is None or recall_limit <= 0 or len(templates) <= recall_limit:
+        return templates
+
+    query_tokens = _tokenize(query)
+    ranked = sorted(
+        enumerate(templates),
+        key=lambda pair: (
+            -_score(
+                query_tokens,
+                (
+                    f"{pair[1].get('name', '')} "
+                    f"{pair[1].get('description', '')} "
+                    f"{pair[1].get('applicability', '')}"
+                ),
+            ),
+            pair[0],
+        ),
+    )
+    return [item for _index, item in ranked[:recall_limit]]
+
+
 def _select_with_llm(
     query: str,
     templates: list[dict[str, Any]],
@@ -152,7 +182,10 @@ def _select_with_llm(
     skill_index = parsed.get("skill_index")
     if isinstance(skill_index, bool) or not isinstance(skill_index, int):
         return None, "llm_invalid_skill_index_type"
-    if skill_index < 1 or skill_index > len(templates):
+    valid_skill_indices = {
+        item.get("skill_index") for item in templates if isinstance(item.get("skill_index"), int)
+    }
+    if skill_index not in valid_skill_indices:
         return None, "llm_skill_index_out_of_range"
 
     return skill_index, None
@@ -169,17 +202,34 @@ def run_select_skills(
     if not templates:
         return _empty_selection("fallback_used: no_skill_templates")
 
+    settings = get_settings()
+    raw_recall_limit = getattr(settings, "skills_select_recall_limit", 20)
+    try:
+        recall_limit = int(raw_recall_limit)
+    except (TypeError, ValueError):
+        recall_limit = 20
+    candidate_templates = _recall_skill_templates(
+        query=query,
+        templates=templates,
+        recall_limit=recall_limit,
+    )
+    if not candidate_templates:
+        return _empty_selection("fallback_used: no_recalled_skill_templates")
+
     normalized_language = normalize_author_language(language)
     selected_skill_index, llm_error_reason = _select_with_llm(
         query=query,
-        templates=templates,
+        templates=candidate_templates,
         language=normalized_language,
     )
     selection_mode = "llm"
     selection_warning: str | None = None
 
     if selected_skill_index is None:
-        selected_skill_index = _fallback_select_skill_index(query=query, templates=templates)
+        selected_skill_index = _fallback_select_skill_index(
+            query=query,
+            templates=candidate_templates,
+        )
         selection_mode = "fallback_rule"
         if llm_error_reason:
             selection_warning = f"fallback_used: {llm_error_reason}"

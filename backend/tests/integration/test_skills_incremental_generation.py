@@ -388,7 +388,7 @@ def test_incremental_skills_generation_and_no_remaining_reuses_latest_snapshot(
 ) -> None:
     author_id = str(uuid4())
     _seed_author_with_sections(author_id=author_id, section_count=5)
-    counters = _install_incremental_fakes(monkeypatch, batch_size=2, max_main_skills=6)
+    counters = _install_incremental_fakes(monkeypatch, batch_size=2, max_main_skills=0)
 
     _execute_skills_once(author_id)
     snapshot1 = _latest_snapshot(author_id)

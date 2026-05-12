@@ -12,7 +12,7 @@ from app.domain.enums import JobStatus, JobType, OutputType, Stage
 from app.domain.language import normalize_author_language
 from app.domain.models import Author, AuthorDocument, PipelineJob
 from app.infra import storage
-from app.infra.db import session_scope
+from app.infra.db import SessionLocal, session_scope
 from app.infra.settings import get_settings
 from app.services import llm_utils, pipeline_service
 from fastapi import HTTPException
@@ -294,7 +294,8 @@ def create_author_skills_job(
 
 def execute_author_skills_job(job_id: str) -> None:
     """执行 author_skills 任务并写回任务状态。"""
-    with session_scope() as session:
+    session = SessionLocal()
+    try:
         job = session.get(PipelineJob, job_id)
         if job is None:
             raise HTTPException(status_code=404, detail="job not found")
@@ -307,16 +308,22 @@ def execute_author_skills_job(job_id: str) -> None:
         try:
             pipeline_service.run_author_skills(session=session, job=job)
         except pipeline_service.PipelineCanceledError:
+            session.rollback()
             now = _now_iso()
             job.status = JobStatus.CANCELED.value
             job.updated_at = now
             job.finished_at = now
+            session.commit()
         except Exception as exc:
+            session.rollback()
             now = _now_iso()
             job.status = JobStatus.FAILED.value
             job.error_message = str(exc)
             job.updated_at = now
             job.finished_at = now
+            session.commit()
+    finally:
+        session.close()
 
 
 def create_author_answer_job(

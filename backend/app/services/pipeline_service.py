@@ -504,7 +504,7 @@ def _confidence_value(item: dict[str, Any]) -> float:
 def _merge_and_trim_main_skills(
     existing_main_skills: list[dict[str, Any]],
     new_main_skills: list[dict[str, Any]],
-    max_main_skills: int,
+    max_main_skills: int | None,
 ) -> list[dict[str, Any]]:
     annotated: list[tuple[int, int, dict[str, Any]]] = []
     for index, item in enumerate(existing_main_skills):
@@ -516,7 +516,10 @@ def _merge_and_trim_main_skills(
         annotated,
         key=lambda pair: (-_confidence_value(pair[2]), pair[0], pair[1]),
     )
-    kept = ranked[:max_main_skills]
+    if max_main_skills is None or max_main_skills <= 0:
+        kept = ranked
+    else:
+        kept = ranked[:max_main_skills]
     return [item for _source_priority, _order_index, item in kept]
 
 
@@ -929,7 +932,11 @@ def run_author_skills(session: Session, job: PipelineJob) -> None:
     author_language = normalize_author_language(getattr(author, "language", None))
     settings = get_settings()
     batch_size = max(1, int(getattr(settings, "skills_batch_size", 2)))
-    max_main_skills = max(1, int(getattr(settings, "skills_max_main_skills", 6)))
+    raw_max_main_skills = getattr(settings, "skills_max_main_skills", 0)
+    try:
+        max_main_skills = int(raw_max_main_skills)
+    except (TypeError, ValueError):
+        max_main_skills = 0
 
     _persist_stage_progress(session=session, job=job, stage=Stage.ANALYZE, progress=35)
     _ensure_not_canceled(session, job)

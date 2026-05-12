@@ -45,6 +45,29 @@ def _snapshot_outputs() -> dict[str, Any]:
     }
 
 
+def _snapshot_outputs_with_count(count: int) -> dict[str, Any]:
+    return {
+        "main_skill_json": {
+            "main_skills": [
+                {
+                    "section_id": f"section-{index}",
+                    "main_skill_id": f"main_skill_{index:03d}",
+                    "pattern_summary": {
+                        "name": f"Skill {index}",
+                        "description": f"Description {index}",
+                        "applicability": (
+                            "Use for labor market wage questions."
+                            if index == count
+                            else f"Use for general topic {index}."
+                        ),
+                    },
+                }
+                for index in range(1, count + 1)
+            ]
+        }
+    }
+
+
 def test_run_select_skills_uses_llm_skill_index_when_valid(monkeypatch: object) -> None:
     monkeypatch.setattr(select_skills, "build_optional_llm", lambda: _FakeLlm('{"skill_index": 2}'))
 
@@ -99,3 +122,18 @@ def test_run_select_skills_returns_empty_selection_when_no_templates() -> None:
     assert result["selected_section_id"] is None
     assert result["selection_mode"] == "fallback_rule"
     assert result["selection_warning"] == "fallback_used: no_skill_templates"
+
+
+def test_run_select_skills_recalls_top_candidates_before_llm(monkeypatch: object) -> None:
+    monkeypatch.setattr(select_skills, "get_settings", lambda: type("S", (), {"skills_select_recall_limit": 20})())
+    monkeypatch.setattr(select_skills, "build_optional_llm", lambda: _FakeLlm('{"skill_index": 29}'))
+
+    result = select_skills.run_select_skills(
+        snapshot_outputs=_snapshot_outputs_with_count(30),
+        query="labor market wage pressure",
+    )
+
+    assert result["selected_skill_index"] == 30
+    assert result["selected_section_id"] == "section-30"
+    assert result["selection_mode"] == "fallback_rule"
+    assert result["selection_warning"] == "fallback_used: llm_skill_index_out_of_range"
