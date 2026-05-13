@@ -14,6 +14,16 @@ function asIsoDatetime(value: unknown): string | null {
   return Number.isNaN(Date.parse(text)) ? null : text;
 }
 
+function asNumberArray(value: unknown): number[] {
+  if (!Array.isArray(value)) return [];
+  return value.filter((item): item is number => typeof item === "number");
+}
+
+function asStringArray(value: unknown): string[] {
+  if (!Array.isArray(value)) return [];
+  return value.filter((item): item is string => typeof item === "string");
+}
+
 export function parseMainSkillsMdJson(content: unknown): Array<Record<string, unknown>> {
   if (!Array.isArray(content)) {
     throw new Error("main_skills_md_json is not an array");
@@ -48,22 +58,32 @@ export function parseAnswerJson(content: unknown): AnswerVM {
     throw new Error("answer_json.answer is invalid");
   }
 
-  const selectedSubSkillNamesRaw =
-    content.selectedSubSkillNames ?? content.selected_sub_skill_names;
-  const selectedSubSkillNames = Array.isArray(selectedSubSkillNamesRaw)
-    ? selectedSubSkillNamesRaw.filter((item): item is string => typeof item === "string")
-    : [];
+  const selectedSkillIndices = asNumberArray(
+    content.selectedSkillIndices ?? content.selected_skill_indices
+  );
+  const selectedSectionIds = asStringArray(
+    content.selectedSectionIds ?? content.selected_section_ids
+  );
+  const selectedMainSkillNames = asStringArray(
+    content.selectedMainSkillNames ?? content.selected_main_skill_names
+  );
+  const selectedSubSkillNames = asStringArray(
+    content.selectedSubSkillNames ?? content.selected_sub_skill_names
+  );
 
   return {
     query: asString(content.query) || "",
     generatedAt: asIsoDatetime(content.generatedAt ?? content.generated_at),
     modelName: asString(content.modelName ?? content.model_name),
     apiBase: asString(content.apiBase ?? content.api_base),
+    selectedSkillIndices,
+    selectedSectionIds,
     selectedSkillIndex:
       typeof (content.selectedSkillIndex ?? content.selected_skill_index) === "number"
         ? (content.selectedSkillIndex ?? content.selected_skill_index) as number
         : null,
     selectedSectionId: asString(content.selectedSectionId ?? content.selected_section_id),
+    selectedMainSkillNames,
     selectedMainSkillName: asString(
       content.selectedMainSkillName ?? content.selected_main_skill_name
     ),

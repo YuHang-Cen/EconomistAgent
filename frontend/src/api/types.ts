@@ -101,8 +101,11 @@ export interface AnswerVM {
   generatedAt: string | null;
   modelName: string | null;
   apiBase: string | null;
+  selectedSkillIndices: number[];
+  selectedSectionIds: string[];
   selectedSkillIndex: number | null;
   selectedSectionId: string | null;
+  selectedMainSkillNames: string[];
   selectedMainSkillName: string | null;
   selectedSubSkillNames: string[];
   selectionMode: "llm" | "fallback_rule" | string;

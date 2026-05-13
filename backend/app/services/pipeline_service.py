@@ -1192,7 +1192,11 @@ def run_author_answer(session: Session, job: PipelineJob) -> None:
             query=job.query,
             language=author_language,
         )
-        if not selection.get("selected_section_id"):
+        selected_section_ids = selection.get("selected_section_ids")
+        has_selected_sections = isinstance(selected_section_ids, list) and bool(
+            selected_section_ids
+        )
+        if not has_selected_sections and not selection.get("selected_section_id"):
             raise ValueError("no available skill selected for author_answer")
 
         _ensure_not_canceled(session, job)

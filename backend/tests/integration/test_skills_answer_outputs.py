@@ -162,8 +162,13 @@ def test_author_answer_job_generates_answer_json(
     answer_output = answer_output_response.json()["data"]["content"]
     assert answer_output_response.status_code == 200
     assert answer_output["query"] == "analyze policy mechanism and outcomes"
+    assert isinstance(answer_output.get("selected_skill_indices"), list)
+    assert answer_output.get("selected_skill_indices")
+    assert isinstance(answer_output.get("selected_section_ids"), list)
+    assert answer_output.get("selected_section_ids")
     assert isinstance(answer_output.get("selected_skill_index"), int)
     assert answer_output.get("selected_section_id")
+    assert isinstance(answer_output.get("selected_main_skill_names"), list)
     assert "selected_main_skill_name" in answer_output
     assert isinstance(answer_output.get("selected_sub_skill_names"), list)
     assert answer_output.get("selection_mode") in {"llm", "fallback_rule"}

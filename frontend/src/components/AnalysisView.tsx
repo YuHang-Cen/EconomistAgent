@@ -181,11 +181,29 @@ export default function AnalysisView({
                   Main Skill
                 </span>
                 <div className="bg-surface-container-low p-5 rounded-sm border border-outline-variant/10">
-                  <div className="font-headline text-lg font-bold text-on-surface mb-2">
-                    {selectedAnswer.selectedMainSkillName || "Unspecified Framework"}
-                  </div>
+                  {selectedAnswer.selectedMainSkillNames.length > 0 ? (
+                    <div className="flex flex-wrap gap-2 mb-2">
+                      {selectedAnswer.selectedMainSkillNames.map((skill, idx) => (
+                        <span
+                          key={`${skill}-${idx}`}
+                          className="inline-flex items-center gap-2 bg-surface px-3 py-1.5 rounded-sm border border-outline-variant/10"
+                        >
+                          <span className="w-1.5 h-1.5 rounded-full bg-outline-variant/40"></span>
+                          <span className="font-headline text-sm font-bold text-on-surface">
+                            {skill}
+                          </span>
+                        </span>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="font-headline text-lg font-bold text-on-surface mb-2">
+                      {selectedAnswer.selectedMainSkillName || "Unspecified Framework"}
+                    </div>
+                  )}
                   <div className="font-label text-[9px] uppercase tracking-widest text-outline-variant">
-                    Main Skill Applied
+                    {selectedAnswer.selectedMainSkillNames.length > 1
+                      ? "Main Skills Applied"
+                      : "Main Skill Applied"}
                   </div>
                 </div>
               </div>

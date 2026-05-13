@@ -90,6 +90,10 @@ class Settings(BaseSettings):
     skills_batch_size: int = Field(default=2)
     skills_max_main_skills: int = Field(default=0)
     skills_select_recall_limit: int = Field(default=20)
+    skills_select_count: int = Field(
+        default=3,
+        description="Maximum number of main skills selected for one answer.",
+    )
 
     model_config = SettingsConfigDict(
         env_file=str(ENV_FILE),

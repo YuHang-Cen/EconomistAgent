@@ -1,4 +1,4 @@
-﻿"""Generate answer_json using selected section-level skill context."""
+"""Generate answer_json using selected section-level skill context."""
 
 from __future__ import annotations
 
@@ -27,11 +27,41 @@ def _normalize_selected_skill_index(value: Any) -> int | None:
     return value
 
 
+def _normalize_selected_skill_indices(value: Any) -> list[int]:
+    if not isinstance(value, list):
+        return []
+
+    normalized: list[int] = []
+    seen: set[int] = set()
+    for item in value:
+        skill_index = _normalize_selected_skill_index(item)
+        if skill_index is None or skill_index in seen:
+            continue
+        seen.add(skill_index)
+        normalized.append(skill_index)
+    return normalized
+
+
 def _normalize_selected_section_id(value: Any) -> str | None:
     if not isinstance(value, str):
         return None
     text = value.strip()
     return text if text else None
+
+
+def _normalize_selected_section_ids(value: Any) -> list[str]:
+    if not isinstance(value, list):
+        return []
+
+    normalized: list[str] = []
+    seen: set[str] = set()
+    for item in value:
+        section_id = _normalize_selected_section_id(item)
+        if section_id is None or section_id in seen:
+            continue
+        seen.add(section_id)
+        normalized.append(section_id)
+    return normalized
 
 
 def _normalize_selection_mode(value: Any) -> str:
@@ -80,64 +110,84 @@ def _dedupe_preserve_order(items: list[str]) -> list[str]:
     return deduped
 
 
-def _resolve_selected_skill_names(
+def _find_main_skill_name(
     snapshot_outputs: dict[str, Any],
-    selected_section_id: str | None,
-) -> tuple[str | None, list[str]]:
-    if not selected_section_id:
-        return None, []
-
-    main_name: str | None = None
+    section_id: str,
+) -> str | None:
     main_md_items = snapshot_outputs.get(MAIN_SKILLS_MD_KEY)
     if isinstance(main_md_items, list):
         for item in main_md_items:
             if not isinstance(item, dict):
                 continue
-            if str(item.get("section_id", "")).strip() != selected_section_id:
+            if str(item.get("section_id", "")).strip() != section_id:
                 continue
             name = _read_main_skill_name(item)
             if name:
-                main_name = name
-                break
+                return name
 
-    if main_name is None:
-        main_json_items = snapshot_outputs.get("main_skill_json", {}).get("main_skills", [])
-        if isinstance(main_json_items, list):
-            for item in main_json_items:
-                if not isinstance(item, dict):
-                    continue
-                if str(item.get("section_id", "")).strip() != selected_section_id:
-                    continue
-                name = _read_main_skill_name(item)
-                if name:
-                    main_name = name
-                    break
+    main_json_items = snapshot_outputs.get("main_skill_json", {}).get("main_skills", [])
+    if isinstance(main_json_items, list):
+        for item in main_json_items:
+            if not isinstance(item, dict):
+                continue
+            if str(item.get("section_id", "")).strip() != section_id:
+                continue
+            name = _read_main_skill_name(item)
+            if name:
+                return name
 
+    return None
+
+
+def _find_sub_skill_names(
+    snapshot_outputs: dict[str, Any],
+    section_id: str,
+) -> list[str]:
     sub_names: list[str] = []
     sub_md_items = snapshot_outputs.get(SUB_SKILLS_MD_KEY)
     if isinstance(sub_md_items, list):
         for item in sub_md_items:
             if not isinstance(item, dict):
                 continue
-            if str(item.get("section_id", "")).strip() != selected_section_id:
+            if str(item.get("section_id", "")).strip() != section_id:
                 continue
             name = _read_sub_skill_name(item)
             if name:
                 sub_names.append(name)
 
-    if not sub_names:
-        sub_json_items = snapshot_outputs.get("sub_skill_json", {}).get("sub_skills", [])
-        if isinstance(sub_json_items, list):
-            for item in sub_json_items:
-                if not isinstance(item, dict):
-                    continue
-                if str(item.get("section_id", "")).strip() != selected_section_id:
-                    continue
-                name = _read_sub_skill_name(item)
-                if name:
-                    sub_names.append(name)
+    if sub_names:
+        return _dedupe_preserve_order(sub_names)
 
-    return main_name, _dedupe_preserve_order(sub_names)
+    sub_json_items = snapshot_outputs.get("sub_skill_json", {}).get("sub_skills", [])
+    if isinstance(sub_json_items, list):
+        for item in sub_json_items:
+            if not isinstance(item, dict):
+                continue
+            if str(item.get("section_id", "")).strip() != section_id:
+                continue
+            name = _read_sub_skill_name(item)
+            if name:
+                sub_names.append(name)
+
+    return _dedupe_preserve_order(sub_names)
+
+
+def _resolve_selected_skill_names(
+    snapshot_outputs: dict[str, Any],
+    selected_section_ids: list[str],
+) -> tuple[list[str], list[str]]:
+    if not selected_section_ids:
+        return [], []
+
+    main_names: list[str] = []
+    sub_names: list[str] = []
+    for section_id in selected_section_ids:
+        main_name = _find_main_skill_name(snapshot_outputs, section_id)
+        if main_name:
+            main_names.append(main_name)
+        sub_names.extend(_find_sub_skill_names(snapshot_outputs, section_id))
+
+    return main_names, _dedupe_preserve_order(sub_names)
 
 
 def _validate_answer_schema(value: Any) -> dict[str, str] | None:
@@ -165,10 +215,10 @@ def _validate_answer_schema(value: Any) -> dict[str, str] | None:
 
 def _build_context_from_markdown(
     snapshot_outputs: dict[str, Any],
-    selected_section_id: str | None,
+    selected_section_ids: list[str],
 ) -> str:
     """Build context from markdown JSON artifacts when available."""
-    if not selected_section_id:
+    if not selected_section_ids:
         return ""
 
     main_skills_md = snapshot_outputs.get(MAIN_SKILLS_MD_KEY)
@@ -176,115 +226,124 @@ def _build_context_from_markdown(
     if not isinstance(main_skills_md, list) or not isinstance(sub_skills_md, list):
         return ""
 
-    selected_main_item: dict[str, Any] | None = None
-    for item in main_skills_md:
-        if not isinstance(item, dict):
-            continue
-        if str(item.get("section_id", "")).strip() != selected_section_id:
-            continue
-        markdown = item.get("markdown")
-        if isinstance(markdown, str) and markdown.strip():
-            selected_main_item = item
-            break
-
-    if selected_main_item is None:
-        return ""
-
-    selected_sub_items: list[dict[str, Any]] = []
-    for item in sub_skills_md:
-        if not isinstance(item, dict):
-            continue
-        if str(item.get("section_id", "")).strip() != selected_section_id:
-            continue
-        markdown = item.get("markdown")
-        if not isinstance(markdown, str) or not markdown.strip():
-            continue
-        selected_sub_items.append(item)
-
-    lines: list[str] = ["=== Main Skill Markdown ==="]
-    main_file_name = selected_main_item.get("file_name")
-    if isinstance(main_file_name, str) and main_file_name:
-        lines.append(f"file: {main_file_name}")
-    lines.append(selected_main_item["markdown"])
-
-    if selected_sub_items:
-        lines.append("\n=== Sub Skills Markdown ===")
-        for item in selected_sub_items:
-            sub_name = _read_sub_skill_name(item)
-            file_name = item.get("file_name", "")
-            lines.append(f"\n--- {sub_name} ({file_name}) ---")
-            lines.append(item["markdown"])
-
-    return "\n".join(lines).strip()
-
-
-def _build_context_from_json(
-    snapshot_outputs: dict[str, Any],
-    selected_section_id: str | None,
-) -> str:
-    """Build fallback context from main/sub skill JSON artifacts."""
-    if not selected_section_id:
-        return ""
-
-    main_skills = snapshot_outputs.get("main_skill_json", {}).get("main_skills", [])
-    sub_skills = snapshot_outputs.get("sub_skill_json", {}).get("sub_skills", [])
-
-    selected_main: dict[str, Any] | None = None
-    if isinstance(main_skills, list):
-        for skill in main_skills:
-            if not isinstance(skill, dict):
-                continue
-            if str(skill.get("section_id", "")).strip() == selected_section_id:
-                selected_main = skill
-                break
-
-    selected_subs: list[dict[str, Any]] = []
-    if isinstance(sub_skills, list):
-        for item in sub_skills:
+    sections: list[str] = []
+    for selected_section_id in selected_section_ids:
+        selected_main_item: dict[str, Any] | None = None
+        for item in main_skills_md:
             if not isinstance(item, dict):
                 continue
             if str(item.get("section_id", "")).strip() != selected_section_id:
                 continue
-            selected_subs.append(item)
+            markdown = item.get("markdown")
+            if isinstance(markdown, str) and markdown.strip():
+                selected_main_item = item
+                break
 
-    lines: list[str] = []
-    if selected_main:
-        pattern = selected_main.get("pattern_summary", {})
-        if not isinstance(pattern, dict):
-            pattern = {}
-        lines.append("=== Main Skill ===")
-        lines.append(f"name: {pattern.get('name', '')}")
-        lines.append(f"description: {pattern.get('description', '')}")
-        lines.append(f"applicability: {pattern.get('applicability', '')}")
-        core_steps = pattern.get("core_steps", [])
-        if isinstance(core_steps, list):
-            lines.append("core_steps:")
-            for step in core_steps:
-                lines.append(f"- {step}")
+        if selected_main_item is None:
+            continue
 
-    if selected_subs:
-        lines.append("\n=== Sub Skills ===")
-        for item in selected_subs:
-            lines.append(f"- {item.get('name', '')}: {item.get('description', '')}")
+        selected_sub_items: list[dict[str, Any]] = []
+        for item in sub_skills_md:
+            if not isinstance(item, dict):
+                continue
+            if str(item.get("section_id", "")).strip() != selected_section_id:
+                continue
+            markdown = item.get("markdown")
+            if not isinstance(markdown, str) or not markdown.strip():
+                continue
+            selected_sub_items.append(item)
 
-    return "\n".join(lines).strip()
+        lines: list[str] = ["=== Main Skill Markdown ==="]
+        main_file_name = selected_main_item.get("file_name")
+        if isinstance(main_file_name, str) and main_file_name:
+            lines.append(f"file: {main_file_name}")
+        lines.append(selected_main_item["markdown"])
+
+        if selected_sub_items:
+            lines.append("\n=== Sub Skills Markdown ===")
+            for item in selected_sub_items:
+                sub_name = _read_sub_skill_name(item)
+                file_name = item.get("file_name", "")
+                lines.append(f"\n--- {sub_name} ({file_name}) ---")
+                lines.append(item["markdown"])
+
+        sections.append("\n".join(lines).strip())
+
+    return "\n\n".join(sections).strip()
+
+
+def _build_context_from_json(
+    snapshot_outputs: dict[str, Any],
+    selected_section_ids: list[str],
+) -> str:
+    """Build fallback context from main/sub skill JSON artifacts."""
+    if not selected_section_ids:
+        return ""
+
+    main_skills = snapshot_outputs.get("main_skill_json", {}).get("main_skills", [])
+    sub_skills = snapshot_outputs.get("sub_skill_json", {}).get("sub_skills", [])
+    sections: list[str] = []
+
+    for selected_section_id in selected_section_ids:
+        selected_main: dict[str, Any] | None = None
+        if isinstance(main_skills, list):
+            for skill in main_skills:
+                if not isinstance(skill, dict):
+                    continue
+                if str(skill.get("section_id", "")).strip() == selected_section_id:
+                    selected_main = skill
+                    break
+
+        selected_subs: list[dict[str, Any]] = []
+        if isinstance(sub_skills, list):
+            for item in sub_skills:
+                if not isinstance(item, dict):
+                    continue
+                if str(item.get("section_id", "")).strip() != selected_section_id:
+                    continue
+                selected_subs.append(item)
+
+        lines: list[str] = []
+        if selected_main:
+            pattern = selected_main.get("pattern_summary", {})
+            if not isinstance(pattern, dict):
+                pattern = {}
+            lines.append("=== Main Skill ===")
+            lines.append(f"name: {pattern.get('name', '')}")
+            lines.append(f"description: {pattern.get('description', '')}")
+            lines.append(f"applicability: {pattern.get('applicability', '')}")
+            core_steps = pattern.get("core_steps", [])
+            if isinstance(core_steps, list):
+                lines.append("core_steps:")
+                for step in core_steps:
+                    lines.append(f"- {step}")
+
+        if selected_subs:
+            lines.append("\n=== Sub Skills ===")
+            for item in selected_subs:
+                lines.append(f"- {item.get('name', '')}: {item.get('description', '')}")
+
+        if lines:
+            sections.append("\n".join(lines).strip())
+
+    return "\n\n".join(sections).strip()
 
 
 def _build_context(
     snapshot_outputs: dict[str, Any],
-    selected_section_id: str | None,
+    selected_section_ids: list[str],
 ) -> str:
     """Prefer markdown artifacts, fallback to JSON summary context."""
     markdown_context = _build_context_from_markdown(
         snapshot_outputs=snapshot_outputs,
-        selected_section_id=selected_section_id,
+        selected_section_ids=selected_section_ids,
     )
     if markdown_context:
         return markdown_context
 
     return _build_context_from_json(
         snapshot_outputs=snapshot_outputs,
-        selected_section_id=selected_section_id,
+        selected_section_ids=selected_section_ids,
     )
 
 
@@ -330,18 +389,31 @@ def run_answer_with_skills(
 ) -> dict[str, Any]:
     """Generate answer_json using selected skills and snapshot outputs."""
     normalized_language = normalize_author_language(language)
-    selected_skill_index = _normalize_selected_skill_index(selected.get("selected_skill_index"))
-    selected_section_id = _normalize_selected_section_id(selected.get("selected_section_id"))
+
+    selected_skill_indices = _normalize_selected_skill_indices(
+        selected.get("selected_skill_indices")
+    )
+    if not selected_skill_indices:
+        selected_skill_index = _normalize_selected_skill_index(selected.get("selected_skill_index"))
+        if selected_skill_index is not None:
+            selected_skill_indices = [selected_skill_index]
+
+    selected_section_ids = _normalize_selected_section_ids(selected.get("selected_section_ids"))
+    if not selected_section_ids:
+        selected_section_id = _normalize_selected_section_id(selected.get("selected_section_id"))
+        if selected_section_id is not None:
+            selected_section_ids = [selected_section_id]
+
     selection_mode = _normalize_selection_mode(selected.get("selection_mode"))
     selection_warning = _normalize_selection_warning(selected.get("selection_warning"))
-    selected_main_skill_name, selected_sub_skill_names = _resolve_selected_skill_names(
+    selected_main_skill_names, selected_sub_skill_names = _resolve_selected_skill_names(
         snapshot_outputs=snapshot_outputs,
-        selected_section_id=selected_section_id,
+        selected_section_ids=selected_section_ids,
     )
 
     context = _build_context(
         snapshot_outputs=snapshot_outputs,
-        selected_section_id=selected_section_id,
+        selected_section_ids=selected_section_ids,
     )
     try:
         answer_payload = _fallback_answer(
@@ -350,7 +422,6 @@ def run_answer_with_skills(
             language=normalized_language,
         )
     except TypeError:
-        # Compatibility path for monkeypatched tests with legacy fallback signature.
         answer_payload = _fallback_answer(query=query, context=context)
 
     template = load_prompt_by_language(
@@ -378,10 +449,19 @@ def run_answer_with_skills(
         except Exception:
             pass
 
+    selected_skill_index = selected_skill_indices[0] if selected_skill_indices else None
+    selected_section_id = selected_section_ids[0] if selected_section_ids else None
+    selected_main_skill_name = (
+        selected_main_skill_names[0] if selected_main_skill_names else None
+    )
+
     return {
         "query": query,
+        "selected_skill_indices": selected_skill_indices,
+        "selected_section_ids": selected_section_ids,
         "selected_skill_index": selected_skill_index,
         "selected_section_id": selected_section_id,
+        "selected_main_skill_names": selected_main_skill_names,
         "selected_main_skill_name": selected_main_skill_name,
         "selected_sub_skill_names": selected_sub_skill_names,
         "selection_mode": selection_mode,

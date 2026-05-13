@@ -45,6 +45,27 @@ function Test-TcpPort {
   }
 }
 
+function Get-PortListenerInfo {
+  param(
+    [Parameter(Mandatory = $true)][int]$Port
+  )
+
+  $listeners = Get-NetTCPConnection -State Listen -ErrorAction SilentlyContinue |
+    Where-Object { $_.LocalPort -eq $Port } |
+    Sort-Object -Property LocalAddress
+
+  foreach ($listener in $listeners) {
+    $process = Get-CimInstance Win32_Process -Filter "ProcessId = $($listener.OwningProcess)" -ErrorAction SilentlyContinue
+    [PSCustomObject]@{
+      LocalAddress = $listener.LocalAddress
+      LocalPort = $listener.LocalPort
+      OwningProcess = $listener.OwningProcess
+      ProcessName = if ($null -ne $process) { $process.Name } else { $null }
+      CommandLine = if ($null -ne $process) { $process.CommandLine } else { $null }
+    }
+  }
+}
+
 function Wait-HttpReady {
   param(
     [Parameter(Mandatory = $true)][string]$Url,
@@ -65,6 +86,34 @@ function Wait-HttpReady {
   }
 
   return $false
+}
+
+function Test-HttpReady {
+  param(
+    [Parameter(Mandatory = $true)][string]$Url,
+    [int]$TimeoutSeconds = 3
+  )
+
+  try {
+    $response = Invoke-WebRequest -Uri $Url -UseBasicParsing -TimeoutSec $TimeoutSeconds
+    return ($response.StatusCode -ge 200 -and $response.StatusCode -lt 500)
+  } catch {
+    return $false
+  }
+}
+
+function Format-ListenerSummary {
+  param(
+    [Parameter(Mandatory = $true)][object[]]$Listeners
+  )
+
+  return (
+    $Listeners |
+      ForEach-Object {
+        $commandLine = if ($_.CommandLine) { $_.CommandLine.Trim() } else { "<unknown>" }
+        "PID $($_.OwningProcess) [$($_.ProcessName)] $commandLine"
+      }
+  ) -join "; "
 }
 
 function Ensure-RedisForDev {
@@ -119,9 +168,54 @@ function Start-DevWindow {
     | Out-Null
 }
 
+function Resolve-ServiceStartupDecision {
+  param(
+    [Parameter(Mandatory = $true)][string]$ServiceName,
+    [Parameter(Mandatory = $true)][int]$Port,
+    [Parameter(Mandatory = $true)][string]$HealthUrl
+  )
+
+  $listeners = @(Get-PortListenerInfo -Port $Port)
+  if ($listeners.Count -eq 0) {
+    return [PSCustomObject]@{
+      Action = "start"
+      Message = $null
+    }
+  }
+
+  if (Test-HttpReady -Url $HealthUrl) {
+    return [PSCustomObject]@{
+      Action = "reuse"
+      Message = "${ServiceName}: reusing existing service on port $Port"
+    }
+  }
+
+  $summary = Format-ListenerSummary -Listeners $listeners
+  return [PSCustomObject]@{
+    Action = "blocked"
+    Message = "${ServiceName}: port $Port is already occupied by $summary"
+  }
+}
+
 $redisReady = if ($DryRun) { $true } else { Ensure-RedisForDev }
 
-Start-DevWindow -Title "EconomistAgent API" -WorkingDirectory $backendDir -Command "uv run dev"
+$apiDecision = if ($DryRun) {
+  [PSCustomObject]@{ Action = "start"; Message = $null }
+} else {
+  Resolve-ServiceStartupDecision -ServiceName "API" -Port 8000 -HealthUrl "http://127.0.0.1:8000/health"
+}
+
+switch ($apiDecision.Action) {
+  "start" {
+    Start-DevWindow -Title "EconomistAgent API" -WorkingDirectory $backendDir -Command "uv run dev"
+  }
+  "reuse" {
+    Write-Host $apiDecision.Message
+  }
+  "blocked" {
+    throw $apiDecision.Message
+  }
+}
 
 if (-not $DryRun) {
   if (Wait-HttpReady -Url "http://127.0.0.1:8000/health") {
@@ -137,7 +231,23 @@ if ($redisReady) {
   Write-Warning "Worker was not started because Redis is unavailable. Background jobs will fall back to inline execution when possible."
 }
 
-Start-DevWindow -Title "EconomistAgent Frontend" -WorkingDirectory $frontendDir -Command "npm run dev"
+$frontendDecision = if ($DryRun) {
+  [PSCustomObject]@{ Action = "start"; Message = $null }
+} else {
+  Resolve-ServiceStartupDecision -ServiceName "Frontend" -Port 3000 -HealthUrl "http://127.0.0.1:3000"
+}
+
+switch ($frontendDecision.Action) {
+  "start" {
+    Start-DevWindow -Title "EconomistAgent Frontend" -WorkingDirectory $frontendDir -Command "npm run dev"
+  }
+  "reuse" {
+    Write-Host $frontendDecision.Message
+  }
+  "blocked" {
+    throw $frontendDecision.Message
+  }
+}
 
 Write-Host "Development mode started."
 Write-Host "API:      http://127.0.0.1:8000"

@@ -202,8 +202,8 @@
 ### 增量生成策略（当前实现）
 - 每次从“当前可用章节 - 作者全历史已生成章节”中随机抽样生成
 - 默认每次章节数：`skills_batch_size=2`
-- `main_skill` 总上限：`skills_max_main_skills=6`
-- 合并策略：旧+新合并后按 `confidence` 降序裁剪，`sub_skill` 按保留的 `main_skill_id` 同步裁剪
+- `main_skill` 存储默认不限量：`skills_max_main_skills=0`
+- 检索阶段默认先规则召回 `skills_select_recall_limit=20`，再让 LLM 在召回集合中选择
 
 ### 无剩余章节
 - 若无剩余可生成章节：任务直接 success，复用 latest snapshot，不新建 snapshot，不再调用 LLM
@@ -222,8 +222,8 @@
 - 必须有该作者 latest snapshot（含 `main_skill_json/sub_skill_json`）
 
 ### 选择与回答链路
-- `select_skills`：LLM 只选一个 `skill_index`，映射为 `selected_section_id`
-- `answer`：按 `section_id` 组装上下文并生成 JSON 回答
+- `select_skills`：LLM 选择 `skill_indices` 数组，并映射为 `selected_section_ids`
+- `answer`：按 `selected_section_ids` 顺序组装多段上下文并生成一份 JSON 回答
 
 ### 上下文优先级
 1. 优先 `main_skills_md_json + sub_skills_md_json`（markdown 全文）
@@ -252,8 +252,11 @@
 
 `answer_json` 关键字段（当前）：
 - `query`
+- `selected_skill_indices`
+- `selected_section_ids`
 - `selected_skill_index`
 - `selected_section_id`
+- `selected_main_skill_names`
 - `selected_main_skill_name`
 - `selected_sub_skill_names`
 - `selection_mode`
@@ -418,8 +421,11 @@ async function fullFlow() {
 
 ## 7.2 回答字段迁移
 - 旧思路：`selected_main_skill_id` / `selected_sub_skill_names`（按 main_skill_id）
-- 当前：`selected_skill_index -> selected_section_id`
+- 当前：`selected_skill_indices -> selected_section_ids`
 - `answer_json` 新增：
+  - `selected_skill_indices`
+  - `selected_section_ids`
+  - `selected_main_skill_names`
   - `selected_main_skill_name`
   - `selected_sub_skill_names`（数组）
 
