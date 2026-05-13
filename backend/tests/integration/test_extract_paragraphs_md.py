@@ -23,3 +23,25 @@ def test_run_extract_paragraphs_extracts_single_markdown_section(
     assert any("Section Context" in str(item["content"]) for item in extracted)
     assert any("Detail Notes" in str(item["content"]) for item in extracted)
     assert len({str(item["section_title"]) for item in extracted}) == 1
+
+
+def test_run_extract_paragraphs_preserves_numeric_content_in_markdown(
+    create_test_markdown: Callable[[str, str | None], str],
+) -> None:
+    markdown_uri = create_test_markdown(
+        "extract-numeric-content.md",
+        content=(
+            "# Numeric Import\n\n"
+            "回归结果显示 1年以后房价上涨了3.2%，人均GDP系数约为2倍。"
+            "变量 $Treat \\times Post$ 的估计值为0.45。"
+        ),
+    )
+
+    extracted = run_extract_paragraphs(book_title="Fallback Book Title", pdf_uri=markdown_uri)
+
+    assert extracted
+    merged_content = "\n".join(str(item["content"]) for item in extracted)
+    assert "1年以后" in merged_content
+    assert "3.2%" in merged_content
+    assert "2倍" in merged_content
+    assert "0.45" in merged_content
