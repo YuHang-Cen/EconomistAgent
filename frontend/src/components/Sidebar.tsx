@@ -24,6 +24,14 @@ export default function Sidebar({
     [authors, selectedAuthorId]
   );
 
+  function deriveBookTitleFromFileName(fileName: string): string {
+    const trimmed = fileName.trim();
+    if (!trimmed) return "";
+    const lastDotIndex = trimmed.lastIndexOf(".");
+    if (lastDotIndex <= 0) return trimmed;
+    return trimmed.slice(0, lastDotIndex).trim();
+  }
+
   return (
     <section className="col-span-12 lg:col-span-4 space-y-8">
       <div className="bg-surface-container-low p-8 rounded-sm editorial-shadow sticky top-32">
@@ -88,7 +96,13 @@ export default function Sidebar({
                   type="file"
                   accept=".pdf,application/pdf,.epub,application/epub+zip,.md,text/markdown,text/plain"
                   className="hidden"
-                  onChange={(event) => setFile(event.target.files?.[0] || null)}
+                  onChange={(event) => {
+                    const nextFile = event.target.files?.[0] || null;
+                    setFile(nextFile);
+                    if (nextFile) {
+                      setBookTitle(deriveBookTitleFromFileName(nextFile.name));
+                    }
+                  }}
                 />
               </label>
             </div>
