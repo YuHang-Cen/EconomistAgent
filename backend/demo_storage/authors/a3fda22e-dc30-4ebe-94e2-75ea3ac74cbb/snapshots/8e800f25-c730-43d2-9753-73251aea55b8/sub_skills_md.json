@@ -1,0 +1,22 @@
+[
+  {
+    "main_skill_id": "main_skill_001",
+    "section_id": "9a252c27-c906-48d2-8289-e3745b0ae874",
+    "name": "Counterexample Argument",
+    "normalized_pattern": "Counterexample Argument",
+    "file_name": "main_skill_001_Counterexample_Argument.md",
+    "markdown": "---\nname: \"Counterexample Argument\"\ntype: \"sub_skill\"\ndescription: \"当需要反驳一个广泛持有但可能错误的观点、流行误区或常见反对意见时，该方法通过系统性地引入反例、数据、比较和逻辑推理来瓦解原观点，并建立替代性正确结论。适用于论证中需要先破后立的场景，尤其是面对直觉上合理但实际有误的信念。\"\nsection_id: \"9a252c27-c906-48d2-8289-e3745b0ae874\"\nmain_skill_id: \"main_skill_001\"\nnormalized_pattern: \"Counterexample Argument\"\nsource_chunk_ids: [1, 2]\n---\n\n# Counterexample Argument\n\n## Description\n\n当需要反驳一个广泛持有但可能错误的观点、流行误区或常见反对意见时，该方法通过系统性地引入反例、数据、比较和逻辑推理来瓦解原观点，并建立替代性正确结论。适用于论证中需要先破后立的场景，尤其是面对直觉上合理但实际有误的信念。\n\n## Method Program Summary\n\n首先识别并清晰陈述一个广泛流传但可能错误的观点或常见反对意见。然后，通过引用具体的数据、事实或典型案例作为直接反例，初步动摇该观点的可信度。接着，引入国际比较或跨情境的对比分析，展示原观点在更广阔背景下的不适用性。在此基础上，运用逻辑推理工具（如归谬法、成本收益分析）进一步揭示原观点的内在矛盾或缺陷。为了增强说服力，可以提出反事实问题或构建替代性解释，迫使读者重新审视原假设。最后，综合所有反驳证据，系统性地总结并确立一个经过验证的更合理的正确结论。\n\n## Method Program Example\n\n作者首先识别并陈述一个关于城市化的流行误区（如城市太拥挤、承载力有限），然后通过引用具体数据（如人口规划失败案例）、国际比较（如城市间人口规模差距）、逻辑推理（如价格机制的作用）以及反事实提问（如为什么人们不逃离大城市）来系统性地反驳该误区，最终论证大城市规模扩张的合理性和必要性。\n\n## Abstract Action Chain\n\n1. 明确陈述待反驳的流行观点或常见反对意见\n2. 引入具体数据、事实或案例作为直接反例\n3. 通过国际比较或跨情境对比揭示原观点的局限性\n4. 运用逻辑推理（如归谬、成本收益分析）进一步瓦解原观点\n5. 提出反事实问题或替代性解释以强化反驳力度\n6. 总结并确立经过反驳后更合理的正确结论",
+    "model_name": "deepseek-chat",
+    "api_base": "https://api.deepseek.com"
+  },
+  {
+    "main_skill_id": "main_skill_002",
+    "section_id": "b1687e46-a64d-41f4-b61a-22e9c12f7395",
+    "name": "Causal Chain Analysis",
+    "normalized_pattern": "Causal Chain Analysis",
+    "file_name": "main_skill_002_Causal_Chain_Analysis.md",
+    "markdown": "---\nname: \"Causal Chain Analysis\"\ntype: \"sub_skill\"\ndescription: \"适用于分析具有明确制度背景或初始条件的复杂系统性问题，特别是当需要揭示多因素之间的因果传导机制、反馈循环以及结构性矛盾时。该方法常用于评估政策、体制或结构性障碍如何通过一系列中间环节产生最终后果，并支持比较与反事实推理。\"\nsection_id: \"b1687e46-a64d-41f4-b61a-22e9c12f7395\"\nmain_skill_id: \"main_skill_002\"\nnormalized_pattern: \"Causal Chain Analysis\"\nsource_chunk_ids: [3]\n---\n\n# Causal Chain Analysis\n\n## Description\n\n适用于分析具有明确制度背景或初始条件的复杂系统性问题，特别是当需要揭示多因素之间的因果传导机制、反馈循环以及结构性矛盾时。该方法常用于评估政策、体制或结构性障碍如何通过一系列中间环节产生最终后果，并支持比较与反事实推理。\n\n## Method Program Summary\n\n首先，明确分析对象的制度背景或初始条件，界定核心变量及其基本关系。然后，识别并分析该背景下各主体面临的激励与约束机制，揭示这些机制如何塑造行为模式。接着，沿着因果链条追踪中间现象（如市场分割、要素流动障碍等），并关注其中的反馈循环或累积效应。在此基础上，通过引入外部比较案例或构建反事实情景（如替代政策路径），检验因果推理的稳健性与唯一性。最后，综合所有链条推导出系统性的结构性后果，并提炼出具有政策或制度调整意义的结论。\n\n## Method Program Example\n\n首先，作者从分权体制出发，指出其对地方政府的激励（经济增长考核）与约束（市场分割倾向），形成初始因果链。接着，通过分析市场分割、产业同构、地方保护等具体现象，揭示其与大国规模经济之间的张力。然后，引入劳动力、土地、资本三大要素市场的分割事实，进一步追踪这些制度障碍如何导致城市化滞后、收入差距扩大、债务风险累积等后果。在此基础上，作者通过国际比较（日本、欧洲）和反事实推理（如自由移民的替代方案），论证劳动力自由流动和统一市场是大国发展的唯一可行路径。最后，总结出制度转型与全局利益协调的必要性。\n\n## Abstract Action Chain\n\n1. 界定初始制度条件与核心变量\n2. 识别激励与约束机制及其相互作用\n3. 追踪因果链条中的中间现象与反馈循环\n4. 引入比较视角或反事实情景进行验证\n5. 综合推导结构性后果与政策含义",
+    "model_name": "deepseek-chat",
+    "api_base": "https://api.deepseek.com"
+  }
+]
