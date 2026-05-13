@@ -13,6 +13,7 @@ from app.services.llm_utils import (
     render_prompt,
 )
 
+AUTHOR_PLACEHOLDER = "{{AUTHOR}}"
 SKILLS_PLACEHOLDER = "{{SKILLS_CONTEXT}}"
 QUERY_PLACEHOLDER = "{{QUERY}}"
 MAIN_SKILLS_MD_KEY = "main_skills_md_json"
@@ -386,6 +387,7 @@ def run_answer_with_skills(
     snapshot_outputs: dict[str, Any],
     *,
     language: str = "english",
+    author_name: str = "",
 ) -> dict[str, Any]:
     """Generate answer_json using selected skills and snapshot outputs."""
     normalized_language = normalize_author_language(language)
@@ -427,11 +429,12 @@ def run_answer_with_skills(
     template = load_prompt_by_language(
         "answer_with_skills_prompt.md",
         language=normalized_language,
-        required_placeholders=[SKILLS_PLACEHOLDER, QUERY_PLACEHOLDER],
+        required_placeholders=[AUTHOR_PLACEHOLDER, SKILLS_PLACEHOLDER, QUERY_PLACEHOLDER],
     )
     prompt = render_prompt(
         template,
         {
+            AUTHOR_PLACEHOLDER: author_name.strip() or "Unknown Economist",
             SKILLS_PLACEHOLDER: context,
             QUERY_PLACEHOLDER: query,
         },

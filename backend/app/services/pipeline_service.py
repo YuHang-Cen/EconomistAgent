@@ -614,6 +614,7 @@ def _run_answer_with_skills_with_language(
     snapshot_outputs: dict[str, Any],
     *,
     language: str,
+    author_name: str,
 ) -> dict[str, Any]:
     try:
         return run_answer_with_skills(
@@ -621,6 +622,7 @@ def _run_answer_with_skills_with_language(
             selected=selected,
             snapshot_outputs=snapshot_outputs,
             language=language,
+            author_name=author_name,
         )
     except TypeError:
         return run_answer_with_skills(
@@ -1207,6 +1209,7 @@ def run_author_answer(session: Session, job: PipelineJob) -> None:
             selected=selection,
             snapshot_outputs=snapshot_outputs,
             language=author_language,
+            author_name=author.author_name,
         )
     generated_at = _now_iso()
     answer_json["generated_at"] = generated_at
