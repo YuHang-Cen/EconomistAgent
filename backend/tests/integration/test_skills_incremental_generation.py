@@ -528,6 +528,78 @@ def test_generation_prioritizes_book_coverage_before_same_book_extra_sections(
     } == main_contexts
 
 
+def test_author_skills_reconciles_stale_processing_document_before_generation(
+    monkeypatch: object,
+) -> None:
+    author_id = str(uuid4())
+    now = _now_iso()
+
+    with session_scope() as session:
+        session.add(
+            Author(
+                author_id=author_id,
+                author_name=f"Author-{author_id[:8]}",
+                school=None,
+                avatar_url=None,
+                created_at=now,
+                updated_at=now,
+            )
+        )
+        session.add(
+            AuthorDocument(
+                document_id="stale-document-01",
+                author_id=author_id,
+                book_title="Stale Book",
+                pdf_uri="memory://stale.md",
+                status="processing",
+                created_at=now,
+                updated_at=now,
+            )
+        )
+        session.add(
+            DocumentChapter(
+                chapter_id="stale-section-01",
+                document_id="stale-document-01",
+                chapter_title="Recovered Chapter",
+                order_index=0,
+                is_deleted=False,
+                deleted_at=None,
+                created_at=now,
+                updated_at=now,
+            )
+        )
+        session.add(
+            DocumentSegment(
+                segment_id=str(uuid4()),
+                document_id="stale-document-01",
+                chapter_id="stale-section-01",
+                chunk_id="stale-section-01-chunk-1",
+                content="Recovered segment content",
+                order_index=0,
+                is_deleted=False,
+                deleted_at=None,
+                created_at=now,
+                updated_at=now,
+            )
+        )
+
+    counters = _install_incremental_fakes(monkeypatch, batch_size=5, max_main_skills=0)
+    _execute_skills_once(author_id)
+
+    snapshot = _latest_snapshot(author_id)
+    assert snapshot is not None
+    main_skills = _read_main_skills(snapshot)
+    assert {str(item.get("section_id", "")) for item in main_skills if isinstance(item, dict)} == {
+        "stale-section-01"
+    }
+    assert counters == {"analyze": 1, "main": 1, "sub": 1, "render": 1}
+
+    with session_scope() as session:
+        document = session.get(AuthorDocument, "stale-document-01")
+        assert document is not None
+        assert document.status == "active"
+
+
 def test_upgrade_snapshot_source_contexts_backfills_legacy_section_titles() -> None:
     author_id = str(uuid4())
     _seed_author_with_book_layout(

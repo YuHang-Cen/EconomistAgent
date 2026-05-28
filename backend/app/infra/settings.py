@@ -87,9 +87,9 @@ class Settings(BaseSettings):
     celery_task_always_eager: bool = Field(default=False)
     celery_task_eager_propagates: bool = Field(default=True)
     method_chunk_max_words: int = Field(default=1200)
-    skills_batch_size: int = Field(default=2)
-    skills_max_main_skills: int = Field(default=0)
-    skills_select_recall_limit: int = Field(default=20)
+    skills_batch_size: int = Field(default=10)
+    skills_max_main_skills: int = Field(default=0)      # 0表示不设置上限
+    skills_select_recall_limit: int = Field(default=10)
     skills_select_count: int = Field(
         default=3,
         description="Maximum number of main skills selected for one answer.",

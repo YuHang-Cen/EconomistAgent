@@ -23,6 +23,7 @@ from app.infra import storage
 from app.infra.settings import get_settings
 from app.services.analyze_method_chunks import run_analyze_method_chunks
 from app.services.answer_with_skills import run_answer_with_skills
+from app.services.document_status_service import reconcile_stale_processing_documents
 from app.services.extract_paragraphs import run_extract_paragraphs
 from app.services.llm_utils import get_effective_model_config, model_config_override_scope
 from app.services.main_skill import run_main_skill
@@ -86,6 +87,7 @@ def _persist_stage_progress(
 
 def _load_author_segments(session: Session, author_id: str) -> list[dict[str, Any]]:
     """         ?active                         ?"""
+    reconcile_stale_processing_documents(session=session, author_id=author_id)
     documents = session.execute(
         select(AuthorDocument).where(
             AuthorDocument.author_id == author_id,

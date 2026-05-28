@@ -7,6 +7,8 @@ from pathlib import Path
 from typing import Any
 from uuid import uuid4
 
+from app.domain.models import AuthorDocument, DocumentChapter, DocumentSegment
+from app.infra.db import session_scope
 from fastapi.testclient import TestClient
 
 
@@ -327,6 +329,66 @@ def test_document_reload_fails_when_pdf_path_missing(client: TestClient) -> None
     assert "pdf path does not exist" in str(final_payload["errorMessage"])
     assert final_payload["outputsReady"] is False
     assert _find_document_status(client, author_id, payload["documentId"]) == "failed"
+
+
+def test_list_documents_recovers_stale_processing_document_with_segments(
+    client: TestClient,
+) -> None:
+    """Document list should recover zombie processing rows with no live reload job."""
+    create_author_response = client.post(
+        "/api/authors",
+        json={"authorName": "Zombie Processing", "school": "Test", "avatarUrl": ""},
+    )
+    author_id = create_author_response.json()["data"]["authorId"]
+    document_id = str(uuid4())
+
+    with session_scope() as session:
+        session.add(
+            AuthorDocument(
+                document_id=document_id,
+                author_id=author_id,
+                book_title="Recovered Book",
+                pdf_uri="memory://recovered.md",
+                status="processing",
+                created_at="2026-01-01T00:00:00+00:00",
+                updated_at="2026-01-01T00:00:00+00:00",
+            )
+        )
+        session.add(
+            DocumentChapter(
+                chapter_id="recovered-chapter-01",
+                document_id=document_id,
+                chapter_title="Recovered Chapter",
+                order_index=0,
+                is_deleted=False,
+                deleted_at=None,
+                created_at="2026-01-01T00:00:00+00:00",
+                updated_at="2026-01-01T00:00:00+00:00",
+            )
+        )
+        session.add(
+            DocumentSegment(
+                segment_id=str(uuid4()),
+                document_id=document_id,
+                chapter_id="recovered-chapter-01",
+                chunk_id="recovered-chunk-01",
+                content="Recovered content",
+                order_index=0,
+                is_deleted=False,
+                deleted_at=None,
+                created_at="2026-01-01T00:00:00+00:00",
+                updated_at="2026-01-01T00:00:00+00:00",
+            )
+        )
+
+    documents = client.get(f"/api/authors/{author_id}/documents").json()["data"]
+    recovered = next(item for item in documents if item["documentId"] == document_id)
+    assert recovered["status"] == "active"
+
+    with session_scope() as session:
+        document = session.get(AuthorDocument, document_id)
+        assert document is not None
+        assert document.status == "active"
 
 
 def test_document_reload_fails_when_path_not_supported_document(client: TestClient) -> None:

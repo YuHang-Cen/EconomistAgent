@@ -28,6 +28,7 @@ from app.domain.schemas import (
 )
 from app.infra import storage
 from app.infra.db import session_scope
+from app.services.document_status_service import reconcile_stale_processing_documents
 from fastapi import HTTPException
 from sqlalchemy import delete, func, select, update
 
@@ -616,6 +617,7 @@ def list_documents(author_id: str) -> list[AuthorDocumentResponse]:
         author = session.get(Author, author_id)
         if author is None:
             raise HTTPException(status_code=404, detail="author not found")
+        reconcile_stale_processing_documents(session=session, author_id=author_id)
         rows = session.execute(
             select(AuthorDocument)
             .where(AuthorDocument.author_id == author_id)
