@@ -1,0 +1,402 @@
+[
+  {
+    "main_skill_id": "main_skill_001",
+    "section_id": "9a252c27-c906-48d2-8289-e3745b0ae874",
+    "section_title": "第七章 城市化之辩",
+    "name": "反驳-论证法：通过驳斥流行误区建立正向主张",
+    "file_name": "main_skill_001_第七章_城市化之辩.md",
+    "markdown": "---\nname: \"反驳-论证法：通过驳斥流行误区建立正向主张\"\ntype: \"main_skill\"\ndescription: \"该方法通过识别并系统性地反驳一个或多个流行的观点或误区，利用数据、国际比较、逻辑推理和反事实提问等工具，在驳斥的基础上建立并论证自己的分析结论。其核心在于“以破为立”，通过消除错误认知来为正确主张铺平道路。\"\nsection_id: \"9a252c27-c906-48d2-8289-e3745b0ae874\"\nmain_skill_id: \"main_skill_001\"\nperspective: \"Macro Analysis\"\nperspective_notes: \"章节内始终保持宏观分析视角，聚焦于国家层面的城市化与土地改革政策，未出现微观或中观视角的切换。\"\nnature: \"Positive\"\nnature_notes: \"全章采用实证分析，基于数据和事实进行论证，未涉及价值判断或规范性主张，性质稳定。\"\ntime_orientation: \"Dynamic Analysis\"\ntime_orientation_notes: \"分析贯穿历史与未来，通过国际比较和趋势推演来论证政策合理性，动态视角贯穿始终。\"\nsystem_scope: \"Open System\"\nsystem_scope_notes: \"论证始终将中国城市化置于全球开放系统中，通过国际案例和比较优势理论进行跨系统分析，未局限于封闭系统。\"\nequilibrium_view: \"Disequilibrium Analysis\"\nequilibrium_view_notes: \"全章聚焦于打破现有均衡状态（如城乡二元结构、土地制度），论证通过改革实现新均衡的必要性，非均衡分析主导。\"\nlogic:\n  - \"Causal Reasoning\"\n  - \"Comparative Reasoning\"\n  - \"Counterexample Argument\"\nlogic_notes: \"因果推理用于建立政策与结果的联系，比较推理用于国际案例对比，反例论证用于反驳流行误区；逻辑类型在章节内保持稳定，但反例论证在反驳环节中强度更高。\"\n---\n\n# Skill Summary\n\n该方法通过识别并系统性地反驳一个或多个流行的观点或误区，利用数据、国际比较、逻辑推理和反事实提问等工具，在驳斥的基础上建立并论证自己的分析结论。其核心在于“以破为立”，通过消除错误认知来为正确主张铺平道路。\n\n# When to Use\n\n适用于需要纠正普遍误解、挑战主流叙事或为争议性政策/理论辩护的论证场景。使用该方法时，首先明确要反驳的流行观点或误区，然后逐一收集并运用数据、国际案例、比较优势理论或逻辑推理进行反驳，最后在驳斥的基础上，提出并论证自己的分析结论，从而完成从“破”到“立”的完整论证流程。\n\n# Method Program\n\n首先，识别并明确提出一个或多个流行的观点或误区作为论证的靶子。然后，针对每一个误区，系统性地运用数据、国际比较案例、逻辑推理或反事实提问等工具进行逐一反驳，并在反驳过程中引入相关理论（如比较优势理论）来强化论证。接着，在成功驳斥所有误区后，提出作者自己的分析结论或政策主张。最后，利用之前建立的反驳逻辑和证据，论证自己结论的合理性与优越性，从而完成从“破”到“立”的完整论证闭环。\n\n# Execution Skeleton\n\n1. 识别并明确提出一个或多个流行的观点或误区作为靶子。\n2. 针对每个误区，收集并运用数据、国际比较案例、逻辑推理或反事实提问等工具进行系统性反驳。\n3. 在驳斥过程中，引入并应用相关理论（如比较优势理论）来强化反驳的力度。\n4. 在完成对误区的驳斥后，提出自己的分析结论或主张。\n5. 通过已建立的驳斥逻辑和证据，论证自己结论的合理性与优越性。\n\n# Pattern Flow\n\n首先，明确识别并陈述一个或多个在社会上流行的、但作者认为错误的观点或误区。 -> 然后，针对每一个误区，系统性地运用数据、国际比较、逻辑推理或反事实提问等工具进行逐一反驳。 -> 在反驳过程中，引入并应用相关的理论框架（如比较优势理论）来增强论证的深度和说服力。 -> 接着，在成功驳斥所有误区后，提出作者自己的分析结论或政策主张。 -> 最后，利用之前建立的反驳逻辑和证据，论证自己结论的合理性，从而完成从“破”到“立”的完整论证闭环。\n\n# Usage Instructions\n\n当你使用这个技能回答问题时：\n\n- 将 Method Program 作为主推理路径。\n- 按照 Execution Skeleton 组织论证推进。\n- 第一步用于建立评价或概念基线。\n- 中间步骤用于追踪演化、识别矛盾并诊断内部失效机制。\n- 最后一步用于把内部机制与具体历史/系统结果连接起来。\n- 不要只复述事件，要解释系统如何在自身演化中走向转折或危机。\n- 如需细化某一步，请调用对应 sub-skill。\n\n# Output Guidance\n\n你的回答应当：\n\n- 把问题解释为系统内生过程，而非外生偶发事件\n- 保持历史与因果链条的连续性\n- 强调初始原则与后续结果之间的反差\n- 说明先前成功所累积的内部矛盾如何推动危机、逆转或转型",
+    "model_name": "deepseek-chat",
+    "api_base": "https://api.deepseek.com"
+  },
+  {
+    "main_skill_id": "main_skill_002",
+    "section_id": "b1687e46-a64d-41f4-b61a-22e9c12f7395",
+    "section_title": "第一章 中国经济的欧洲化",
+    "name": "大国转型结构性矛盾与动力分析",
+    "file_name": "main_skill_002_第一章_中国经济的欧洲化.md",
+    "markdown": "---\nname: \"大国转型结构性矛盾与动力分析\"\ntype: \"main_skill\"\ndescription: \"通过分析特定体制（如分权体制）下的激励与约束机制，结合具体的经济现象（如增长考核、市场分割），运用因果推理与比较分析，揭示转型与发展中大国的结构性矛盾及其潜在增长动力。\"\nsection_id: \"b1687e46-a64d-41f4-b61a-22e9c12f7395\"\nmain_skill_id: \"main_skill_002\"\nperspective: \"Macro Analysis\"\nperspective_notes: \"章节始终从宏观体制层面进行分析，聚焦于国家或区域层面的结构性特征。\"\nnature: \"Mixed\"\nnature_notes: \"分析兼具定性描述（如机制分析）与定量现象（如增长考核）的特征，属于混合型。\"\ntime_orientation: \"Dynamic Analysis\"\ntime_orientation_notes: \"分析视角是动态的，关注体制、现象与矛盾之间的演变关系及潜在动力的生成。\"\nsystem_scope: \"Open System\"\nsystem_scope_notes: \"将分析对象视为一个开放系统，考虑了内部机制与外部现象（如市场分割）的相互作用。\"\nequilibrium_view: \"Disequilibrium Analysis\"\nequilibrium_view_notes: \"核心关注点在于结构性矛盾和非均衡状态，并从中寻找增长动力。\"\nlogic:\n  - \"Causal Reasoning\"\n  - \"Comparative Reasoning\"\n  - \"Constraint-Based Reasoning\"\nlogic_notes: \"主要运用因果推理建立机制与现象的联系，辅以比较分析揭示矛盾，并隐含了基于约束条件（如要素流动障碍）的推理。\"\n---\n\n# Skill Summary\n\n通过分析特定体制（如分权体制）下的激励与约束机制，结合具体的经济现象（如增长考核、市场分割），运用因果推理与比较分析，揭示转型与发展中大国的结构性矛盾及其潜在增长动力。\n\n# When to Use\n\n适用于分析具有复杂体制背景的转型经济体或发展中大国。使用该方法时，首先应明确该体制的核心激励与约束机制，然后识别由这些机制引发的具体经济现象（如市场分割、要素流动障碍），接着通过因果推理建立机制与现象之间的逻辑联系，最后通过比较分析，揭示这些现象背后隐藏的结构性矛盾，并从中推导出潜在的、可被激活的增长动力。\n\n# Method Program\n\n首先明确分析对象所处的特定体制（如分权体制），并提炼其核心的激励与约束机制；然后识别并列举由该机制直接或间接引发的具体经济现象，例如经济增长考核、市场分割、要素流动障碍等；接着运用因果推理，将上述机制与现象进行逻辑连接，解释现象产生的内在原因；之后引入比较分析，将不同现象或不同区域的表现进行对比，以揭示更深层次的结构性矛盾；最后基于对结构性矛盾的剖析，推导出该体制下潜在的、尚未被充分利用的增长动力。\n\n# Execution Skeleton\n\n1. 明确特定体制（如分权体制）下的核心激励与约束机制。\n2. 识别由该机制引发的具体经济现象（如市场分割、要素流动障碍）。\n3. 运用因果推理，建立机制与现象之间的逻辑链条。\n4. 通过比较分析，揭示现象背后的结构性矛盾。\n5. 从结构性矛盾中推导出潜在的、可被激活的增长动力。\n\n# Pattern Flow\n\n首先，明确分析对象所处的特定体制（如分权体制），并提炼其核心的激励与约束机制。 -> 然后，识别并列举由该机制直接或间接引发的具体经济现象，例如经济增长考核、市场分割、要素流动障碍等。 -> 接着，运用因果推理，将上述机制与现象进行逻辑连接，解释现象产生的内在原因。 -> 之后，引入比较分析，将不同现象或不同区域的表现进行对比，以揭示更深层次的结构性矛盾。 -> 最后，基于对结构性矛盾的剖析，推导出该体制下潜在的、尚未被充分利用的增长动力。\n\n# Usage Instructions\n\n当你使用这个技能回答问题时：\n\n- 将 Method Program 作为主推理路径。\n- 按照 Execution Skeleton 组织论证推进。\n- 第一步用于建立评价或概念基线。\n- 中间步骤用于追踪演化、识别矛盾并诊断内部失效机制。\n- 最后一步用于把内部机制与具体历史/系统结果连接起来。\n- 不要只复述事件，要解释系统如何在自身演化中走向转折或危机。\n- 如需细化某一步，请调用对应 sub-skill。\n\n# Output Guidance\n\n你的回答应当：\n\n- 把问题解释为系统内生过程，而非外生偶发事件\n- 保持历史与因果链条的连续性\n- 强调初始原则与后续结果之间的反差\n- 说明先前成功所累积的内部矛盾如何推动危机、逆转或转型",
+    "model_name": "deepseek-chat",
+    "api_base": "https://api.deepseek.com"
+  },
+  {
+    "main_skill_id": "main_skill_003",
+    "section_id": "1d660ee1-a2cd-4e61-bb24-5eb9def4868b",
+    "section_title": "第六章 全球视野下的大城市",
+    "name": "国际比较实证反驳法",
+    "file_name": "main_skill_003_第六章_全球视野下的大城市.md",
+    "markdown": "---\nname: \"国际比较实证反驳法\"\ntype: \"main_skill\"\ndescription: \"通过跨国的实证数据对比，系统性地反驳关于特定现象的常见误解，并从中提炼出普遍性规律，最终推导出具有普适性的政策建议。\"\nsection_id: \"1d660ee1-a2cd-4e61-bb24-5eb9def4868b\"\nmain_skill_id: \"main_skill_003\"\nperspective: \"Macro Analysis\"\nperspective_notes: \"章节全程采用宏观分析视角，通过国家层面的数据比较来论证观点，视角稳定。\"\nnature: \"Positive\"\nnature_notes: \"整体基调为实证性，基于客观数据和事实进行论证，不涉及价值判断或规范性主张。\"\ntime_orientation: \"Historical Analysis\"\ntime_orientation_notes: \"主要依赖历史数据与过往发展轨迹进行对比分析，时间指向稳定在过去。\"\nsystem_scope: \"Open System\"\nsystem_scope_notes: \"方法强调跨国比较和普遍规律，将不同国家视为相互关联的开放系统，而非封闭孤立个体。\"\nequilibrium_view: \"Process Analysis\"\nequilibrium_view_notes: \"关注点在于发展过程、规律演变和因果链条，而非静态的均衡状态。\"\nlogic:\n  - \"Comparative Reasoning\"\n  - \"Causal Reasoning\"\n  - \"Conceptual Classification Reasoning\"\nlogic_notes: \"以比较推理为核心，辅以因果推理（从规律到政策）和概念分类推理（区分误解与事实），三种逻辑类型协同使用。\"\n---\n\n# Skill Summary\n\n通过跨国的实证数据对比，系统性地反驳关于特定现象的常见误解，并从中提炼出普遍性规律，最终推导出具有普适性的政策建议。\n\n# When to Use\n\n适用于存在广泛误解或争议的议题，尤其是当需要基于数据而非直觉或个案来建立普遍性认知时。使用该方法时，首先识别并列出目标领域内的常见误解，然后收集具有代表性的跨国或跨区域实证数据，通过对比分析证明这些误解与事实不符，接着归纳出数据背后隐藏的普遍规律，最后基于这些规律提出可操作的政策建议。\n\n# Method Program\n\n首先识别并列出关于城市化等议题的常见误解；然后收集并呈现跨国实证数据与图表；接着通过数据对比分析，逐一反驳这些误解；之后从数据中归纳出城市发展遵循的普遍规律；最后基于这些规律推导出具有普适性的政策建议。\n\n# Execution Skeleton\n\n1. 识别并列举关于目标议题的常见误解或流行观点。\n2. 收集具有代表性的国际或跨区域实证数据与图表。\n3. 通过数据对比，系统性地反驳每一个误解。\n4. 从数据中归纳出超越国界的普遍发展规律。\n5. 基于已证实的普遍规律，推导出具体的政策建议。\n\n# Pattern Flow\n\n首先，明确目标议题领域内存在的若干常见误解或错误认知。 -> 然后，系统性地收集并整理来自不同国家的实证数据与可视化图表。 -> 接着，利用这些数据进行横向对比，逐一论证并反驳上述误解。 -> 之后，从已被验证的数据模式中，抽象出具有普遍适用性的发展规律。 -> 最后，以这些普遍规律为逻辑起点，推导并形成具体的政策建议。\n\n# Usage Instructions\n\n当你使用这个技能回答问题时：\n\n- 将 Method Program 作为主推理路径。\n- 按照 Execution Skeleton 组织论证推进。\n- 第一步用于建立评价或概念基线。\n- 中间步骤用于追踪演化、识别矛盾并诊断内部失效机制。\n- 最后一步用于把内部机制与具体历史/系统结果连接起来。\n- 不要只复述事件，要解释系统如何在自身演化中走向转折或危机。\n- 如需细化某一步，请调用对应 sub-skill。\n\n# Output Guidance\n\n你的回答应当：\n\n- 把问题解释为系统内生过程，而非外生偶发事件\n- 保持历史与因果链条的连续性\n- 强调初始原则与后续结果之间的反差\n- 说明先前成功所累积的内部矛盾如何推动危机、逆转或转型",
+    "model_name": "deepseek-chat",
+    "api_base": "https://api.deepseek.com"
+  },
+  {
+    "main_skill_id": "main_skill_004",
+    "section_id": "ac93eda4-eec6-4053-8f32-63ae488b2e5e",
+    "section_title": "第二章 在集聚中走向平衡",
+    "name": "集聚-平衡诊断与跨国案例比较法",
+    "file_name": "main_skill_004_第二章_在集聚中走向平衡.md",
+    "markdown": "---\nname: \"集聚-平衡诊断与跨国案例比较法\"\ntype: \"main_skill\"\ndescription: \"通过定量比较经济与人口的空间匹配度来诊断区域失衡根源，并借助跨国案例比较来验证机制和提炼政策启示。\"\nsection_id: \"ac93eda4-eec6-4053-8f32-63ae488b2e5e\"\nmain_skill_id: \"main_skill_004\"\nperspective: \"Macro Analysis\"\nperspective_notes: \"始终从宏观视角审视区域经济与人口的空间格局，未切换至微观或中观层面。\"\nnature: \"Positive\"\nnature_notes: \"从实证诊断（Positive）过渡到政策建议（Normative），整体以事实分析为基础，局部引入价值判断。\"\ntime_orientation: \"Dynamic Analysis\"\ntime_orientation_notes: \"以动态分析为主，通过比较历史趋势与现状来揭示变化过程，局部采用静态对比。\"\nsystem_scope: \"Open System\"\nsystem_scope_notes: \"始终将区域视为开放系统，考虑人口流动、经济集聚与外部案例的相互作用。\"\nequilibrium_view: \"Process Analysis\"\nequilibrium_view_notes: \"聚焦于从失衡到均衡的演变过程（Process Analysis），而非静态均衡状态，局部涉及非均衡分析。\"\nlogic:\n  - \"Comparative Reasoning\"\n  - \"Causal Reasoning\"\nlogic_notes: \"以比较推理为核心，辅以因果推理；比较推理贯穿始终，因果推理用于解释失衡机制，局部引入概念分类与约束推理。\"\n---\n\n# Skill Summary\n\n通过定量比较经济与人口的空间匹配度来诊断区域失衡根源，并借助跨国案例比较来验证机制和提炼政策启示。\n\n# When to Use\n\n适用于分析区域发展不平衡、城市化与人口流动等议题。使用该方法时，首先计算并比较经济份额与人口份额的匹配程度，以识别核心矛盾；然后引入其他国家或地区的案例进行横向对比，分析其成功或失败的条件；最后基于对比结果，推导出适用于目标区域的、在集聚中实现平衡的机制与政策路径。\n\n# Method Program\n\n首先建立经济集聚度与人口集聚度的匹配性指标，通过定量比较识别区域失衡的根源在于人口流动滞后；然后引入跨国或跨区域案例进行横向对比，分析不同情境下集聚与平衡的互动机制；最后基于对比结果，推导出在允许经济集聚的同时促进人口自由流动、从而实现空间均衡的政策路径。\n\n# Execution Skeleton\n\n1. 计算并比较经济集聚度与人口集聚度的匹配程度，识别失衡根源\n2. 将失衡归因于人口流动滞后于经济集聚，而非经济过度集中\n3. 选取具有可比性的跨国或跨区域案例进行对比分析\n4. 从案例中提取成功或失败的关键条件与机制\n5. 将案例启示与目标区域现状结合，推导出在集聚中走向平衡的政策路径\n\n# Pattern Flow\n\n首先，通过定量比较经济份额与人口份额的匹配程度，诊断区域发展不平衡的核心矛盾。 -> 然后，将失衡原因归因于人口集聚滞后于经济集聚，而非经济过度集中。 -> 接着，选取具有可比性的跨国或跨区域案例，分析其发展路径与成败条件。 -> 最后，从案例对比中提炼出适用于目标区域的、在集聚中实现平衡的机制与政策建议。\n\n# Usage Instructions\n\n当你使用这个技能回答问题时：\n\n- 将 Method Program 作为主推理路径。\n- 按照 Execution Skeleton 组织论证推进。\n- 第一步用于建立评价或概念基线。\n- 中间步骤用于追踪演化、识别矛盾并诊断内部失效机制。\n- 最后一步用于把内部机制与具体历史/系统结果连接起来。\n- 不要只复述事件，要解释系统如何在自身演化中走向转折或危机。\n- 如需细化某一步，请调用对应 sub-skill。\n\n# Output Guidance\n\n你的回答应当：\n\n- 把问题解释为系统内生过程，而非外生偶发事件\n- 保持历史与因果链条的连续性\n- 强调初始原则与后续结果之间的反差\n- 说明先前成功所累积的内部矛盾如何推动危机、逆转或转型",
+    "model_name": "deepseek-chat",
+    "api_base": "https://api.deepseek.com"
+  },
+  {
+    "main_skill_id": "main_skill_005",
+    "section_id": "ee363190-d5c3-4400-a581-f58e924e8e5b",
+    "section_title": "信息技术、新型劳动中介和长三角一体化",
+    "name": "理论机制-微观数据验证法",
+    "file_name": "main_skill_005_信息技术、新型劳动中介和长三角一体化.md",
+    "markdown": "---\nname: \"理论机制-微观数据验证法\"\ntype: \"main_skill\"\ndescription: \"先构建理论机制框架，再使用微观案例数据进行实证验证，最后分析数据工具在机制中的作用，形成从理论到实证再到工具分析的闭环方法。\"\nsection_id: \"ee363190-d5c3-4400-a581-f58e924e8e5b\"\nmain_skill_id: \"main_skill_005\"\nperspective: \"Micro Analysis\"\nperspective_notes: \"章节始终聚焦于微观层面的案例数据（‘我的打工网’）和个体就业行为分析，未涉及宏观或中观视角。\"\nnature: \"Mixed\"\nnature_notes: \"方法结合了理论机制阐述（定性）与案例数据分析（定量），属于混合性质，且两种性质在章节内并行使用。\"\ntime_orientation: \"Dynamic Analysis\"\ntime_orientation_notes: \"分析关注信息技术如何动态地促进劳动力市场一体化，强调机制随时间演变的过程，而非静态截面。\"\nsystem_scope: \"Open System\"\nsystem_scope_notes: \"将劳动力市场视为受信息技术（外部因素）影响的开放系统，并考虑数据工具与外部环境的交互作用。\"\nequilibrium_view: \"Process Analysis\"\nequilibrium_view_notes: \"重点分析机制运作的过程（从理论到验证再到工具分析），而非达到某种均衡状态。\"\nlogic:\n  - \"Causal Reasoning\"\n  - \"Comparative Reasoning\"\n  - \"Conceptual Classification Reasoning\"\nlogic_notes: \"因果推理主导（验证信息技术对市场一体化的因果效应），比较推理用于对比不同数据或机制效果，概念分类推理用于界定理论机制类型。三种推理类型在章节内稳定共存。\"\n---\n\n# Skill Summary\n\n先构建理论机制框架，再使用微观案例数据进行实证验证，最后分析数据工具在机制中的作用，形成从理论到实证再到工具分析的闭环方法。\n\n# When to Use\n\n适用于研究技术或政策如何通过特定机制影响社会经济现象的问题。使用该方法时，首先明确核心机制（如规模经济效应），然后寻找匹配的微观数据（如平台就业数据）进行验证，最后分析数据本身作为信息工具如何增强或调节该机制。\n\n# Method Program\n\n首先建立理论机制模型，阐明核心变量通过特定经济效应影响目标结果；然后选择匹配的微观案例数据，对理论机制进行实证检验；最后，分析数据工具本身在机制中发挥的信息中介或增强作用，从而完成从理论构建到实证验证再到工具分析的完整推理闭环。\n\n# Execution Skeleton\n\n1. 提出理论机制：阐述核心变量（如信息技术）通过何种路径（如规模经济效应）影响目标现象（如劳动力市场一体化）。\n2. 选择微观数据：确定能够反映该机制运作的微观案例或数据集（如‘我的打工网’数据）。\n3. 实证验证机制：使用所选数据对理论机制进行定量或定性验证。\n4. 分析数据工具作用：进一步探讨数据本身（如就业大数据）在机制中扮演的信息中介或增强角色。\n\n# Pattern Flow\n\n首先，构建理论机制框架，明确自变量、因变量及传导路径。 -> 然后，选取能够代表该机制运作的微观案例或数据集。 -> 接着，运用所选数据进行实证分析，验证理论机制的有效性。 -> 最后，深入分析数据工具本身如何作为信息要素，强化或调节该机制的作用效果。\n\n# Usage Instructions\n\n当你使用这个技能回答问题时：\n\n- 将 Method Program 作为主推理路径。\n- 按照 Execution Skeleton 组织论证推进。\n- 第一步用于建立评价或概念基线。\n- 中间步骤用于追踪演化、识别矛盾并诊断内部失效机制。\n- 最后一步用于把内部机制与具体历史/系统结果连接起来。\n- 不要只复述事件，要解释系统如何在自身演化中走向转折或危机。\n- 如需细化某一步，请调用对应 sub-skill。\n\n# Output Guidance\n\n你的回答应当：\n\n- 把问题解释为系统内生过程，而非外生偶发事件\n- 保持历史与因果链条的连续性\n- 强调初始原则与后续结果之间的反差\n- 说明先前成功所累积的内部矛盾如何推动危机、逆转或转型",
+    "document_id": "192c44f3-de8f-4c5b-9c83-6eb88570b4d1",
+    "book_title": "2022向宽虎、陆铭《苏州大学学报》：信息技术、新型劳动中介和长三角一体化",
+    "chapter_title": "信息技术、新型劳动中介和长三角一体化",
+    "source_context": {
+      "document_id": "192c44f3-de8f-4c5b-9c83-6eb88570b4d1",
+      "book_title": "2022向宽虎、陆铭《苏州大学学报》：信息技术、新型劳动中介和长三角一体化",
+      "chapter_title": "信息技术、新型劳动中介和长三角一体化"
+    },
+    "model_name": "deepseek-chat",
+    "api_base": "https://api.deepseek.com"
+  },
+  {
+    "main_skill_id": "main_skill_006",
+    "section_id": "6f9be53f-fae8-4247-8aa8-e75578a4168f",
+    "section_title": "提高回报激发需求——改善中国农村教育的空间政治经济学",
+    "name": "间接影响链与空间资源配置分析",
+    "file_name": "main_skill_006_提高回报激发需求——改善中国农村教育的空间政治经济学.md",
+    "markdown": "---\nname: \"间接影响链与空间资源配置分析\"\ntype: \"main_skill\"\ndescription: \"通过构建从微观个体决策到宏观制度影响的因果链条，并引入空间流动作为关键中介机制，分析政策如何通过间接路径产生系统性影响，并据此推导空间资源配置的改革方案。\"\nsection_id: \"6f9be53f-fae8-4247-8aa8-e75578a4168f\"\nmain_skill_id: \"main_skill_006\"\nperspective: \"Macro Analysis\"\nperspective_notes: \"章节始终从宏观系统层面分析政策与空间结构的影响，未切换至微观视角。\"\nnature: \"Mixed\"\nnature_notes: \"章节融合了实证因果推理与规范性政策推导，性质在分析性与规范性之间混合。\"\ntime_orientation: \"Dynamic Analysis\"\ntime_orientation_notes: \"章节关注政策通过中介机制随时间产生的间接影响，强调动态变化过程。\"\nsystem_scope: \"Open System\"\nsystem_scope_notes: \"章节将人口流动视为系统间信息与行为交换的机制，系统边界开放。\"\nequilibrium_view: \"Disequilibrium Analysis\"\nequilibrium_view_notes: \"章节分析政策如何打破原有均衡状态，并推导新的资源配置方案，强调非均衡过程。\"\nlogic:\n  - \"Causal Reasoning\"\n  - \"Constraint-Based Reasoning\"\n  - \"Comparative Reasoning\"\nlogic_notes: \"因果推理主导因果链条构建，约束推理用于分析政策限制，比较推理隐含于改革方案的空间对比中。\"\n---\n\n# Skill Summary\n\n通过构建从微观个体决策到宏观制度影响的因果链条，并引入空间流动作为关键中介机制，分析政策如何通过间接路径产生系统性影响，并据此推导空间资源配置的改革方案。\n\n# When to Use\n\n适用于分析一项制度或政策如何通过非直接路径（如信息传递、人口流动）对个体行为和社会结构产生间接但重大的影响。使用该方法时，首先需明确初始的个体决策逻辑（如教育投资），然后识别连接个体与宏观系统的中介机制（如人口流动），接着分析外部政策如何调节该中介机制，最后基于因果链条推导出空间层面的资源配置优化方案。\n\n# Method Program\n\n首先构建从个体预期教育回报到教育参与行为的因果链条，明确微观决策逻辑；然后引入人口流动作为信息传递与行为扩散的关键中介机制，将微观行为与宏观系统连接；接着分析外部制度与政策（如人口控制）如何通过调节人口流动这一中介机制，对教育参与行为产生间接但重大的影响；最后基于完整的因果链条与中介机制分析，推导出空间资源配置的改革方案，以优化政策效果。\n\n# Execution Skeleton\n\n1. 构建从个体预期到行为的因果链条\n2. 识别并引入连接微观与宏观的中介机制（如人口流动）\n3. 分析外部制度或政策如何通过中介机制产生间接影响\n4. 基于因果链条推导空间资源配置的改革方案\n\n# Pattern Flow\n\n首先构建从个体预期回报到具体行为决策的因果链条，明确微观层面的驱动逻辑。 -> 然后引入空间流动（如人口迁移）作为信息传递与行为扩散的中介机制，连接微观个体与宏观系统。 -> 接着分析外部制度或政策（如人口控制）如何通过调节该中介机制，对初始因果链条产生间接但重大的影响。 -> 最后基于完整的因果链条与中介机制分析，推导出空间资源配置的优化改革方案。\n\n# Usage Instructions\n\n当你使用这个技能回答问题时：\n\n- 将 Method Program 作为主推理路径。\n- 按照 Execution Skeleton 组织论证推进。\n- 第一步用于建立评价或概念基线。\n- 中间步骤用于追踪演化、识别矛盾并诊断内部失效机制。\n- 最后一步用于把内部机制与具体历史/系统结果连接起来。\n- 不要只复述事件，要解释系统如何在自身演化中走向转折或危机。\n- 如需细化某一步，请调用对应 sub-skill。\n\n# Output Guidance\n\n你的回答应当：\n\n- 把问题解释为系统内生过程，而非外生偶发事件\n- 保持历史与因果链条的连续性\n- 强调初始原则与后续结果之间的反差\n- 说明先前成功所累积的内部矛盾如何推动危机、逆转或转型",
+    "document_id": "8ac2b16a-4642-4177-8c15-a7cd4242e6fb",
+    "book_title": "2019张翕、陆铭《学术月刊》：提高回报__激发需求_改善中国农村教育的空间政治经济学",
+    "chapter_title": "提高回报激发需求——改善中国农村教育的空间政治经济学",
+    "source_context": {
+      "document_id": "8ac2b16a-4642-4177-8c15-a7cd4242e6fb",
+      "book_title": "2019张翕、陆铭《学术月刊》：提高回报__激发需求_改善中国农村教育的空间政治经济学",
+      "chapter_title": "提高回报激发需求——改善中国农村教育的空间政治经济学"
+    },
+    "model_name": "deepseek-chat",
+    "api_base": "https://api.deepseek.com"
+  },
+  {
+    "main_skill_id": "main_skill_007",
+    "section_id": "ab346969-9def-4699-90e7-15d7b5c69a2d",
+    "section_title": "治理城市病: 如何实现增长、宜居与和谐？",
+    "name": "空间均衡与城市规模悖论解析法",
+    "file_name": "main_skill_007_治理城市病__如何实现增长、宜居与和谐？.md",
+    "markdown": "---\nname: \"空间均衡与城市规模悖论解析法\"\ntype: \"main_skill\"\ndescription: \"通过构建理论模型揭示城市发展中的结构性矛盾，并利用实证与理论分析纠正常见认知偏差，最终推导出政策干预方向。\"\nsection_id: \"ab346969-9def-4699-90e7-15d7b5c69a2d\"\nmain_skill_id: \"main_skill_007\"\nperspective: \"Macro Analysis\"\nperspective_notes: \"章节始终从宏观城市系统层面进行分析，未切换到微观个体视角。\"\nnature: \"Mixed\"\nnature_notes: \"方法混合了理论模型构建（规范性）与实证数据检验（实证性），两者交替推进。\"\ntime_orientation: \"Static Analysis\"\ntime_orientation_notes: \"主要采用静态均衡分析框架，未涉及跨期动态演化。\"\nsystem_scope: \"Open System\"\nsystem_scope_notes: \"将城市视为与外部存在人口、资本流动的开放系统，而非封闭系统。\"\nequilibrium_view: \"Equilibrium Analysis\"\nequilibrium_view_notes: \"核心方法基于均衡模型，但最终指向均衡被扭曲后的政策修正。\"\nlogic:\n  - \"Causal Reasoning\"\n  - \"Comparative Reasoning\"\n  - \"Constraint-Based Reasoning\"\nlogic_notes: \"因果推理用于建立人口与城市病的关系；比较推理用于对比实际与最优规模；约束推理用于分析制度扭曲。三者稳定共存。\"\n---\n\n# Skill Summary\n\n通过构建理论模型揭示城市发展中的结构性矛盾，并利用实证与理论分析纠正常见认知偏差，最终推导出政策干预方向。\n\n# When to Use\n\n适用于分析城市经济、区域发展或资源空间配置中存在的内在矛盾与政策扭曲问题。使用该方法时，首先构建一个包含关键约束条件（如土地、劳动力、资本）的空间均衡模型，推导出不可兼得的目标组合（即“三元悖论”）；然后利用实证数据检验并反驳流行的错误观点；接着通过理论分析揭示现有制度或市场扭曲如何导致最优均衡点被低估；最后基于修正后的均衡分析提出针对性的政策建议。\n\n# Method Program\n\n首先构建一个包含空间约束条件的理论均衡模型，明确土地、劳动力、资本等关键变量，并推导出城市发展中的“三元悖论”（即效率、公平、可持续性不可兼得）。然后利用实证数据（如城市面板数据）检验并反驳“人口密度导致城市病”的常见观点，证明人口集聚本身并非问题根源。接着通过理论分析揭示供给侧扭曲（如土地供应垄断、户籍制度壁垒）如何导致实际城市规模偏离最优均衡点，造成效率损失。最后基于修正后的均衡分析，提出放松供给约束、改革户籍制度、优化空间结构等政策建议，以实现更接近最优均衡的城市发展路径。\n\n# Execution Skeleton\n\n1. 构建包含空间约束条件的理论均衡模型，推导出核心矛盾或悖论\n2. 利用实证数据检验并反驳常见的错误认知或流行观点\n3. 通过理论分析揭示供给侧或制度性扭曲对均衡结果的影响\n4. 基于修正后的均衡分析，提出可操作的政策干预方向\n\n# Pattern Flow\n\n首先构建一个空间均衡模型，明确关键变量与约束条件，推导出城市发展中的“三元悖论”或不可兼得的目标组合。 -> 然后利用实证数据（如面板数据或自然实验）检验并反驳“人口导致城市病”等常见错误观点。 -> 接着通过理论分析揭示供给侧扭曲（如土地供应限制、户籍制度）如何导致最优城市规模被系统性低估。 -> 最后基于修正后的均衡分析，提出放松供给约束、优化空间布局等政策建议。\n\n# Usage Instructions\n\n当你使用这个技能回答问题时：\n\n- 将 Method Program 作为主推理路径。\n- 按照 Execution Skeleton 组织论证推进。\n- 第一步用于建立评价或概念基线。\n- 中间步骤用于追踪演化、识别矛盾并诊断内部失效机制。\n- 最后一步用于把内部机制与具体历史/系统结果连接起来。\n- 不要只复述事件，要解释系统如何在自身演化中走向转折或危机。\n- 如需细化某一步，请调用对应 sub-skill。\n\n# Output Guidance\n\n你的回答应当：\n\n- 把问题解释为系统内生过程，而非外生偶发事件\n- 保持历史与因果链条的连续性\n- 强调初始原则与后续结果之间的反差\n- 说明先前成功所累积的内部矛盾如何推动危机、逆转或转型",
+    "document_id": "f4321a41-45b0-43af-87be-9fdcf2a5c187",
+    "book_title": "2019陆铭、李杰伟、韩立彬《经济社会体制比较》：治理城市病_如何实现增长_宜居与和谐（总结）",
+    "chapter_title": "治理城市病: 如何实现增长、宜居与和谐？",
+    "source_context": {
+      "document_id": "f4321a41-45b0-43af-87be-9fdcf2a5c187",
+      "book_title": "2019陆铭、李杰伟、韩立彬《经济社会体制比较》：治理城市病_如何实现增长_宜居与和谐（总结）",
+      "chapter_title": "治理城市病: 如何实现增长、宜居与和谐？"
+    },
+    "model_name": "deepseek-chat",
+    "api_base": "https://api.deepseek.com"
+  },
+  {
+    "main_skill_id": "main_skill_008",
+    "section_id": "417473de-5e9d-4c18-a524-6b2e997b18c2",
+    "section_title": "跨越世纪的城市人力资本足迹——历史遗产、政策冲击和劳动力流动",
+    "name": "长时段路径依赖检验法",
+    "file_name": "main_skill_008_跨越世纪的城市人力资本足迹——历史遗产、政策冲击和劳动力流动.md",
+    "markdown": "---\nname: \"长时段路径依赖检验法\"\ntype: \"main_skill\"\ndescription: \"通过构建跨越多个历史时期的连续数据，建立包含历史遗产、政策冲击与劳动力流动的三维分析框架，运用计量方法检验城市人力资本发展的路径依赖效应及其条件。\"\nsection_id: \"417473de-5e9d-4c18-a524-6b2e997b18c2\"\nmain_skill_id: \"main_skill_008\"\nperspective: \"Macro Analysis\"\nperspective_notes: \"整体保持宏观分析视角，聚焦城市层面的长期发展规律\"\nnature: \"Positive\"\nnature_notes: \"采用实证研究方法，基于历史数据进行客观因果推断\"\ntime_orientation: \"Historical Analysis\"\ntime_orientation_notes: \"以历史分析为主导，跨越明清至当代的长时段时间维度\"\nsystem_scope: \"Open System\"\nsystem_scope_notes: \"将城市人力资本发展视为受历史遗产、政策冲击和劳动力流动共同影响的开放系统\"\nequilibrium_view: \"Process Analysis\"\nequilibrium_view_notes: \"关注路径依赖的动态演化过程，而非静态均衡状态\"\nlogic:\n  - \"Historical Reasoning\"\n  - \"Causal Reasoning\"\n  - \"Comparative Reasoning\"\nlogic_notes: \"以历史推理为基础建立时间序列逻辑，因果推理识别影响机制，比较推理检验异质性条件\"\n---\n\n# Skill Summary\n\n通过构建跨越多个历史时期的连续数据，建立包含历史遗产、政策冲击与劳动力流动的三维分析框架，运用计量方法检验城市人力资本发展的路径依赖效应及其条件。\n\n# When to Use\n\n适用于研究长期历史因素对当前经济或社会现象的持续影响。使用该方法时，首先需要构建覆盖多个历史阶段的长时段数据集，然后建立包含历史遗产、政策冲击和中介机制的三维分析框架，接着运用工具变量法处理内生性问题，最后通过分样本回归检验路径依赖的异质性条件。\n\n# Method Program\n\n首先构建跨越明清、计划经济时期和改革开放后的长时段连续数据，建立包含历史遗产、政策冲击与劳动力流动的三维分析框架；然后运用工具变量法处理历史因素的内生性问题，识别历史遗产对当前城市人力资本发展的因果效应；最后通过分样本回归检验路径依赖效应在不同历史条件、政策环境下的异质性表现，从而系统揭示城市人力资本发展的路径依赖机制及其条件约束。\n\n# Execution Skeleton\n\n1. 构建跨越多个历史时期的长时段连续数据\n2. 建立历史遗产、政策冲击与劳动力流动的三维分析框架\n3. 运用工具变量法处理内生性问题\n4. 通过分样本回归检验路径依赖的异质性条件\n\n# Pattern Flow\n\n首先构建覆盖明清、计划经济时期和改革开放后的长时段数据集 -> 然后建立包含历史遗产、政策冲击与劳动力流动的三维分析框架 -> 接着运用工具变量法识别历史因素对当前人力资本发展的因果效应 -> 最后通过分样本回归检验路径依赖效应在不同条件下的异质性表现\n\n# Usage Instructions\n\n当你使用这个技能回答问题时：\n\n- 将 Method Program 作为主推理路径。\n- 按照 Execution Skeleton 组织论证推进。\n- 第一步用于建立评价或概念基线。\n- 中间步骤用于追踪演化、识别矛盾并诊断内部失效机制。\n- 最后一步用于把内部机制与具体历史/系统结果连接起来。\n- 不要只复述事件，要解释系统如何在自身演化中走向转折或危机。\n- 如需细化某一步，请调用对应 sub-skill。\n\n# Output Guidance\n\n你的回答应当：\n\n- 把问题解释为系统内生过程，而非外生偶发事件\n- 保持历史与因果链条的连续性\n- 强调初始原则与后续结果之间的反差\n- 说明先前成功所累积的内部矛盾如何推动危机、逆转或转型",
+    "document_id": "fdd21325-3ade-4c12-8553-948f483b05a8",
+    "book_title": "2019夏怡然、陆铭《经济研究》：跨越世纪的城市人力资本足迹_历史遗产_政策冲击和劳动力流动",
+    "chapter_title": "跨越世纪的城市人力资本足迹——历史遗产、政策冲击和劳动力流动",
+    "source_context": {
+      "document_id": "fdd21325-3ade-4c12-8553-948f483b05a8",
+      "book_title": "2019夏怡然、陆铭《经济研究》：跨越世纪的城市人力资本足迹_历史遗产_政策冲击和劳动力流动",
+      "chapter_title": "跨越世纪的城市人力资本足迹——历史遗产、政策冲击和劳动力流动"
+    },
+    "model_name": "deepseek-chat",
+    "api_base": "https://api.deepseek.com"
+  },
+  {
+    "main_skill_id": "main_skill_009",
+    "section_id": "8dd2b3a0-0828-49a3-b4b0-d14aeb6f0718",
+    "section_title": "行政主导的人力资本均衡可否持续：让历史告诉未来",
+    "name": "历史自然实验因果推断法",
+    "file_name": "main_skill_009_行政主导的人力资本均衡可否持续：让历史告诉未来.md",
+    "markdown": "---\nname: \"历史自然实验因果推断法\"\ntype: \"main_skill\"\ndescription: \"利用历史事件作为自然实验，通过比较分析和因果推断，评估一项长期政策的实际效果，并检验其效果的持久性以及政策结束后是否回归历史趋势。\"\nsection_id: \"8dd2b3a0-0828-49a3-b4b0-d14aeb6f0718\"\nmain_skill_id: \"main_skill_009\"\nperspective: \"Macro Analysis\"\nperspective_notes: \"章节始终从宏观视角分析政策效果，未涉及微观个体层面的讨论。\"\nnature: \"Positive\"\nnature_notes: \"章节聚焦于客观事实和因果机制的实证检验，不涉及价值判断或规范性主张。\"\ntime_orientation: \"Historical Analysis\"\ntime_orientation_notes: \"章节完全基于历史事件（高校搬迁）进行长期效果分析，时间维度稳定在历史分析框架内。\"\nsystem_scope: \"Open System\"\nsystem_scope_notes: \"章节将政策效果置于开放系统中考虑，承认并检验了外部历史趋势对政策效果的回归作用。\"\nequilibrium_view: \"Disequilibrium Analysis\"\nequilibrium_view_notes: \"章节关注政策干预带来的非均衡状态及其后的动态调整过程，而非静态均衡。\"\nlogic:\n  - \"Historical Reasoning\"\n  - \"Causal Reasoning\"\n  - \"Comparative Reasoning\"\nlogic_notes: \"三种推理类型紧密交织：历史推理提供背景和趋势，因果推理用于识别政策效应，比较推理用于对比受政策影响与未受影响的群体。\"\n---\n\n# Skill Summary\n\n利用历史事件作为自然实验，通过比较分析和因果推断，评估一项长期政策的实际效果，并检验其效果的持久性以及政策结束后是否回归历史趋势。\n\n# When to Use\n\n适用于评估具有历史背景的长期政策效果，特别是当随机对照实验不可行时。该方法通过识别一个外生的历史事件（如高校搬迁）作为自然实验，将受政策影响的群体与未受影响的群体进行比较，从而推断政策的因果效应。具体操作时，首先需要明确待评估的政策及其理论预期效果；其次，寻找一个能够提供外生变异的历史事件作为工具变量或自然实验分组依据；然后，利用历史数据和计量方法（如工具变量法）进行因果推断；最后，通过分析政策结束后的长期数据，检验效果是否持续或是否出现回归历史趋势的现象。\n\n# Method Program\n\n首先明确待评估的长期政策及其理论预期效果；然后，识别并论证一个外生的历史事件作为自然实验或工具变量，以提供因果识别的变异来源；接着，利用历史比较和因果推断方法（如工具变量法），分析该政策对结果变量的影响；最后，通过分析政策结束后的长期数据，检验政策效果的持久性以及是否出现回归历史趋势的机制。\n\n# Execution Skeleton\n\n1. 明确待评估的长期政策及其理论预期效果。\n2. 识别并论证一个外生的历史事件作为自然实验或工具变量。\n3. 利用历史比较和因果推断方法（如工具变量法）分析政策效果。\n4. 检验政策效果的持久性，分析其是否随时间衰减。\n5. 检验政策结束后，结果变量是否回归历史趋势。\n\n# Pattern Flow\n\n首先，明确待评估的长期政策及其理论预期效果。 -> 然后，识别并论证一个外生的历史事件作为自然实验或工具变量，以提供因果识别的变异来源。 -> 接着，利用历史比较和因果推断方法（如工具变量法），分析该政策对结果变量的影响。 -> 最后，通过分析政策结束后的长期数据，检验政策效果的持久性以及是否出现回归历史趋势的机制。\n\n# Usage Instructions\n\n当你使用这个技能回答问题时：\n\n- 将 Method Program 作为主推理路径。\n- 按照 Execution Skeleton 组织论证推进。\n- 第一步用于建立评价或概念基线。\n- 中间步骤用于追踪演化、识别矛盾并诊断内部失效机制。\n- 最后一步用于把内部机制与具体历史/系统结果连接起来。\n- 不要只复述事件，要解释系统如何在自身演化中走向转折或危机。\n- 如需细化某一步，请调用对应 sub-skill。\n\n# Output Guidance\n\n你的回答应当：\n\n- 把问题解释为系统内生过程，而非外生偶发事件\n- 保持历史与因果链条的连续性\n- 强调初始原则与后续结果之间的反差\n- 说明先前成功所累积的内部矛盾如何推动危机、逆转或转型",
+    "document_id": "01e2944a-2087-431f-8d07-7282dabbf078",
+    "book_title": "2018夏怡然、陆铭《学术月刊》：行政主导的人力资本均衡可否持续_让历史告诉未来",
+    "chapter_title": "行政主导的人力资本均衡可否持续：让历史告诉未来",
+    "source_context": {
+      "document_id": "01e2944a-2087-431f-8d07-7282dabbf078",
+      "book_title": "2018夏怡然、陆铭《学术月刊》：行政主导的人力资本均衡可否持续_让历史告诉未来",
+      "chapter_title": "行政主导的人力资本均衡可否持续：让历史告诉未来"
+    },
+    "model_name": "deepseek-chat",
+    "api_base": "https://api.deepseek.com"
+  },
+  {
+    "main_skill_id": "main_skill_010",
+    "section_id": "1eca51b3-e951-421e-b238-44ac05fea898",
+    "section_title": "税收激励与城市商住用地结构——来自“营改增”的经验证据",
+    "name": "税收激励对地方政府行为的因果推断方法",
+    "file_name": "main_skill_010_税收激励与城市商住用地结构——来自“营改增”的经验证据.md",
+    "markdown": "---\nname: \"税收激励对地方政府行为的因果推断方法\"\ntype: \"main_skill\"\ndescription: \"通过理论假说推导、准自然实验设计与异质性分析，系统检验特定政策工具（税收激励）对地方政府行为（土地出让）的因果效应与作用机制。\"\nsection_id: \"1eca51b3-e951-421e-b238-44ac05fea898\"\nmain_skill_id: \"main_skill_010\"\nperspective: \"Institutional Analysis\"\nperspective_notes: \"全章聚焦于制度性政策工具（税收激励）对组织行为的影响，视角稳定且一致。\"\nnature: \"Positive\"\nnature_notes: \"采用实证方法检验客观存在的因果关系，不涉及价值判断，性质稳定。\"\ntime_orientation: \"Dynamic Analysis\"\ntime_orientation_notes: \"通过政策冲击前后的比较分析捕捉行为变化，动态视角贯穿始终。\"\nsystem_scope: \"Open System\"\nsystem_scope_notes: \"将地方政府行为置于政策环境与异质性条件中考察，系统边界开放。\"\nequilibrium_view: \"Disequilibrium Analysis\"\nequilibrium_view_notes: \"关注政策冲击导致的非均衡状态及行为调整过程，而非稳态均衡。\"\nlogic:\n  - \"Causal Reasoning\"\n  - \"Comparative Reasoning\"\n  - \"Constraint-Based Reasoning\"\nlogic_notes: \"以因果推理为核心，辅以处理组与对照组的比较推理，以及异质性条件约束下的差异化推理，三种逻辑类型协同使用且稳定。\"\n---\n\n# Skill Summary\n\n通过理论假说推导、准自然实验设计与异质性分析，系统检验特定政策工具（税收激励）对地方政府行为（土地出让）的因果效应与作用机制。\n\n# When to Use\n\n适用于评估一项政策或制度激励对微观主体行为的因果影响。使用该方法时，首先基于理论构建政策影响机制假说，然后利用准自然实验方法（如DID模型）识别因果效应，最后通过异质性分析揭示不同情境下的差异化影响路径。\n\n# Method Program\n\n首先基于理论推导出税收激励影响地方政府土地出让行为的具体机制假说；然后利用DID模型构建准自然实验，通过比较处理组与对照组在政策前后的差异来识别因果效应；接着进行基准回归验证核心假说；最后通过异质性分析检验不同地区或政策情境下影响机制的差异，从而完整揭示政策工具的行为效应及其边界条件。\n\n# Execution Skeleton\n\n1. 基于理论构建政策影响机制假说\n2. 设计准自然实验（如DID模型）识别因果效应\n3. 进行基准回归验证核心假说\n4. 开展异质性分析揭示差异化影响路径\n\n# Pattern Flow\n\n首先，从理论出发推导政策激励影响行为的具体机制假说。 -> 然后，构建准自然实验框架（如双重差分模型），利用政策冲击的外生性识别因果效应。 -> 接着，通过基准回归验证核心假说是否成立。 -> 最后，进行异质性分析，检验不同条件下影响机制的差异，以深化对作用路径的理解。\n\n# Usage Instructions\n\n当你使用这个技能回答问题时：\n\n- 将 Method Program 作为主推理路径。\n- 按照 Execution Skeleton 组织论证推进。\n- 第一步用于建立评价或概念基线。\n- 中间步骤用于追踪演化、识别矛盾并诊断内部失效机制。\n- 最后一步用于把内部机制与具体历史/系统结果连接起来。\n- 不要只复述事件，要解释系统如何在自身演化中走向转折或危机。\n- 如需细化某一步，请调用对应 sub-skill。\n\n# Output Guidance\n\n你的回答应当：\n\n- 把问题解释为系统内生过程，而非外生偶发事件\n- 保持历史与因果链条的连续性\n- 强调初始原则与后续结果之间的反差\n- 说明先前成功所累积的内部矛盾如何推动危机、逆转或转型",
+    "document_id": "2e5428c9-e1ff-4204-815a-264790f9da1f",
+    "book_title": "2022陆铭、刘雅丽《经济学（季刊）》：税收激励与城市商住用地结构...—来自“营改增”的经验证据_张莉",
+    "chapter_title": "税收激励与城市商住用地结构——来自“营改增”的经验证据",
+    "source_context": {
+      "document_id": "2e5428c9-e1ff-4204-815a-264790f9da1f",
+      "book_title": "2022陆铭、刘雅丽《经济学（季刊）》：税收激励与城市商住用地结构...—来自“营改增”的经验证据_张莉",
+      "chapter_title": "税收激励与城市商住用地结构——来自“营改增”的经验证据"
+    },
+    "model_name": "deepseek-chat",
+    "api_base": "https://api.deepseek.com"
+  },
+  {
+    "main_skill_id": "main_skill_011",
+    "section_id": "6acf3a30-6488-482f-a641-8925aca709ee",
+    "section_title": "有效利用农村宅基地——基于山西省吕梁市调研的理论和政策分析",
+    "name": "制度概念分解与类型化政策分析",
+    "file_name": "main_skill_011_有效利用农村宅基地——基于山西省吕梁市调研的理论和政策分析.md",
+    "markdown": "---\nname: \"制度概念分解与类型化政策分析\"\ntype: \"main_skill\"\ndescription: \"通过产权理论等概念工具对制度进行分解与重新定义，然后基于比较优势进行类型化分析，最后结合案例推导政策建议。\"\nsection_id: \"6acf3a30-6488-482f-a641-8925aca709ee\"\nmain_skill_id: \"main_skill_011\"\nperspective: \"Institutional Analysis\"\nperspective_notes: \"全章稳定采用制度分析视角，聚焦产权、社会保障等制度要素。\"\nnature: \"Mixed\"\nnature_notes: \"结合理论概念分解与案例实证分析，呈现混合研究性质。\"\ntime_orientation: \"Historical Analysis\"\ntime_orientation_notes: \"通过产权理论的历史演变和制度背景进行历史性分析。\"\nsystem_scope: \"Open System\"\nsystem_scope_notes: \"将宅基地制度置于地理、产业等外部环境中进行开放系统分析。\"\nequilibrium_view: \"Disequilibrium Analysis\"\nequilibrium_view_notes: \"通过类型化差异和案例比较，揭示制度运行中的非均衡状态。\"\nlogic:\n  - \"Conceptual Classification Reasoning\"\n  - \"Causal Reasoning\"\n  - \"Comparative Reasoning\"\nlogic_notes: \"以概念分类推理为基础，结合因果推理分析制度影响，并通过比较推理进行类型化区分。\"\n---\n\n# Skill Summary\n\n通过产权理论等概念工具对制度进行分解与重新定义，然后基于比较优势进行类型化分析，最后结合案例推导政策建议。\n\n# When to Use\n\n适用于分析具有复杂制度内涵的社会经济问题，特别是需要从产权、社会保障等基础概念入手进行制度重构和政策设计的研究。使用该方法时，首先运用理论概念对制度进行拆解和重新定义，然后根据地理或产业比较优势对研究对象进行类型化划分，最后针对每种类型结合具体案例提出差异化的政策建议。\n\n# Method Program\n\n首先运用产权理论、社会保障辨析和产权可分割性等概念工具，对宅基地制度进行概念分解与重新定义，明确其产权属性与社会保障功能；然后基于地理与产业比较优势，对不同类型的宅基地进行类型化分析，区分其在区位、产业基础等方面的差异；最后结合具体案例，针对每种类型提出差异化的政策建议，实现从理论分析到实践应用的转化。\n\n# Execution Skeleton\n\n1. 运用产权理论、社会保障辨析等概念工具，对核心制度进行概念分解与重新定义\n2. 基于地理与产业比较优势，对研究对象进行类型化分析\n3. 结合具体案例，针对不同类型提出差异化的政策建议\n\n# Pattern Flow\n\n首先，运用产权理论、社会保障辨析等概念工具，对宅基地制度进行概念分解与重新定义，明确其产权属性与社会保障功能。 -> 然后，基于地理与产业比较优势，对不同类型的宅基地进行类型化分析，区分其在区位、产业基础等方面的差异。 -> 最后，结合具体案例，针对每种类型提出差异化的政策建议，实现从理论分析到实践应用的转化。\n\n# Usage Instructions\n\n当你使用这个技能回答问题时：\n\n- 将 Method Program 作为主推理路径。\n- 按照 Execution Skeleton 组织论证推进。\n- 第一步用于建立评价或概念基线。\n- 中间步骤用于追踪演化、识别矛盾并诊断内部失效机制。\n- 最后一步用于把内部机制与具体历史/系统结果连接起来。\n- 不要只复述事件，要解释系统如何在自身演化中走向转折或危机。\n- 如需细化某一步，请调用对应 sub-skill。\n\n# Output Guidance\n\n你的回答应当：\n\n- 把问题解释为系统内生过程，而非外生偶发事件\n- 保持历史与因果链条的连续性\n- 强调初始原则与后续结果之间的反差\n- 说明先前成功所累积的内部矛盾如何推动危机、逆转或转型",
+    "document_id": "35691a9d-cdca-4b55-9576-74aa199198da",
+    "book_title": "2021陆铭、贾宁、郑怡林《农业经济问题》：有效利用农村宅基地——基于山西省吕梁市调研的理论和政策分析_陆铭",
+    "chapter_title": "有效利用农村宅基地——基于山西省吕梁市调研的理论和政策分析",
+    "source_context": {
+      "document_id": "35691a9d-cdca-4b55-9576-74aa199198da",
+      "book_title": "2021陆铭、贾宁、郑怡林《农业经济问题》：有效利用农村宅基地——基于山西省吕梁市调研的理论和政策分析_陆铭",
+      "chapter_title": "有效利用农村宅基地——基于山西省吕梁市调研的理论和政策分析"
+    },
+    "model_name": "deepseek-chat",
+    "api_base": "https://api.deepseek.com"
+  },
+  {
+    "main_skill_id": "main_skill_012",
+    "section_id": "ab976eae-410a-403a-9024-cb947629c4e6",
+    "section_title": "发展与平衡的新时代——新中国70年的空间政治经济学",
+    "name": "集聚与平衡的空间错配诊断法",
+    "file_name": "main_skill_012_发展与平衡的新时代——新中国70年的空间政治经济学.md",
+    "markdown": "---\nname: \"集聚与平衡的空间错配诊断法\"\ntype: \"main_skill\"\ndescription: \"通过多层级国际与国内数据对比，揭示人口集聚滞后于经济集聚的结构性错配，并基于空间均衡理论框架，诊断区域发展政策导致的效率损失，最终提出矫正性政策建议。\"\nsection_id: \"ab976eae-410a-403a-9024-cb947629c4e6\"\nmain_skill_id: \"main_skill_012\"\nperspective: \"Macro Analysis\"\nperspective_notes: \"全程保持宏观分析视角，聚焦国家、地区、地级市层面的结构性对比。\"\nnature: \"Mixed\"\nnature_notes: \"混合使用理论框架构建（规范分析）与实证回归检验（实证分析），两者交替推进。\"\ntime_orientation: \"Dynamic Analysis\"\ntime_orientation_notes: \"核心关注人口与经济集聚在时间序列上的动态滞后关系，而非静态截面。\"\nsystem_scope: \"Open System\"\nsystem_scope_notes: \"分析框架涵盖国际比较与国内多层级系统，强调系统间的相互影响与开放流动。\"\nequilibrium_view: \"Equilibrium Analysis\"\nequilibrium_view_notes: \"以空间均衡等式为理论基准，诊断现实偏离均衡的程度，属于均衡分析范式。\"\nlogic:\n  - \"Comparative Reasoning\"\n  - \"Causal Reasoning\"\n  - \"Constraint-Based Reasoning\"\nlogic_notes: \"三种推理类型稳定共存：比较推理用于多层级数据对比，因果推理用于诊断政策导致错配的机制，约束推理用于空间均衡等式的理论约束。\"\n---\n\n# Skill Summary\n\n通过多层级国际与国内数据对比，揭示人口集聚滞后于经济集聚的结构性错配，并基于空间均衡理论框架，诊断区域发展政策导致的效率损失，最终提出矫正性政策建议。\n\n# When to Use\n\n适用于分析区域发展不平衡、人口与经济活动空间分布错配问题。使用该方法时，首先进行多尺度（国际、国家、地区、地级市）的数据对比，以建立“人口集聚滞后于经济集聚”的核心事实；然后引入空间均衡等式作为理论基准，通过实证回归量化错配程度；最后将错配归因于特定政策干预，并推导出“在集聚中走向平衡”的政策路径。\n\n# Method Program\n\n首先，通过多层级（国际、国家、地区、地级市）数据对比，建立人口集聚滞后于经济集聚的核心事实。然后，提出“在集聚中走向平衡”的理论框架，并构建空间均衡等式作为分析基准。接着，通过实证回归分析，量化人口集聚滞后于经济集聚的具体程度。进而，批判现有区域发展政策，诊断其导致的空间错配机制。最后，基于诊断结果，提出矫正空间错配的政策建议。\n\n# Execution Skeleton\n\n1. 进行多层级（国际、国家、地区、地级市）数据对比，建立人口与经济集聚的时序差异事实\n2. 提出“在集聚中走向平衡”的理论框架，构建空间均衡等式作为分析基准\n3. 通过实证回归分析，量化人口集聚滞后于经济集聚的程度\n4. 批判现有区域发展政策，诊断其导致的空间错配机制\n5. 基于诊断结果，提出矫正空间错配的政策建议\n\n# Pattern Flow\n\n首先，通过国际比较、中美比较、地区层面和地级市层面的数据对比，论证中国人口集聚滞后于经济集聚的核心事实。 -> 然后，提出“在集聚中走向平衡”的理论框架，并构建空间均衡等式作为分析基准。 -> 接着，通过实证回归分析，量化人口集聚滞后于经济集聚的具体程度。 -> 进而，批判现有区域发展政策，诊断其导致的空间错配机制。 -> 最后，基于诊断结果，提出矫正空间错配的政策建议。\n\n# Usage Instructions\n\n当你使用这个技能回答问题时：\n\n- 将 Method Program 作为主推理路径。\n- 按照 Execution Skeleton 组织论证推进。\n- 第一步用于建立评价或概念基线。\n- 中间步骤用于追踪演化、识别矛盾并诊断内部失效机制。\n- 最后一步用于把内部机制与具体历史/系统结果连接起来。\n- 不要只复述事件，要解释系统如何在自身演化中走向转折或危机。\n- 如需细化某一步，请调用对应 sub-skill。\n\n# Output Guidance\n\n你的回答应当：\n\n- 把问题解释为系统内生过程，而非外生偶发事件\n- 保持历史与因果链条的连续性\n- 强调初始原则与后续结果之间的反差\n- 说明先前成功所累积的内部矛盾如何推动危机、逆转或转型",
+    "document_id": "5a8801dc-1d47-4ae1-8cc9-d9f419a29a34",
+    "book_title": "2019陆铭、李鹏飞、钟辉勇《管理世界》：发展与平衡的新时代_新中国70年的空间政治经济学（总结）",
+    "chapter_title": "发展与平衡的新时代——新中国70年的空间政治经济学",
+    "source_context": {
+      "document_id": "5a8801dc-1d47-4ae1-8cc9-d9f419a29a34",
+      "book_title": "2019陆铭、李鹏飞、钟辉勇《管理世界》：发展与平衡的新时代_新中国70年的空间政治经济学（总结）",
+      "chapter_title": "发展与平衡的新时代——新中国70年的空间政治经济学"
+    },
+    "model_name": "deepseek-chat",
+    "api_base": "https://api.deepseek.com"
+  },
+  {
+    "main_skill_id": "main_skill_014",
+    "section_id": "195d2a2a-eda7-4167-8f23-093cca35d300",
+    "section_title": "面向长期、全局、多维的发展：中国道路的政治经济学",
+    "name": "理想参照系与制度障碍诊断法",
+    "file_name": "main_skill_014_面向长期、全局、多维的发展：中国道路的政治经济学.md",
+    "markdown": "---\nname: \"理想参照系与制度障碍诊断法\"\ntype: \"main_skill\"\ndescription: \"通过构建一个理想化的分析框架作为参照系，然后对比现实制度安排，识别出导致结构失衡的制度障碍，最后论证通过消除这些障碍来释放结构性红利的转型路径。\"\nsection_id: \"195d2a2a-eda7-4167-8f23-093cca35d300\"\nmain_skill_id: \"main_skill_014\"\nperspective: \"Institutional Analysis\"\nperspective_notes: \"章节始终从制度分析视角出发，聚焦于制度安排如何塑造经济结构和发展路径，视角高度稳定。\"\nnature: \"Mixed\"\nnature_notes: \"章节混合了规范性分析（构建理想框架）与实证分析（诊断现实制度障碍），两种性质交替出现，整体保持混合状态。\"\ntime_orientation: \"Historical Analysis\"\ntime_orientation_notes: \"章节通过历史追溯来解释当前体制的成因，同时指向未来的转型路径，时间取向以历史分析为主导，并隐含未来导向。\"\nsystem_scope: \"Open System\"\nsystem_scope_notes: \"章节将经济系统视为开放系统，通过国际比较和概念澄清来重新定义分析单元（如都市圈），系统边界动态调整。\"\nequilibrium_view: \"Disequilibrium Analysis\"\nequilibrium_view_notes: \"章节核心是诊断现实中的结构失衡和资源错配，并论证通过改革恢复均衡，非均衡分析贯穿始终。\"\nlogic:\n  - \"Comparative Reasoning\"\n  - \"Causal Reasoning\"\n  - \"Constraint-Based Reasoning\"\nlogic_notes: \"逻辑类型在章节内有所变化：从概念分类与历史推理（chunk7）转向比较、因果与约束推理（chunk8），但比较推理和因果推理是贯穿两个chunk的主导逻辑。\"\n---\n\n# Skill Summary\n\n通过构建一个理想化的分析框架作为参照系，然后对比现实制度安排，识别出导致结构失衡的制度障碍，最后论证通过消除这些障碍来释放结构性红利的转型路径。\n\n# When to Use\n\n适用于分析复杂社会经济系统中，理想目标与现实制度之间的差距，并找出关键制度瓶颈。使用该方法时，首先需要明确一个长期、全局、多维的理想发展框架；然后，将现实中的制度安排（如户籍、土地、金融）与该框架进行对比，识别出导致资源错配和结构失衡的具体障碍；最后，论证消除这些障碍（如发展都市圈）如何释放结构性红利，推动系统向理想状态转型。\n\n# Method Program\n\n首先构建一个长期、全局、多维的理想化分析框架作为评估基准；然后，将现实中的具体制度安排（如户籍、土地、金融）与该理想框架进行对比，识别出导致资源错配和结构失衡的关键制度障碍；最后，论证通过消除这些障碍（例如发展都市圈）来释放结构性红利，并指明实现经济转型的具体路径。\n\n# Execution Skeleton\n\n1. 构建一个长期、全局、多维的理想化分析框架作为参照系。\n2. 将现实中的具体制度安排与理想框架进行对比分析。\n3. 识别并归纳导致现实偏离理想状态的制度障碍与结构性失衡。\n4. 论证消除关键制度障碍如何释放结构性红利，并指明转型路径。\n\n# Pattern Flow\n\n首先，建立一个理想化的参照系，该参照系应具备长期性、全局性和多维性特征。 -> 然后，将现实中的具体制度（如户籍、土地、金融）与该参照系进行系统性对比。 -> 接着，通过对比，识别出导致资源错配和结构失衡的关键制度障碍。 -> 最后，论证通过改革这些制度障碍（例如发展都市圈）来释放结构性红利，并指明实现经济转型的具体路径。\n\n# Usage Instructions\n\n当你使用这个技能回答问题时：\n\n- 将 Method Program 作为主推理路径。\n- 按照 Execution Skeleton 组织论证推进。\n- 第一步用于建立评价或概念基线。\n- 中间步骤用于追踪演化、识别矛盾并诊断内部失效机制。\n- 最后一步用于把内部机制与具体历史/系统结果连接起来。\n- 不要只复述事件，要解释系统如何在自身演化中走向转折或危机。\n- 如需细化某一步，请调用对应 sub-skill。\n\n# Output Guidance\n\n你的回答应当：\n\n- 把问题解释为系统内生过程，而非外生偶发事件\n- 保持历史与因果链条的连续性\n- 强调初始原则与后续结果之间的反差\n- 说明先前成功所累积的内部矛盾如何推动危机、逆转或转型",
+    "document_id": "b2f2de67-627e-48ed-bda9-dacb9941a207",
+    "book_title": "2022陆铭《学术月刊》：面向长期、全局、多维的发展：中国道路的政治经济学（总结）",
+    "chapter_title": "面向长期、全局、多维的发展：中国道路的政治经济学",
+    "source_context": {
+      "document_id": "b2f2de67-627e-48ed-bda9-dacb9941a207",
+      "book_title": "2022陆铭《学术月刊》：面向长期、全局、多维的发展：中国道路的政治经济学（总结）",
+      "chapter_title": "面向长期、全局、多维的发展：中国道路的政治经济学"
+    },
+    "model_name": "deepseek-chat",
+    "api_base": "https://api.deepseek.com"
+  },
+  {
+    "main_skill_id": "main_skill_015",
+    "section_id": "a7452baf-903b-4c73-98f0-3712b690b019",
+    "section_title": "再辩大城市：消费中心城市的视角",
+    "name": "计量经济学实证检验与机制分析",
+    "file_name": "main_skill_015_再辩大城市：消费中心城市的视角.md",
+    "markdown": "---\nname: \"计量经济学实证检验与机制分析\"\ntype: \"main_skill\"\ndescription: \"通过构建计量经济学模型，利用面板数据，从宏观与微观层面实证检验核心变量之间的因果关系，并进一步分析调节效应与中介机制路径。\"\nsection_id: \"a7452baf-903b-4c73-98f0-3712b690b019\"\nmain_skill_id: \"main_skill_015\"\nperspective: \"Micro Analysis\"\nperspective_notes: \"章节以微观分析为主导，同时兼顾宏观层面的检验，但微观视角贯穿始终。\"\nnature: \"Positive\"\nnature_notes: \"整体保持实证分析的正向验证逻辑，未涉及批判或规范判断。\"\ntime_orientation: \"Static Analysis\"\ntime_orientation_notes: \"采用静态面板数据分析，未引入时间滞后或动态模型，时间维度为截面比较。\"\nsystem_scope: \"Open System\"\nsystem_scope_notes: \"模型设定中考虑了外部调节变量与中介变量，系统边界开放。\"\nequilibrium_view: \"Disequilibrium Analysis\"\nequilibrium_view_notes: \"关注变量间的非均衡因果关系与机制路径，而非均衡状态描述。\"\nlogic:\n  - \"Causal Reasoning\"\n  - \"Comparative Reasoning\"\n  - \"Constraint-Based Reasoning\"\nlogic_notes: \"以因果推理为核心，辅以宏观与微观层面的比较推理，以及调节变量带来的约束推理。\"\n---\n\n# Skill Summary\n\n通过构建计量经济学模型，利用面板数据，从宏观与微观层面实证检验核心变量之间的因果关系，并进一步分析调节效应与中介机制路径。\n\n# When to Use\n\n适用于需要验证变量间因果关系、识别调节变量或中介机制的研究问题。使用该方法时，首先构建包含核心解释变量与被解释变量的基准计量模型，然后引入调节变量检验交互效应，最后通过中介效应模型（如逐步回归或Bootstrap法）检验机制路径。\n\n# Method Program\n\n首先构建基准计量经济学模型，设定核心解释变量（如人口密度）与被解释变量（如服务业发展），并利用城市面板数据控制个体与时间固定效应进行回归估计。然后从宏观（城市层面）与微观（企业或家庭层面）两个层面分别检验核心效应，以验证结果的稳健性。接着引入调节变量（如劳动力流动障碍），通过构建交互项检验其对核心效应的调节作用。最后构建中介效应模型（如逐步回归或Bootstrap法），检验核心变量通过中介变量（如家庭消费）影响被解释变量的机制路径，从而完整揭示因果关系链条。\n\n# Execution Skeleton\n\n1. 构建基准计量经济学模型，设定核心解释变量与被解释变量。\n2. 利用面板数据进行回归估计，控制个体与时间固定效应。\n3. 从宏观与微观两个层面分别检验核心效应。\n4. 引入调节变量（如劳动力流动障碍）并构建交互项，检验调节效应。\n5. 构建中介效应模型（如逐步回归或Sobel检验），检验机制路径（如家庭消费）。\n\n# Pattern Flow\n\n首先构建包含核心解释变量与被解释变量的基准计量模型，并利用面板数据进行回归估计。 -> 然后从宏观与微观两个层面分别检验核心变量对被解释变量的影响。 -> 接着引入调节变量，通过交互项检验其对核心效应的调节作用。 -> 最后构建中介效应模型，检验核心变量通过中介变量影响被解释变量的机制路径。\n\n# Usage Instructions\n\n当你使用这个技能回答问题时：\n\n- 将 Method Program 作为主推理路径。\n- 按照 Execution Skeleton 组织论证推进。\n- 第一步用于建立评价或概念基线。\n- 中间步骤用于追踪演化、识别矛盾并诊断内部失效机制。\n- 最后一步用于把内部机制与具体历史/系统结果连接起来。\n- 不要只复述事件，要解释系统如何在自身演化中走向转折或危机。\n- 如需细化某一步，请调用对应 sub-skill。\n\n# Output Guidance\n\n你的回答应当：\n\n- 把问题解释为系统内生过程，而非外生偶发事件\n- 保持历史与因果链条的连续性\n- 强调初始原则与后续结果之间的反差\n- 说明先前成功所累积的内部矛盾如何推动危机、逆转或转型",
+    "document_id": "bdcca8fd-4af0-4745-90fd-4669fb3e9ae5",
+    "book_title": "2022陆铭、彭冲《中山大学学报》：再辩大城市：消费中心城市的视角_陆铭",
+    "chapter_title": "再辩大城市：消费中心城市的视角",
+    "source_context": {
+      "document_id": "bdcca8fd-4af0-4745-90fd-4669fb3e9ae5",
+      "book_title": "2022陆铭、彭冲《中山大学学报》：再辩大城市：消费中心城市的视角_陆铭",
+      "chapter_title": "再辩大城市：消费中心城市的视角"
+    },
+    "model_name": "deepseek-chat",
+    "api_base": "https://api.deepseek.com"
+  },
+  {
+    "main_skill_id": "main_skill_016",
+    "section_id": "0006890f-ad25-4803-a1e0-14698cb09d2e",
+    "section_title": "集聚与服务业发展——基于人口空间分布的视角",
+    "name": "因果识别与扭曲效应量化法",
+    "file_name": "main_skill_016_集聚与服务业发展——基于人口空间分布的视角.md",
+    "markdown": "---\nname: \"因果识别与扭曲效应量化法\"\ntype: \"main_skill\"\ndescription: \"通过计量回归建立因果关系，并利用工具变量解决内生性问题，最终量化制度约束造成的扭曲效应。\"\nsection_id: \"0006890f-ad25-4803-a1e0-14698cb09d2e\"\nmain_skill_id: \"main_skill_016\"\nperspective: \"Micro Analysis\"\nperspective_notes: \"章节聚焦于微观层面的因果效应识别与量化，信号稳定。\"\nnature: \"Positive\"\nnature_notes: \"章节采用实证分析方法，描述客观事实与因果关系，信号稳定。\"\ntime_orientation: \"Dynamic Analysis\"\ntime_orientation_notes: \"章节关注变量间的动态因果效应，信号稳定。\"\nsystem_scope: \"Open System\"\nsystem_scope_notes: \"章节考虑外部制度约束对系统的影响，信号稳定。\"\nequilibrium_view: \"Disequilibrium Analysis\"\nequilibrium_view_notes: \"章节关注制度约束导致的扭曲效应，隐含非均衡视角，信号稳定。\"\nlogic:\n  - \"Causal Reasoning\"\n  - \"Constraint-Based Reasoning\"\n  - \"Comparative Reasoning\"\nlogic_notes: \"章节以因果推理为核心，结合约束推理和比较推理，信号稳定。\"\n---\n\n# Skill Summary\n\n通过计量回归建立因果关系，并利用工具变量解决内生性问题，最终量化制度约束造成的扭曲效应。\n\n# When to Use\n\n适用于需要检验某一变量（如人口密度）对另一变量（如服务业发展）的因果效应，并评估制度性约束所导致的效率损失或扭曲程度的问题。使用该方法时，首先通过回归建立初步关联，然后使用工具变量处理内生性以识别因果，最后结合制度约束估算扭曲效应。\n\n# Method Program\n\n首先建立计量回归模型，检验核心变量之间的统计关联；然后识别并处理内生性问题，选择有效的工具变量进行因果识别；接着引入制度约束变量，构建包含约束的扩展模型；最后估算制度约束导致的扭曲效应大小。\n\n# Execution Skeleton\n\n1. 建立计量回归模型，检验核心变量之间的统计关联。\n2. 识别并处理内生性问题，选择有效的工具变量。\n3. 引入制度约束变量，构建包含约束的扩展模型。\n4. 估算制度约束导致的扭曲效应大小。\n\n# Pattern Flow\n\n首先建立计量回归模型，检验核心变量之间的统计关联。 -> 然后识别并处理内生性问题，选择有效的工具变量进行因果识别。 -> 接着引入制度约束变量，构建包含约束的扩展模型。 -> 最后估算制度约束导致的扭曲效应大小。\n\n# Usage Instructions\n\n当你使用这个技能回答问题时：\n\n- 将 Method Program 作为主推理路径。\n- 按照 Execution Skeleton 组织论证推进。\n- 第一步用于建立评价或概念基线。\n- 中间步骤用于追踪演化、识别矛盾并诊断内部失效机制。\n- 最后一步用于把内部机制与具体历史/系统结果连接起来。\n- 不要只复述事件，要解释系统如何在自身演化中走向转折或危机。\n- 如需细化某一步，请调用对应 sub-skill。\n\n# Output Guidance\n\n你的回答应当：\n\n- 把问题解释为系统内生过程，而非外生偶发事件\n- 保持历史与因果链条的连续性\n- 强调初始原则与后续结果之间的反差\n- 说明先前成功所累积的内部矛盾如何推动危机、逆转或转型",
+    "document_id": "c4819dbf-3c02-44da-b1a1-38aa713dfe91",
+    "book_title": "2020钟粤俊、陆铭《管理世界》：集聚与服务业发展_基于人口空间分布的视角",
+    "chapter_title": "集聚与服务业发展——基于人口空间分布的视角",
+    "source_context": {
+      "document_id": "c4819dbf-3c02-44da-b1a1-38aa713dfe91",
+      "book_title": "2020钟粤俊、陆铭《管理世界》：集聚与服务业发展_基于人口空间分布的视角",
+      "chapter_title": "集聚与服务业发展——基于人口空间分布的视角"
+    },
+    "model_name": "deepseek-chat",
+    "api_base": "https://api.deepseek.com"
+  },
+  {
+    "main_skill_id": "main_skill_017",
+    "section_id": "e4c9e1d5-340c-4ec2-9ec3-4780b19f81a7",
+    "section_title": "农村公共品提供: 社会与政府的互补机制",
+    "name": "因果识别与稳健性验证的实证方法",
+    "file_name": "main_skill_017_农村公共品提供__社会与政府的互补机制.md",
+    "markdown": "---\nname: \"因果识别与稳健性验证的实证方法\"\ntype: \"main_skill\"\ndescription: \"通过构建计量模型，结合理论假说与实证数据，系统性地识别因果关系，并通过多种稳健性检验和机制分析验证结论的可靠性。\"\nsection_id: \"e4c9e1d5-340c-4ec2-9ec3-4780b19f81a7\"\nmain_skill_id: \"main_skill_017\"\nperspective: \"Micro Analysis\"\nperspective_notes: \"章节始终聚焦于微观层面的个体或群体行为分析，未出现宏观视角的切换。\"\nnature: \"Positive\"\nnature_notes: \"全程保持实证分析导向，基于数据事实进行因果推断，未引入规范性判断。\"\ntime_orientation: \"Static Analysis\"\ntime_orientation_notes: \"从历史分析转向静态截面分析，最终稳定在静态分析框架下。\"\nsystem_scope: \"Closed System\"\nsystem_scope_notes: \"从开放系统假设逐步收敛到封闭系统假设，通过控制变量和工具变量隔离外部干扰。\"\nequilibrium_view: \"Process Analysis\"\nequilibrium_view_notes: \"从过程分析转向均衡分析，最终以均衡分析为主导，关注因果关系的稳定状态。\"\nlogic:\n  - \"Causal Reasoning\"\n  - \"Comparative Reasoning\"\n  - \"Conceptual Classification Reasoning\"\nlogic_notes: \"因果推理贯穿始终，比较推理用于异质性分析，概念分类推理在稳健性检验中通过变量替换和交互效应体现。\"\n---\n\n# Skill Summary\n\n通过构建计量模型，结合理论假说与实证数据，系统性地识别因果关系，并通过多种稳健性检验和机制分析验证结论的可靠性。\n\n# When to Use\n\n适用于需要从观测数据中推断因果关系并验证其稳健性的社会科学研究问题。使用该方法时，首先提出基于理论的可检验假说，然后构建包含核心解释变量、控制变量和工具变量的计量模型，通过逐步回归、异质性分析（如城乡差异）、机制检验（如中介效应）和多种稳健性检验（如更换变量、交互效应分析）来逐步确认因果路径的成立条件与边界。\n\n# Method Program\n\n首先提出基于理论的可检验假说，并构建包含核心解释变量、控制变量和工具变量的计量模型；然后使用截面数据执行OLS回归和工具变量2SLS估计，获得基准因果效应；接着通过逐步加入控制变量和进行城乡差异等异质性分析，检验因果关系的稳健性与条件性；随后进行机制检验，验证理论逻辑中的中介路径或调节效应是否成立；最后通过更换核心解释变量或引入交互效应，进一步确认因果关系的稳健性和边界条件。\n\n# Execution Skeleton\n\n1. 提出理论假说并构建计量模型\n2. 使用OLS回归和工具变量2SLS估计进行基准回归\n3. 通过逐步加入控制变量和异质性分析检验因果关系的稳定性\n4. 进行机制检验以验证理论逻辑链条\n5. 通过更换核心变量或引入交互效应进行稳健性检验\n\n# Pattern Flow\n\n首先基于理论提出可检验的因果假说，并构建包含核心解释变量、控制变量和工具变量的计量模型。 -> 然后使用截面数据执行OLS回归和工具变量2SLS估计，获得基准因果效应估计。 -> 接着通过逐步加入控制变量和进行城乡差异等异质性分析，检验因果关系的稳健性与条件性。 -> 随后进行机制检验，验证理论逻辑中的中介路径或调节效应是否成立。 -> 最后通过更换核心解释变量（如姓氏集中度）或引入交互效应，进一步确认因果关系的稳健性和边界条件。\n\n# Usage Instructions\n\n当你使用这个技能回答问题时：\n\n- 将 Method Program 作为主推理路径。\n- 按照 Execution Skeleton 组织论证推进。\n- 第一步用于建立评价或概念基线。\n- 中间步骤用于追踪演化、识别矛盾并诊断内部失效机制。\n- 最后一步用于把内部机制与具体历史/系统结果连接起来。\n- 不要只复述事件，要解释系统如何在自身演化中走向转折或危机。\n- 如需细化某一步，请调用对应 sub-skill。\n\n# Output Guidance\n\n你的回答应当：\n\n- 把问题解释为系统内生过程，而非外生偶发事件\n- 保持历史与因果链条的连续性\n- 强调初始原则与后续结果之间的反差\n- 说明先前成功所累积的内部矛盾如何推动危机、逆转或转型",
+    "document_id": "02670601-ab28-4c6b-8288-dc5a7bc79ff5",
+    "book_title": "2020陆铭《经济研究》：农村公共品提供_社会与政府的互补机制",
+    "chapter_title": "农村公共品提供: 社会与政府的互补机制",
+    "source_context": {
+      "document_id": "02670601-ab28-4c6b-8288-dc5a7bc79ff5",
+      "book_title": "2020陆铭《经济研究》：农村公共品提供_社会与政府的互补机制",
+      "chapter_title": "农村公共品提供: 社会与政府的互补机制"
+    },
+    "model_name": "deepseek-chat",
+    "api_base": "https://api.deepseek.com"
+  },
+  {
+    "main_skill_id": "main_skill_018",
+    "section_id": "72ae6b66-ebf8-4f8e-ab98-30e9db279663",
+    "section_title": "从新城看治理: 增长目标短期化下的建城热潮及后果",
+    "name": "因果机制实证检验与异质性分析流程",
+    "file_name": "main_skill_018_从新城看治理__增长目标短期化下的建城热潮及后果.md",
+    "markdown": "---\nname: \"因果机制实证检验与异质性分析流程\"\ntype: \"main_skill\"\ndescription: \"一种基于计量经济学的实证研究方法，通过构建模型、处理内生性、检验因果机制和进行异质性分析，最终得出具有政策含义的结论。该方法强调从理论假说到实证验证的完整闭环，并注重在不同条件下效应的差异。\"\nsection_id: \"72ae6b66-ebf8-4f8e-ab98-30e9db279663\"\nmain_skill_id: \"main_skill_018\"\nperspective: \"Institutional Analysis\"\nperspective_notes: \"从制度分析视角出发，但在具体操作中局部转向微观分析，整体以制度视角为主导。\"\nnature: \"Positive\"\nnature_notes: \"全程保持实证分析性质，无规范性判断介入，稳定性高。\"\ntime_orientation: \"Dynamic Analysis\"\ntime_orientation_notes: \"始终采用动态分析视角，关注随时间变化的因果过程，无静态分析出现。\"\nsystem_scope: \"Open System\"\nsystem_scope_notes: \"系统范围保持开放，考虑外部因素和内生性影响，未出现封闭系统假设。\"\nequilibrium_view: \"Process Analysis\"\nequilibrium_view_notes: \"从非均衡分析过渡到过程分析，强调因果机制的动态演进而非均衡状态。\"\nlogic:\n  - \"Causal Reasoning\"\n  - \"Comparative Reasoning\"\nlogic_notes: \"因果推理和比较推理贯穿始终，局部引入概念分类推理，但前两者为主导逻辑。\"\n---\n\n# Skill Summary\n\n一种基于计量经济学的实证研究方法，通过构建模型、处理内生性、检验因果机制和进行异质性分析，最终得出具有政策含义的结论。该方法强调从理论假说到实证验证的完整闭环，并注重在不同条件下效应的差异。\n\n# When to Use\n\n适用于需要验证因果关系、评估政策效果或解释经济现象的定量研究问题。使用该方法时，首先提出可检验的理论假说，然后构建计量模型并处理内生性问题（如使用工具变量），接着通过分步检验确认因果机制，再进行异质性分析以揭示不同子群体或条件下的效应差异，最后基于实证结果提出具体的政策建议。\n\n# Method Program\n\n首先提出理论假说并构建计量模型；然后通过工具变量等方法处理内生性以确保因果识别的有效性；接着分步检验因果机制，验证影响路径；随后进行异质性分析，揭示不同条件下的效应差异；最后基于实证结果得出结论并提炼政策建议。\n\n# Execution Skeleton\n\n1. 提出理论假说并构建计量模型\n2. 处理内生性问题（如使用工具变量）\n3. 分步检验因果机制\n4. 进行异质性分析以揭示条件差异\n5. 得出结论并提炼政策建议\n\n# Pattern Flow\n\n首先提出一个可检验的理论假说，并基于该假说构建相应的计量经济模型。 -> 然后识别并处理模型中的内生性问题，例如通过引入工具变量来获得一致估计。 -> 接着分步检验因果机制，验证核心解释变量通过何种路径影响被解释变量。 -> 随后进行异质性分析，考察在不同子样本或条件下（如地区、时间、群体特征）效应是否存在显著差异。 -> 最后基于实证检验结果得出结论，并提炼出具有操作性的政策建议。\n\n# Usage Instructions\n\n当你使用这个技能回答问题时：\n\n- 将 Method Program 作为主推理路径。\n- 按照 Execution Skeleton 组织论证推进。\n- 第一步用于建立评价或概念基线。\n- 中间步骤用于追踪演化、识别矛盾并诊断内部失效机制。\n- 最后一步用于把内部机制与具体历史/系统结果连接起来。\n- 不要只复述事件，要解释系统如何在自身演化中走向转折或危机。\n- 如需细化某一步，请调用对应 sub-skill。\n\n# Output Guidance\n\n你的回答应当：\n\n- 把问题解释为系统内生过程，而非外生偶发事件\n- 保持历史与因果链条的连续性\n- 强调初始原则与后续结果之间的反差\n- 说明先前成功所累积的内部矛盾如何推动危机、逆转或转型",
+    "document_id": "2216f603-2531-4f0b-96d3-ff87f6e19d3b",
+    "book_title": "2019彭冲、陆铭《管理世界》：从新城看治理_增长目标短期化下的建城热潮及后果_彭冲",
+    "chapter_title": "从新城看治理: 增长目标短期化下的建城热潮及后果",
+    "source_context": {
+      "document_id": "2216f603-2531-4f0b-96d3-ff87f6e19d3b",
+      "book_title": "2019彭冲、陆铭《管理世界》：从新城看治理_增长目标短期化下的建城热潮及后果_彭冲",
+      "chapter_title": "从新城看治理: 增长目标短期化下的建城热潮及后果"
+    },
+    "model_name": "deepseek-chat",
+    "api_base": "https://api.deepseek.com"
+  },
+  {
+    "main_skill_id": "main_skill_019",
+    "section_id": "c724085d-9e11-46c0-ae13-3e769fa98828",
+    "section_title": "早进城的回报:农村移民的城市经历和就业表现",
+    "name": "因果识别与异质性机制检验法",
+    "file_name": "main_skill_019_早进城的回报_农村移民的城市经历和就业表现.md",
+    "markdown": "---\nname: \"因果识别与异质性机制检验法\"\ntype: \"main_skill\"\ndescription: \"通过构建计量经济学模型，利用工具变量解决内生性问题，并结合分组回归与异质性分析，检验因果效应的稳健性及其作用机制。\"\nsection_id: \"c724085d-9e11-46c0-ae13-3e769fa98828\"\nmain_skill_id: \"main_skill_019\"\nperspective: \"Micro Analysis\"\nperspective_notes: \"全章聚焦于微观层面的因果识别与机制检验，未出现宏观或中观视角的切换。\"\nnature: \"Mixed\"\nnature_notes: \"方法上结合了理论框架（定性）与计量模型（定量），属于混合性质，且在整个章节中保持稳定。\"\ntime_orientation: \"Dynamic Analysis\"\ntime_orientation_notes: \"通过工具变量（历史气候数据）和动态模型设定（如滞后变量）处理时间维度上的因果识别问题，动态分析贯穿始终。\"\nsystem_scope: \"Open System\"\nsystem_scope_notes: \"模型设定中考虑了外部工具变量和空间均衡理论，表明系统边界是开放的，且这一设定在章节内保持稳定。\"\nequilibrium_view: \"Disequilibrium Analysis\"\nequilibrium_view_notes: \"核心关注因果效应的非均衡特征（如异质性、内生性调整），而非稳态均衡，这一视角在章节内持续主导。\"\nlogic:\n  - \"Causal Reasoning\"\n  - \"Comparative Reasoning\"\n  - \"Constraint-Based Reasoning\"\nlogic_notes: \"因果推理（IV识别）为主导逻辑，比较推理（分组异质性分析）和约束推理（工具变量有效性条件）作为辅助逻辑，三者协同贯穿全章。\"\n---\n\n# Skill Summary\n\n通过构建计量经济学模型，利用工具变量解决内生性问题，并结合分组回归与异质性分析，检验因果效应的稳健性及其作用机制。\n\n# When to Use\n\n适用于需要从观测数据中识别因果关系并探索其异质性机制的研究问题。使用该方法时，首先需构建基准回归模型，然后寻找或构造有效的工具变量以处理内生性，接着通过分组回归或交互项分析检验因果效应在不同子群体或条件下的差异，最后结合理论框架对结果进行解释与政策讨论。\n\n# Method Program\n\n首先构建基准OLS模型估计平均因果效应，然后利用工具变量（如春季旱涝等级）通过IV回归解决内生性问题，接着通过分组回归或交互项分析检验因果效应的异质性，再通过多种稳健性检验（如更换样本、变量或模型）确认结果的可靠性，最后结合理论框架（如黄金律、空间均衡）对机制进行解释并推导政策含义。\n\n# Execution Skeleton\n\n1. 构建基准计量模型（如OLS）以估计初步因果效应\n2. 引入工具变量（如历史气候数据）解决内生性问题，进行IV估计\n3. 通过分组回归或交互项分析，检验因果效应的异质性\n4. 进行稳健性检验（如更换样本、变量或模型设定）\n5. 结合理论框架（如黄金律、空间均衡）对结果进行机制解释与政策讨论\n\n# Pattern Flow\n\n首先，构建基准回归模型（如OLS），估计核心解释变量对被解释变量的平均效应。 -> 然后，识别并引入有效的工具变量（如春季旱涝等级），通过两阶段最小二乘法（2SLS）解决潜在的内生性问题。 -> 接着，进行分组回归或引入交互项，检验因果效应在不同子样本（如不同地区、时期或群体）中的异质性。 -> 之后，通过更换模型设定、样本范围或变量度量方式，进行一系列稳健性检验以确认结果的可靠性。 -> 最后，将实证结果置于理论框架（如黄金律、空间均衡模型）中进行机制阐释，并推导出相应的政策含义。\n\n# Usage Instructions\n\n当你使用这个技能回答问题时：\n\n- 将 Method Program 作为主推理路径。\n- 按照 Execution Skeleton 组织论证推进。\n- 第一步用于建立评价或概念基线。\n- 中间步骤用于追踪演化、识别矛盾并诊断内部失效机制。\n- 最后一步用于把内部机制与具体历史/系统结果连接起来。\n- 不要只复述事件，要解释系统如何在自身演化中走向转折或危机。\n- 如需细化某一步，请调用对应 sub-skill。\n\n# Output Guidance\n\n你的回答应当：\n\n- 把问题解释为系统内生过程，而非外生偶发事件\n- 保持历史与因果链条的连续性\n- 强调初始原则与后续结果之间的反差\n- 说明先前成功所累积的内部矛盾如何推动危机、逆转或转型",
+    "document_id": "95a2e054-bac2-4b1c-834c-7c910df411b6",
+    "book_title": "2021魏东霞、陆铭《经济研究》：早进城的回报：农村移民的城市经历和就业表现",
+    "chapter_title": "早进城的回报:农村移民的城市经历和就业表现",
+    "source_context": {
+      "document_id": "95a2e054-bac2-4b1c-834c-7c910df411b6",
+      "book_title": "2021魏东霞、陆铭《经济研究》：早进城的回报：农村移民的城市经历和就业表现",
+      "chapter_title": "早进城的回报:农村移民的城市经历和就业表现"
+    },
+    "model_name": "deepseek-chat",
+    "api_base": "https://api.deepseek.com"
+  },
+  {
+    "main_skill_id": "main_skill_020",
+    "section_id": "dbb78f77-c718-431d-871c-6a3650b9bb09",
+    "section_title": "诊断中国经济：结构转型下的增长与波动",
+    "name": "理想参照系比较评估法",
+    "file_name": "main_skill_020_诊断中国经济：结构转型下的增长与波动.md",
+    "markdown": "---\nname: \"理想参照系比较评估法\"\ntype: \"main_skill\"\ndescription: \"通过构建一个理想化的、多目标最优的参照系，作为评估和比较多个竞争性理论的统一标准，从而揭示各理论的局限性并指引更优的理论构建方向。\"\nsection_id: \"dbb78f77-c718-431d-871c-6a3650b9bb09\"\nmain_skill_id: \"main_skill_020\"\nperspective: \"Macro Analysis\"\nperspective_notes: \"章节始终从宏观视角出发，构建全局性的参照系并评估理论，未涉及微观层面的具体操作或个体行为。\"\nnature: \"Normative\"\nnature_notes: \"章节核心是建立一个“应然”的理想标准（最优参照系），并以此评判现有理论的“实然”状态，规范性贯穿始终。\"\ntime_orientation: \"Static Analysis\"\ntime_orientation_notes: \"方法聚焦于在某一理想化的静态参照系下进行理论比较，不涉及时间序列上的动态演变或过程分析。\"\nsystem_scope: \"Closed System\"\nsystem_scope_notes: \"分析框架基于一个封闭的、自洽的理想参照系，所有比较和评估均在此系统内部进行，未考虑外部环境或开放系统的影响。\"\nequilibrium_view: \"Equilibrium Analysis\"\nequilibrium_view_notes: \"方法以“多目标最优”的均衡状态作为参照系，通过衡量各理论偏离该均衡点的程度来进行评估，属于均衡分析范式。\"\nlogic:\n  - \"Conceptual Classification Reasoning\"\n  - \"Comparative Reasoning\"\nlogic_notes: \"逻辑推理以概念分类（构建理想参照系）和比较推理（逐一对比理论与参照系）为主导，两者紧密结合，共同推进评估过程。\"\n---\n\n# Skill Summary\n\n通过构建一个理想化的、多目标最优的参照系，作为评估和比较多个竞争性理论的统一标准，从而揭示各理论的局限性并指引更优的理论构建方向。\n\n# When to Use\n\n适用于需要评估和比较多个竞争性理论或方案优劣的场景。使用该方法时，首先需要明确并构建一个理想化的、涵盖所有关键目标的参照系，然后将每个待评估的理论或方案与该参照系进行逐维度比较，量化其偏离程度，最后根据偏离情况判断各理论的局限性，并指出向理想参照系趋近的改进方向。\n\n# Method Program\n\n首先构建一个理想化的、代表长期全局多目标最优的参照系，以此作为评估的绝对标准。然后，将每一个待评估的竞争性理论逐一与该参照系进行系统比较，识别并量化其在各个关键维度上的偏离程度。基于这些偏离，揭示每个理论固有的局限性。最后，综合所有比较结果，推导并指向一个能够克服这些局限、更趋近于理想参照系的更优理论构建方向。\n\n# Execution Skeleton\n\n1. 构建一个理想化的、长期的、全局的、多目标最优的参照系\n2. 将参照系作为评估标准\n3. 逐一比较多个竞争性理论或方案与参照系的差异\n4. 指出每个理论偏离参照系的维度与程度\n5. 揭示各理论的局限性\n6. 指向一个更优的理论构建方向\n\n# Pattern Flow\n\n首先，构建一个理想化的参照系，该参照系应代表长期的、全局的、多目标最优的状态。 -> 然后，将此参照系确立为评估所有竞争性理论的统一基准。 -> 接着，对每一个竞争性理论，系统地将其与参照系进行对比，识别其在哪些维度上存在偏离以及偏离的程度。 -> 基于比较结果，明确指出每个理论因偏离参照系而产生的具体局限性。 -> 最后，综合所有比较结果，指明一个能够更接近或实现该理想参照系的理论构建方向。\n\n# Usage Instructions\n\n当你使用这个技能回答问题时：\n\n- 将 Method Program 作为主推理路径。\n- 按照 Execution Skeleton 组织论证推进。\n- 第一步用于建立评价或概念基线。\n- 中间步骤用于追踪演化、识别矛盾并诊断内部失效机制。\n- 最后一步用于把内部机制与具体历史/系统结果连接起来。\n- 不要只复述事件，要解释系统如何在自身演化中走向转折或危机。\n- 如需细化某一步，请调用对应 sub-skill。\n\n# Output Guidance\n\n你的回答应当：\n\n- 把问题解释为系统内生过程，而非外生偶发事件\n- 保持历史与因果链条的连续性\n- 强调初始原则与后续结果之间的反差\n- 说明先前成功所累积的内部矛盾如何推动危机、逆转或转型",
+    "document_id": "a4d27f85-97db-4763-86d3-153286636acb",
+    "book_title": "2020陆铭《国际经济评论》：诊断中国经济：结构转型下的增长与波动_陆铭",
+    "chapter_title": "诊断中国经济：结构转型下的增长与波动",
+    "source_context": {
+      "document_id": "a4d27f85-97db-4763-86d3-153286636acb",
+      "book_title": "2020陆铭《国际经济评论》：诊断中国经济：结构转型下的增长与波动_陆铭",
+      "chapter_title": "诊断中国经济：结构转型下的增长与波动"
+    },
+    "model_name": "deepseek-chat",
+    "api_base": "https://api.deepseek.com"
+  },
+  {
+    "main_skill_id": "main_skill_021",
+    "section_id": "707dd5ce-5053-4d30-8e87-6ba5212db610",
+    "section_title": "从分散到集聚：农村城镇化的理论、误区与改革",
+    "name": "制度障碍诊断与空间均衡重构法",
+    "file_name": "main_skill_021_从分散到集聚：农村城镇化的理论、误区与改革.md",
+    "markdown": "---\nname: \"制度障碍诊断与空间均衡重构法\"\ntype: \"main_skill\"\ndescription: \"通过识别并分析具体制度障碍如何导致系统性的空间错配与资源浪费，进而基于空间均衡与比较优势原则提出政策重构方案。\"\nsection_id: \"707dd5ce-5053-4d30-8e87-6ba5212db610\"\nmain_skill_id: \"main_skill_021\"\nperspective: \"Institutional Analysis\"\nperspective_notes: \"章节始终从制度视角出发，分析制度障碍如何导致资源配置问题，视角高度一致。\"\nnature: \"Mixed\"\nnature_notes: \"章节结合了理论澄清（规范性）与制度障碍分析（实证性），呈现混合性质。\"\ntime_orientation: \"Dynamic Analysis\"\ntime_orientation_notes: \"分析聚焦于制度约束如何动态地引发空间错配与资源浪费，强调过程与变化。\"\nsystem_scope: \"Open System\"\nsystem_scope_notes: \"分析将城乡规划、财政制度等视为相互关联的开放系统组成部分，并考虑其与空间均衡的互动。\"\nequilibrium_view: \"Disequilibrium Analysis\"\nequilibrium_view_notes: \"核心在于识别制度障碍导致的非均衡状态（空间错配与资源浪费），并以此作为政策干预的起点。\"\nlogic:\n  - \"Constraint-Based Reasoning\"\n  - \"Causal Reasoning\"\n  - \"Comparative Reasoning\"\nlogic_notes: \"以约束推理识别制度障碍，以因果推理连接制度与错配结果，并通过比较不同制度安排下的效率差异来支撑政策建议。\"\n---\n\n# Skill Summary\n\n通过识别并分析具体制度障碍如何导致系统性的空间错配与资源浪费，进而基于空间均衡与比较优势原则提出政策重构方案。\n\n# When to Use\n\n适用于分析由制度性约束引发的资源配置失衡问题。使用该方法时，首先需从理论层面澄清关于该问题的常见认识误区，确立分析基准；然后系统性地列举并分析导致问题的具体制度障碍，阐明其如何通过约束行为或扭曲信号来引发空间错配与资源浪费；最后，基于空间均衡与比较优势等理论原则，提出针对性的政策调整建议，以恢复系统效率。\n\n# Method Program\n\n首先从理论出发澄清认识误区，确立分析基准；然后系统列举并分析城乡规划、建设用地指标、宅基地制度、财政制度等具体制度障碍，阐明其如何通过约束行为或扭曲信号引发空间错配与资源浪费；最后基于空间均衡与比较优势原则，提出政策调整建议以恢复系统效率。\n\n# Execution Skeleton\n\n1. 从理论出发，澄清关于问题的认识误区，建立分析框架\n2. 系统列举并分析导致问题的具体制度障碍\n3. 阐明制度障碍如何通过约束行为或扭曲信号引发空间错配与资源浪费\n4. 基于空间均衡与比较优势原则，提出政策调整建议\n\n# Pattern Flow\n\n首先从理论层面澄清关于该问题的常见认识误区，确立分析基准。 -> 然后系统性地列举并分析导致问题的具体制度障碍，如城乡规划、建设用地指标、宅基地制度、财政制度等。 -> 接着阐明这些制度障碍如何通过约束行为或扭曲信号，引发空间错配与资源浪费。 -> 最后，基于空间均衡与比较优势等理论原则，提出针对性的政策调整建议，以恢复系统效率。\n\n# Usage Instructions\n\n当你使用这个技能回答问题时：\n\n- 将 Method Program 作为主推理路径。\n- 按照 Execution Skeleton 组织论证推进。\n- 第一步用于建立评价或概念基线。\n- 中间步骤用于追踪演化、识别矛盾并诊断内部失效机制。\n- 最后一步用于把内部机制与具体历史/系统结果连接起来。\n- 不要只复述事件，要解释系统如何在自身演化中走向转折或危机。\n- 如需细化某一步，请调用对应 sub-skill。\n\n# Output Guidance\n\n你的回答应当：\n\n- 把问题解释为系统内生过程，而非外生偶发事件\n- 保持历史与因果链条的连续性\n- 强调初始原则与后续结果之间的反差\n- 说明先前成功所累积的内部矛盾如何推动危机、逆转或转型",
+    "document_id": "c6231488-b097-49f7-8e1e-82b438aaa349",
+    "book_title": "2021陆铭《农业经济问题》：从分散到集聚：农村城镇化的理论、误区与改革（总结）",
+    "chapter_title": "从分散到集聚：农村城镇化的理论、误区与改革",
+    "source_context": {
+      "document_id": "c6231488-b097-49f7-8e1e-82b438aaa349",
+      "book_title": "2021陆铭《农业经济问题》：从分散到集聚：农村城镇化的理论、误区与改革（总结）",
+      "chapter_title": "从分散到集聚：农村城镇化的理论、误区与改革"
+    },
+    "model_name": "deepseek-chat",
+    "api_base": "https://api.deepseek.com"
+  },
+  {
+    "main_skill_id": "main_skill_022",
+    "section_id": "fee58028-549c-40b6-922f-f72a7e9a13a3",
+    "section_title": "城市人多添堵?——人口与通勤的实证研究和中美比较",
+    "name": "计量回归与多维解释法",
+    "file_name": "main_skill_022_城市人多添堵_——人口与通勤的实证研究和中美比较.md",
+    "markdown": "---\nname: \"计量回归与多维解释法\"\ntype: \"main_skill\"\ndescription: \"通过建立计量经济学回归模型，量化关键变量之间的关系，并利用系数估算与对比分析，揭示一个看似矛盾的现象背后的多重解释机制。\"\nsection_id: \"fee58028-549c-40b6-922f-f72a7e9a13a3\"\nmain_skill_id: \"main_skill_022\"\nperspective: \"Micro Analysis\"\nperspective_notes: \"章节始终聚焦于微观层面的个体通勤行为与城市人口规模的量化关系，未涉及宏观政策或制度分析。\"\nnature: \"Positive\"\nnature_notes: \"整体采用实证分析立场，基于计量回归结果进行事实性描述与因果推断，未包含价值判断或规范性建议。\"\ntime_orientation: \"Static Analysis\"\ntime_orientation_notes: \"基于截面数据或静态比较进行回归分析，关注特定时间点上的变量关系，未涉及时间序列或动态演化。\"\nsystem_scope: \"Closed System\"\nsystem_scope_notes: \"分析框架限定在通勤时间、人口规模、工资等少数可量化变量内，未考虑外部环境或政策干预等开放系统因素。\"\nequilibrium_view: \"Disequilibrium Analysis\"\nequilibrium_view_notes: \"核心论证围绕人口增长与通勤时间之间的非均衡关系展开，旨在解释为何预期均衡（人口增长导致通勤时间增加）未出现。\"\nlogic:\n  - \"Causal Reasoning\"\n  - \"Comparative Reasoning\"\nlogic_notes: \"以因果推理（回归系数解释因果关系）为主导，辅以对比推理（比较不同情境下的损失大小），两种逻辑交替使用。\"\n---\n\n# Skill Summary\n\n通过建立计量经济学回归模型，量化关键变量之间的关系，并利用系数估算与对比分析，揭示一个看似矛盾的现象背后的多重解释机制。\n\n# When to Use\n\n适用于需要量化分析变量间关系并解释复杂、反直觉现象的问题。使用该方法时，首先建立核心变量（如通勤时间）与解释变量（如人口规模）的回归模型，获取系数；然后通过对比不同情境下的估算结果（如人口增长与减少的损失），揭示主要矛盾；最后从多个维度（如拥堵、方式、距离）系统性地解释为何预期关系未成立。\n\n# Method Program\n\n首先建立计量经济学回归模型，确立通勤时间与人口规模等关键变量之间的函数关系；然后通过系数估算和对比计算，量化并对比人口增长带来的通勤损失与人口减少造成的工资损失，论证前者远小于后者；最后从拥堵、通勤方式、通勤距离三个维度，系统性地解释为何人口规模增加未快速增加通勤时间这一反直觉现象。\n\n# Execution Skeleton\n\n1. 建立核心变量与解释变量的计量回归模型\n2. 通过系数估算量化变量间的影响程度\n3. 进行对比分析，识别不同情境下的主要矛盾或损失差异\n4. 从多个维度系统性地解释反直觉或非预期的结果\n\n# Pattern Flow\n\n首先建立计量经济学回归模型，确立通勤时间与人口规模等关键变量之间的函数关系。 -> 然后通过系数估算和对比计算，量化人口增长带来的通勤损失与人口减少造成的工资损失。 -> 接着通过对比分析，论证人口增长带来的通勤损失远小于人口减少造成的工资损失。 -> 最后从拥堵、通勤方式、通勤距离三个维度，系统解释为何人口规模增加未快速增加通勤时间。\n\n# Usage Instructions\n\n当你使用这个技能回答问题时：\n\n- 将 Method Program 作为主推理路径。\n- 按照 Execution Skeleton 组织论证推进。\n- 第一步用于建立评价或概念基线。\n- 中间步骤用于追踪演化、识别矛盾并诊断内部失效机制。\n- 最后一步用于把内部机制与具体历史/系统结果连接起来。\n- 不要只复述事件，要解释系统如何在自身演化中走向转折或危机。\n- 如需细化某一步，请调用对应 sub-skill。\n\n# Output Guidance\n\n你的回答应当：\n\n- 把问题解释为系统内生过程，而非外生偶发事件\n- 保持历史与因果链条的连续性\n- 强调初始原则与后续结果之间的反差\n- 说明先前成功所累积的内部矛盾如何推动危机、逆转或转型",
+    "document_id": "d7f59e8d-cb5d-425a-ba71-99f1b15a7bda",
+    "book_title": "2018李杰伟、陆铭《世界经济文汇》：城市人多添堵_人口与通勤的实证研究和中美比较",
+    "chapter_title": "城市人多添堵?——人口与通勤的实证研究和中美比较",
+    "source_context": {
+      "document_id": "d7f59e8d-cb5d-425a-ba71-99f1b15a7bda",
+      "book_title": "2018李杰伟、陆铭《世界经济文汇》：城市人多添堵_人口与通勤的实证研究和中美比较",
+      "chapter_title": "城市人多添堵?——人口与通勤的实证研究和中美比较"
+    },
+    "model_name": "deepseek-chat",
+    "api_base": "https://api.deepseek.com"
+  },
+  {
+    "main_skill_id": "main_skill_023",
+    "section_id": "eef81f81-75fa-40ac-b7ea-2832ff0266bf",
+    "section_title": "制度与城市: 土地产权保护传统有利于新城建设效率的证据",
+    "name": "竞争性假设检验与因果识别",
+    "file_name": "main_skill_023_制度与城市__土地产权保护传统有利于新城建设效率的证据.md",
+    "markdown": "---\nname: \"竞争性假设检验与因果识别\"\ntype: \"main_skill\"\ndescription: \"通过引入竞争性假设、控制变量、政策冲击等手段，对核心因果主张进行稳健性检验和异质性分析，以排除替代解释并强化因果推断的可信度。\"\nsection_id: \"eef81f81-75fa-40ac-b7ea-2832ff0266bf\"\nmain_skill_id: \"main_skill_023\"\nperspective: \"Institutional Analysis\"\nperspective_notes: \"全章聚焦于制度因素（土地产权保护传统）对经济结果（新城规划效率）的影响，视角稳定且主导。\"\nnature: \"Positive\"\nnature_notes: \"采用实证方法检验因果假设，属于描述性和解释性分析，不涉及价值判断。\"\ntime_orientation: \"Dynamic Analysis\"\ntime_orientation_notes: \"关注制度传统的历史延续性及其在政策冲击（2008年）下的动态变化，时间维度贯穿始终。\"\nsystem_scope: \"Open System\"\nsystem_scope_notes: \"分析中引入外部因素（地理、政策冲击）作为控制变量和异质性来源，系统边界开放。\"\nequilibrium_view: \"Disequilibrium Analysis\"\nequilibrium_view_notes: \"通过政策冲击引入外生变化，考察制度效应在不同条件下的非均衡表现，而非稳态均衡。\"\nlogic:\n  - \"Causal Reasoning\"\n  - \"Comparative Reasoning\"\n  - \"Constraint-Based Reasoning\"\nlogic_notes: \"以因果推理为核心，通过比较竞争性假设和不同政策环境下的效应差异，并利用控制变量作为约束条件进行检验，三种推理类型协同使用。\"\n---\n\n# Skill Summary\n\n通过引入竞争性假设、控制变量、政策冲击等手段，对核心因果主张进行稳健性检验和异质性分析，以排除替代解释并强化因果推断的可信度。\n\n# When to Use\n\n适用于需要论证某一制度或传统对特定结果具有因果影响的研究问题。使用该方法时，首先提出可能的竞争性解释（如地理因素），然后通过引入控制变量（如坡度、房价）进行统计检验，最后利用外生政策冲击（如2008年经济刺激）进行异质性分析，以验证核心因果机制在不同条件下的稳健性和差异性。\n\n# Method Program\n\n首先提出竞争性假设（如地理因素）作为替代解释，明确需要排除的干扰路径；然后引入控制变量（如坡度、房价）进行稳健性检验，在统计上控制这些混淆因素以验证核心因果关系的稳定性；最后利用外生政策冲击（如2008年经济刺激）进行异质性分析，通过观察核心因果效应在不同政策环境下的差异，进一步确认土地产权保护传统对新城规划效率的因果影响。\n\n# Execution Skeleton\n\n1. 提出竞争性假设以识别潜在的替代解释\n2. 引入控制变量进行稳健性检验以排除混淆因素\n3. 利用外生政策冲击进行异质性分析以验证因果机制的边界条件\n\n# Pattern Flow\n\n首先提出与核心主张相竞争的替代假设（如地理决定论），明确需要排除的干扰因素。 -> 然后引入可量化的控制变量（如坡度、房价），在统计模型中控制这些因素，检验核心因果关系的稳健性。 -> 最后利用外生的政策冲击（如2008年经济刺激计划）作为自然实验，进行异质性分析，观察核心因果效应在不同政策环境下的变化，从而强化因果识别的有效性。\n\n# Usage Instructions\n\n当你使用这个技能回答问题时：\n\n- 将 Method Program 作为主推理路径。\n- 按照 Execution Skeleton 组织论证推进。\n- 第一步用于建立评价或概念基线。\n- 中间步骤用于追踪演化、识别矛盾并诊断内部失效机制。\n- 最后一步用于把内部机制与具体历史/系统结果连接起来。\n- 不要只复述事件，要解释系统如何在自身演化中走向转折或危机。\n- 如需细化某一步，请调用对应 sub-skill。\n\n# Output Guidance\n\n你的回答应当：\n\n- 把问题解释为系统内生过程，而非外生偶发事件\n- 保持历史与因果链条的连续性\n- 强调初始原则与后续结果之间的反差\n- 说明先前成功所累积的内部矛盾如何推动危机、逆转或转型",
+    "document_id": "dac3c0c4-06da-40f6-a42e-8ac235cdef9c",
+    "book_title": "2018陆铭、常晨《经济研究》：制度与城市_土地产权保护传统有利于新城建设效率的证据_陆铭",
+    "chapter_title": "制度与城市: 土地产权保护传统有利于新城建设效率的证据",
+    "source_context": {
+      "document_id": "dac3c0c4-06da-40f6-a42e-8ac235cdef9c",
+      "book_title": "2018陆铭、常晨《经济研究》：制度与城市_土地产权保护传统有利于新城建设效率的证据_陆铭",
+      "chapter_title": "制度与城市: 土地产权保护传统有利于新城建设效率的证据"
+    },
+    "model_name": "deepseek-chat",
+    "api_base": "https://api.deepseek.com"
+  },
+  {
+    "main_skill_id": "main_skill_024",
+    "section_id": "ef508657-2eac-4f81-b209-40ca51737fbf",
+    "section_title": "求解中国农业困局：国际视野中的农业规模经营与农业竞争力",
+    "name": "稳健性验证与政策推导法",
+    "file_name": "main_skill_024_求解中国农业困局：国际视野中的农业规模经营与农业竞争力.md",
+    "markdown": "---\nname: \"稳健性验证与政策推导法\"\ntype: \"main_skill\"\ndescription: \"在初步建立核心因果关系后，通过一系列稳健性检验和反事实分析来确认该因果关系的可靠性，并基于此推导出具有操作性的政策建议。\"\nsection_id: \"ef508657-2eac-4f81-b209-40ca51737fbf\"\nmain_skill_id: \"main_skill_024\"\nperspective: \"Macro Analysis\"\nperspective_notes: \"整个章节的分析视角稳定在宏观层面，未出现微观或中观视角的切换。\"\nnature: \"Mixed\"\nnature_notes: \"章节性质为混合型，结合了实证验证（定量）和政策推导（定性），但整体以定量验证为主导。\"\ntime_orientation: \"Static Analysis\"\ntime_orientation_notes: \"时间导向为静态分析，聚焦于特定时间点或时间段内的因果关系验证，未涉及动态时间序列分析。\"\nsystem_scope: \"Open System\"\nsystem_scope_notes: \"系统范围设定为开放系统，通过更换工具变量和全样本检验等方式，考虑了外部因素和不同样本的影响。\"\nequilibrium_view: \"Equilibrium Analysis\"\nequilibrium_view_notes: \"均衡观为均衡分析，通过稳健性检验和反事实分析来确认因果关系的稳定性和均衡状态。\"\nlogic:\n  - \"Causal Reasoning\"\n  - \"Comparative Reasoning\"\n  - \"Constraint-Based Reasoning\"\nlogic_notes: \"逻辑类型以因果推理为核心，辅以比较推理（如反事实分析）和基于约束的推理（如稳健性检验中的条件限制），三者共同作用。\"\n---\n\n# Skill Summary\n\n在初步建立核心因果关系后，通过一系列稳健性检验和反事实分析来确认该因果关系的可靠性，并基于此推导出具有操作性的政策建议。\n\n# When to Use\n\n适用于实证研究中，在得到初步因果结论后，需要验证结论的稳健性并转化为实际政策建议的场景。使用该方法时，首先应设计多种稳健性检验（如更换工具变量、替换变量、全样本检验），然后进行反事实分析以模拟不同情境下的结果，最后基于验证后的因果关系，推导出具体的、可操作的政策建议。\n\n# Method Program\n\n首先，设计并执行多种稳健性检验（如更换工具变量、替换变量、全样本检验）以验证核心因果关系的稳定性；然后，进行反事实分析，模拟不同情境下的结果，进一步确认因果关系的可靠性；最后，基于经过稳健性检验和反事实分析验证的实证结果，推导出具体的、可操作的政策建议。\n\n# Execution Skeleton\n\n1. 设计并执行多种稳健性检验（如更换工具变量、替换变量、全样本检验）以验证核心因果关系的稳定性。\n2. 进行反事实分析，模拟在假设条件下结果的变化，进一步确认因果关系的可靠性。\n3. 基于经过稳健性检验和反事实分析验证的实证结果，推导出具体的政策建议。\n\n# Pattern Flow\n\n首先，设计并执行一系列稳健性检验，包括更换工具变量、替换变量和全样本检验，以测试核心因果关系的稳定性。 -> 然后，进行反事实分析，通过模拟不同情境下的结果，进一步验证因果关系的可靠性。 -> 最后，基于经过验证的实证结果，推导出具有操作性的政策建议。\n\n# Usage Instructions\n\n当你使用这个技能回答问题时：\n\n- 将 Method Program 作为主推理路径。\n- 按照 Execution Skeleton 组织论证推进。\n- 第一步用于建立评价或概念基线。\n- 中间步骤用于追踪演化、识别矛盾并诊断内部失效机制。\n- 最后一步用于把内部机制与具体历史/系统结果连接起来。\n- 不要只复述事件，要解释系统如何在自身演化中走向转折或危机。\n- 如需细化某一步，请调用对应 sub-skill。\n\n# Output Guidance\n\n你的回答应当：\n\n- 把问题解释为系统内生过程，而非外生偶发事件\n- 保持历史与因果链条的连续性\n- 强调初始原则与后续结果之间的反差\n- 说明先前成功所累积的内部矛盾如何推动危机、逆转或转型",
+    "document_id": "db8c1a57-ef25-4d73-bd28-d6632c232e86",
+    "book_title": "2021徐灏龙、陆铭《学术月刊》：求解中国农业困局：国际视野...的农业规模经营与农业竞争力",
+    "chapter_title": "求解中国农业困局：国际视野中的农业规模经营与农业竞争力",
+    "source_context": {
+      "document_id": "db8c1a57-ef25-4d73-bd28-d6632c232e86",
+      "book_title": "2021徐灏龙、陆铭《学术月刊》：求解中国农业困局：国际视野...的农业规模经营与农业竞争力",
+      "chapter_title": "求解中国农业困局：国际视野中的农业规模经营与农业竞争力"
+    },
+    "model_name": "deepseek-chat",
+    "api_base": "https://api.deepseek.com"
+  },
+  {
+    "main_skill_id": "main_skill_013",
+    "section_id": "945fef32-3c4a-43ee-b0ca-653bc442b8d4",
+    "section_title": "金融中介机构竞争的市场反应--来自信用评级机构的证据",
+    "name": "双轨诊断法：从实证检验到理论参照系对比",
+    "file_name": "main_skill_013_金融中介机构竞争的市场反应--来自信用评级机构的证据.md",
+    "markdown": "---\nname: \"双轨诊断法：从实证检验到理论参照系对比\"\ntype: \"main_skill\"\ndescription: \"该方法通过两条并行但互补的路径对经济现象进行诊断：一条是微观实证路径，利用外生冲击构建计量模型进行因果识别与稳健性检验；另一条是宏观理论路径，构建理想参照系（如黄金律、空间均衡）与实际运行状态进行对比，识别结构性扭曲与错配。两条路径最终交汇于对问题成因的综合判断与政策推导。\"\nsection_id: \"945fef32-3c4a-43ee-b0ca-653bc442b8d4\"\nmain_skill_id: \"main_skill_013\"\nperspective: \"Macro Analysis\"\nperspective_notes: \"从微观分析（chunk5）转向宏观分析（chunk6），呈现从局部因果检验到整体结构诊断的视角跃迁\"\nnature: \"Normative\"\nnature_notes: \"从实证分析（chunk5）转向规范分析（chunk6），体现从'是什么'到'应该是什么'的方法论递进\"\ntime_orientation: \"Historical Analysis\"\ntime_orientation_notes: \"从动态分析（chunk5）转向历史分析（chunk6），时间维度从短期因果识别扩展到长期结构演变\"\nsystem_scope: \"Open System\"\nsystem_scope_notes: \"始终保持开放系统视角，两个chunk均考虑外部冲击与系统间互动\"\nequilibrium_view: \"Disequilibrium Analysis\"\nequilibrium_view_notes: \"始终采用非均衡分析视角，关注现实偏离理想状态的程度与方向\"\nlogic:\n  - \"Causal Reasoning\"\n  - \"Comparative Reasoning\"\nlogic_notes: \"因果推理贯穿始终，比较推理在第二个chunk中成为主导；历史推理仅在第二个chunk出现，体现时间维度的深化\"\n---\n\n# Skill Summary\n\n该方法通过两条并行但互补的路径对经济现象进行诊断：一条是微观实证路径，利用外生冲击构建计量模型进行因果识别与稳健性检验；另一条是宏观理论路径，构建理想参照系（如黄金律、空间均衡）与实际运行状态进行对比，识别结构性扭曲与错配。两条路径最终交汇于对问题成因的综合判断与政策推导。\n\n# When to Use\n\n适用于需要同时验证微观机制与诊断宏观结构问题的研究场景。使用时，首先确定一个可被外生事件或政策冲击识别的微观因果关系，构建计量模型进行实证检验；同时，基于理论构建一个理想状态参照系，将现实数据与参照系进行对比，识别偏离程度与方向；最后，将微观实证结论与宏观结构诊断相互印证，形成对问题成因的完整解释并推导政策含义。\n\n# Method Program\n\n首先识别一个外生事件（如D评级机构进入）作为竞争加剧的代理变量，构建计量经济学模型检验竞争对评级结果和质量的因果效应，并通过稳健性检验与异质性分析确认结论的可靠性。与此同时，构建理论参照系（黄金律与空间均衡），将中国经济实际运行中的结构性扭曲与空间错配与参照系进行对比，诊断问题成因。最后，将微观实证的因果发现与宏观结构诊断的系统性偏离进行综合，推导出政策含义。\n\n# Execution Skeleton\n\n1. 识别外生冲击或准自然实验，构建竞争或政策变化的代理变量\n2. 建立计量经济学模型，检验核心因果关系并评估效应大小\n3. 执行稳健性检验与异质性分析，确认因果识别的可靠性\n4. 构建理论参照系（如黄金律、空间均衡），定义理想状态\n5. 将现实经济运行数据与理论参照系进行系统对比，识别结构性扭曲与空间错配\n6. 综合微观实证结果与宏观结构诊断，推导问题成因与政策含义\n\n# Pattern Flow\n\n首先，识别一个外生事件或政策冲击作为自然实验，将其操作化为关键解释变量的代理变量 -> 然后，构建计量经济学模型，估计该冲击对目标结果变量的因果效应 -> 接着，通过一系列稳健性检验（如替换变量、改变样本、安慰剂检验）和异质性分析，验证核心结论的可靠性 -> 与此同时，从理论出发构建一个理想参照系（例如黄金律水平或空间均衡状态），作为评判现实的标准 -> 然后，将中国经济的实际运行数据（如资源配置、区域发展）与理论参照系进行对比，量化结构性扭曲的程度与方向 -> 最后，将微观实证揭示的因果机制与宏观结构诊断发现的系统性偏离进行交叉验证，形成对问题根源的综合判断，并据此推导出有针对性的政策建议\n\n# Usage Instructions\n\n当你使用这个技能回答问题时：\n\n- 将 Method Program 作为主推理路径。\n- 按照 Execution Skeleton 组织论证推进。\n- 第一步用于建立评价或概念基线。\n- 中间步骤用于追踪演化、识别矛盾并诊断内部失效机制。\n- 最后一步用于把内部机制与具体历史/系统结果连接起来。\n- 不要只复述事件，要解释系统如何在自身演化中走向转折或危机。\n- 如需细化某一步，请调用对应 sub-skill。\n\n# Output Guidance\n\n你的回答应当：\n\n- 把问题解释为系统内生过程，而非外生偶发事件\n- 保持历史与因果链条的连续性\n- 强调初始原则与后续结果之间的反差\n- 说明先前成功所累积的内部矛盾如何推动危机、逆转或转型",
+    "document_id": "984c0f90-c654-4614-9d25-63dc92903714",
+    "book_title": "2022钟辉勇《金融研究》：金融中介机构竞争的市场反应——来自信用评级机构的证据_林晚发",
+    "chapter_title": "金融中介机构竞争的市场反应--来自信用评级机构的证据",
+    "source_context": {
+      "document_id": "984c0f90-c654-4614-9d25-63dc92903714",
+      "book_title": "2022钟辉勇《金融研究》：金融中介机构竞争的市场反应——来自信用评级机构的证据_林晚发",
+      "chapter_title": "金融中介机构竞争的市场反应--来自信用评级机构的证据"
+    },
+    "model_name": "deepseek-chat",
+    "api_base": "https://api.deepseek.com"
+  }
+]

@@ -1,0 +1,560 @@
+[
+  {
+    "main_skill_id": "main_skill_001",
+    "section_id": "9a252c27-c906-48d2-8289-e3745b0ae874",
+    "name": "Counterexample Argument",
+    "normalized_pattern": "Counterexample Argument",
+    "file_name": "main_skill_001_Counterexample_Argument.md",
+    "markdown": "---\nname: \"Counterexample Argument\"\ntype: \"sub_skill\"\ndescription: \"当需要反驳一个广泛持有但可能错误的观点、流行误区或常见反对意见时，该方法通过系统性地引入反例、数据、比较和逻辑推理来瓦解原观点，并建立替代性正确结论。适用于论证中需要先破后立的场景，尤其是面对直觉上合理但实际有误的信念。\"\nsection_id: \"9a252c27-c906-48d2-8289-e3745b0ae874\"\nmain_skill_id: \"main_skill_001\"\nnormalized_pattern: \"Counterexample Argument\"\nsource_chunk_ids: [1, 2]\n---\n\n# Counterexample Argument\n\n## Description\n\n当需要反驳一个广泛持有但可能错误的观点、流行误区或常见反对意见时，该方法通过系统性地引入反例、数据、比较和逻辑推理来瓦解原观点，并建立替代性正确结论。适用于论证中需要先破后立的场景，尤其是面对直觉上合理但实际有误的信念。\n\n## Method Program Summary\n\n首先识别并清晰陈述一个广泛流传但可能错误的观点或常见反对意见。然后，通过引用具体的数据、事实或典型案例作为直接反例，初步动摇该观点的可信度。接着，引入国际比较或跨情境的对比分析，展示原观点在更广阔背景下的不适用性。在此基础上，运用逻辑推理工具（如归谬法、成本收益分析）进一步揭示原观点的内在矛盾或缺陷。为了增强说服力，可以提出反事实问题或构建替代性解释，迫使读者重新审视原假设。最后，综合所有反驳证据，系统性地总结并确立一个经过验证的更合理的正确结论。\n\n## Method Program Example\n\n作者首先识别并陈述一个关于城市化的流行误区（如城市太拥挤、承载力有限），然后通过引用具体数据（如人口规划失败案例）、国际比较（如城市间人口规模差距）、逻辑推理（如价格机制的作用）以及反事实提问（如为什么人们不逃离大城市）来系统性地反驳该误区，最终论证大城市规模扩张的合理性和必要性。\n\n## Abstract Action Chain\n\n1. 明确陈述待反驳的流行观点或常见反对意见\n2. 引入具体数据、事实或案例作为直接反例\n3. 通过国际比较或跨情境对比揭示原观点的局限性\n4. 运用逻辑推理（如归谬、成本收益分析）进一步瓦解原观点\n5. 提出反事实问题或替代性解释以强化反驳力度\n6. 总结并确立经过反驳后更合理的正确结论",
+    "model_name": "deepseek-chat",
+    "api_base": "https://api.deepseek.com",
+    "document_id": "e9ed2361-d152-48bc-b66b-073d8479444d",
+    "book_title": "大国大城",
+    "chapter_title": "第七章 城市化之辩",
+    "source_context": {
+      "document_id": "e9ed2361-d152-48bc-b66b-073d8479444d",
+      "book_title": "大国大城",
+      "chapter_title": "第七章 城市化之辩"
+    }
+  },
+  {
+    "main_skill_id": "main_skill_002",
+    "section_id": "b1687e46-a64d-41f4-b61a-22e9c12f7395",
+    "name": "Causal Chain Analysis",
+    "normalized_pattern": "Causal Chain Analysis",
+    "file_name": "main_skill_002_Causal_Chain_Analysis.md",
+    "markdown": "---\nname: \"Causal Chain Analysis\"\ntype: \"sub_skill\"\ndescription: \"适用于分析具有明确制度背景或初始条件的复杂系统性问题，特别是当需要揭示多因素之间的因果传导机制、反馈循环以及结构性矛盾时。该方法常用于评估政策、体制或结构性障碍如何通过一系列中间环节产生最终后果，并支持比较与反事实推理。\"\nsection_id: \"b1687e46-a64d-41f4-b61a-22e9c12f7395\"\nmain_skill_id: \"main_skill_002\"\nnormalized_pattern: \"Causal Chain Analysis\"\nsource_chunk_ids: [3]\n---\n\n# Causal Chain Analysis\n\n## Description\n\n适用于分析具有明确制度背景或初始条件的复杂系统性问题，特别是当需要揭示多因素之间的因果传导机制、反馈循环以及结构性矛盾时。该方法常用于评估政策、体制或结构性障碍如何通过一系列中间环节产生最终后果，并支持比较与反事实推理。\n\n## Method Program Summary\n\n首先，明确分析对象的制度背景或初始条件，界定核心变量及其基本关系。然后，识别并分析该背景下各主体面临的激励与约束机制，揭示这些机制如何塑造行为模式。接着，沿着因果链条追踪中间现象（如市场分割、要素流动障碍等），并关注其中的反馈循环或累积效应。在此基础上，通过引入外部比较案例或构建反事实情景（如替代政策路径），检验因果推理的稳健性与唯一性。最后，综合所有链条推导出系统性的结构性后果，并提炼出具有政策或制度调整意义的结论。\n\n## Method Program Example\n\n首先，作者从分权体制出发，指出其对地方政府的激励（经济增长考核）与约束（市场分割倾向），形成初始因果链。接着，通过分析市场分割、产业同构、地方保护等具体现象，揭示其与大国规模经济之间的张力。然后，引入劳动力、土地、资本三大要素市场的分割事实，进一步追踪这些制度障碍如何导致城市化滞后、收入差距扩大、债务风险累积等后果。在此基础上，作者通过国际比较（日本、欧洲）和反事实推理（如自由移民的替代方案），论证劳动力自由流动和统一市场是大国发展的唯一可行路径。最后，总结出制度转型与全局利益协调的必要性。\n\n## Abstract Action Chain\n\n1. 界定初始制度条件与核心变量\n2. 识别激励与约束机制及其相互作用\n3. 追踪因果链条中的中间现象与反馈循环\n4. 引入比较视角或反事实情景进行验证\n5. 综合推导结构性后果与政策含义",
+    "model_name": "deepseek-chat",
+    "api_base": "https://api.deepseek.com",
+    "document_id": "e9ed2361-d152-48bc-b66b-073d8479444d",
+    "book_title": "大国大城",
+    "chapter_title": "第一章 中国经济的欧洲化",
+    "source_context": {
+      "document_id": "e9ed2361-d152-48bc-b66b-073d8479444d",
+      "book_title": "大国大城",
+      "chapter_title": "第一章 中国经济的欧洲化"
+    }
+  },
+  {
+    "main_skill_id": "main_skill_003",
+    "section_id": "1d660ee1-a2cd-4e61-bb24-5eb9def4868b",
+    "name": "Comparative Analysis",
+    "normalized_pattern": "Comparative Analysis",
+    "file_name": "main_skill_003_Comparative_Analysis.md",
+    "markdown": "---\nname: \"Comparative Analysis\"\ntype: \"sub_skill\"\ndescription: \"适用于需要借助跨国、跨时期或跨案例的实证数据（如图表、统计模型）来检验或反驳某一流行观点、误解或理论假设，并从中归纳出普遍规律，进而应用于特定情境（如本国案例）以推导政策建议或预测的场景。\"\nsection_id: \"1d660ee1-a2cd-4e61-bb24-5eb9def4868b\"\nmain_skill_id: \"main_skill_003\"\nnormalized_pattern: \"Comparative Analysis\"\nsource_chunk_ids: [1]\n---\n\n# Comparative Analysis\n\n## Description\n\n适用于需要借助跨国、跨时期或跨案例的实证数据（如图表、统计模型）来检验或反驳某一流行观点、误解或理论假设，并从中归纳出普遍规律，进而应用于特定情境（如本国案例）以推导政策建议或预测的场景。\n\n## Method Program Summary\n\n首先，识别并陈述一个广泛持有但可能错误的观点或假设。接着，通过引用相关学术研究或权威数据源，为后续比较提供理论或实证基础。然后，利用图表或统计模型展示多个国家或不同时期的数据对比，以揭示变量间的普遍关系或趋势。在此基础上，从比较结果中抽象出具有普适性的规律或模式。随后，将该规律应用于目标案例（如特定国家或地区），检验其适用性或解释其特殊性。最后，根据分析结论，提出具体的政策建议或对未来发展做出预测，形成从实证到应用的完整逻辑闭环。\n\n## Method Program Example\n\n作者首先列举关于中国城市化的常见误解（如速度太快、人口应受控制），然后通过引用万广华的研究、展示全球城市人口与工资、密度、港口距离等关系的图表，进行跨国比较，证明中国城市发展遵循全球普遍规律。接着，作者运用齐夫法则和全球首位城市人口模型，预测上海未来人口规模，并对比东京等国际大都市的历史经验，反驳‘逆城市化’等观点。最后，作者从‘在集聚中走向平衡’的理论出发，论证自由移民对缩小区域差距的重要性，并指出制度障碍是导致问题的主因。整个分析以实证比较为核心，层层递进，最终导向政策建议。\n\n## Abstract Action Chain\n\n1. 明确待检验的流行观点或常见误解\n2. 引用权威研究或实证数据作为反驳依据\n3. 展示跨国或跨时期的比较图表或统计模型\n4. 归纳数据中呈现的普遍规律或模式\n5. 将普遍规律应用于特定案例进行分析\n6. 基于分析结果推导政策含义或未来预测",
+    "model_name": "deepseek-chat",
+    "api_base": "https://api.deepseek.com",
+    "document_id": "e9ed2361-d152-48bc-b66b-073d8479444d",
+    "book_title": "大国大城",
+    "chapter_title": "第六章 全球视野下的大城市",
+    "source_context": {
+      "document_id": "e9ed2361-d152-48bc-b66b-073d8479444d",
+      "book_title": "大国大城",
+      "chapter_title": "第六章 全球视野下的大城市"
+    }
+  },
+  {
+    "main_skill_id": "main_skill_004",
+    "section_id": "ac93eda4-eec6-4053-8f32-63ae488b2e5e",
+    "name": "Comparative Analysis for Policy Derivation",
+    "normalized_pattern": "Comparative Analysis",
+    "file_name": "main_skill_004_Comparative_Analysis_for_Policy_Derivation.md",
+    "markdown": "---\nname: \"Comparative Analysis for Policy Derivation\"\ntype: \"sub_skill\"\ndescription: \"This sub-skill is applicable when the goal is to explain a complex socio-economic phenomenon by comparing two or more entities (e.g., countries, regions, or cities) to identify structural mismatches or causal mechanisms, and to derive actionable policy implications or theoretical insights. It is particularly useful when the target audience holds a common misconception that can be refuted through cross-case evidence.\"\nsection_id: \"ac93eda4-eec6-4053-8f32-63ae488b2e5e\"\nmain_skill_id: \"main_skill_004\"\nnormalized_pattern: \"Comparative Analysis\"\nsource_chunk_ids: [2, 3]\n---\n\n# Comparative Analysis for Policy Derivation\n\n## Description\n\nThis sub-skill is applicable when the goal is to explain a complex socio-economic phenomenon by comparing two or more entities (e.g., countries, regions, or cities) to identify structural mismatches or causal mechanisms, and to derive actionable policy implications or theoretical insights. It is particularly useful when the target audience holds a common misconception that can be refuted through cross-case evidence.\n\n## Method Program Summary\n\nBegin by posing a sharp comparative question that sets up a contrast between two or more cases, often to challenge a dominant narrative. Then, present empirical data (quantitative or qualitative) that visually or logically illustrates the disparity. Compute a derived metric (e.g., per capita values, ratios) to isolate the structural mismatch. Next, identify the key deviation or causal factor that explains why the cases differ, and explicitly refute the common misconception by showing it does not fit the evidence. Finally, synthesize the findings into a generalizable mechanism or set of policy principles, projecting how the observed dynamics will evolve or what actions should be taken in the target context.\n\n## Method Program Example\n\n作者首先通过一个假设性问题引出中美对比，然后展示两国GDP份额与人口份额的柱状图与曲线图，通过简单算术揭示美国人均GDP趋同而中国人均GDP差距大的事实。接着，作者否定中国流行的‘经济过度集聚导致不平衡’的观点，指出真正问题是人口集聚滞后于经济集聚。最后，作者基于规模经济与比较优势理论，预测中国未来将走向‘在集聚中走向平衡’的路径，并反复用‘柱子与曲线’的比喻强化这一机制。\n\n## Abstract Action Chain\n\n1. Frame a comparative question or hypothesis that challenges a prevailing assumption.\n2. Present comparative data or case evidence (e.g., charts, metrics, or qualitative examples) to highlight key differences or patterns.\n3. Compute or extract a derived indicator (e.g., per capita metrics, ratios) to reveal underlying structural mismatches.\n4. Identify and articulate the core deviation or causal factor that explains the observed pattern.\n5. Refute the common misconception by contrasting it with the evidence, and propose an alternative mechanism.\n6. Generalize the findings into a predictive framework or policy recommendations applicable to the target context.",
+    "model_name": "deepseek-chat",
+    "api_base": "https://api.deepseek.com",
+    "document_id": "e9ed2361-d152-48bc-b66b-073d8479444d",
+    "book_title": "大国大城",
+    "chapter_title": "第二章 在集聚中走向平衡",
+    "source_context": {
+      "document_id": "e9ed2361-d152-48bc-b66b-073d8479444d",
+      "book_title": "大国大城",
+      "chapter_title": "第二章 在集聚中走向平衡"
+    }
+  },
+  {
+    "main_skill_id": "main_skill_008",
+    "section_id": "417473de-5e9d-4c18-a524-6b2e997b18c2",
+    "name": "Historical Evolution Analysis",
+    "normalized_pattern": "Historical Evolution Analysis",
+    "file_name": "main_skill_008_Historical_Evolution_Analysis.md",
+    "markdown": "---\nname: \"Historical Evolution Analysis\"\ntype: \"sub_skill\"\ndescription: \"适用于研究某一社会经济变量（如人力资本、经济发展水平等）的长期路径依赖与条件性演变，尤其当需要跨越多个历史时期（如传统社会、计划经济、改革开放后），并利用历史遗产与政策冲击作为外生变异来源时。该方法要求研究者能够构建长时段面板数据，并具备处理历史代理变量与工具变量的能力。\"\nsection_id: \"417473de-5e9d-4c18-a524-6b2e997b18c2\"\nmain_skill_id: \"main_skill_008\"\nnormalized_pattern: \"Historical Evolution Analysis\"\nsource_chunk_ids: [4]\n---\n\n# Historical Evolution Analysis\n\n## Description\n\n适用于研究某一社会经济变量（如人力资本、经济发展水平等）的长期路径依赖与条件性演变，尤其当需要跨越多个历史时期（如传统社会、计划经济、改革开放后），并利用历史遗产与政策冲击作为外生变异来源时。该方法要求研究者能够构建长时段面板数据，并具备处理历史代理变量与工具变量的能力。\n\n## Method Program Summary\n\n首先，整合历史时期（如明清、计划经济、改革开放后）的代理变量与政策冲击变量，构建统一的长时段面板数据。接着，通过计算不同时期关键变量的空间或时间相关性，初步判断历史遗产与政策冲击的持续性影响。然后，采用工具变量法（如2SLS），以历史代理变量和政策冲击作为工具变量，估计其对当代结果变量的因果效应。在此基础上，按地理区位（如沿海/内陆）或制度特征分样本回归，揭示效应的条件性差异。进一步，通过检验中间机制（如人力资本回报率、劳动力流动成本等）来验证因果路径。最后，通过替换变量定义、控制历史人口密度、更换样本时期或模型设定等方式进行稳健性检验，确保结论的可靠性。\n\n## Method Program Example\n\n首先，利用明清进士数据作为历史人力资本的代理变量，并识别计划经济时期的高校搬迁作为外生政策冲击，构建跨越数百年的城市人力资本面板。其次，通过计算不同时期人力资本空间分布的相关系数，初步揭示历史遗产与政策冲击的长期影响。然后，采用两阶段最小二乘法，以明清进士数和高校搬迁净迁入系数作为当代城市人力资本的工具变量，估计其对劳动力流入的因果效应。接着，按离港口距离分样本回归，发现沿海与内陆城市人力资本形成机制的差异，并进一步检验人力资本回报率作为中间机制。最后，通过替换变量、控制历史人口密度、更换时期等稳健性检验，强化结论的可靠性。\n\n## Abstract Action Chain\n\n1. 构建跨越多个历史时期的长时段面板数据，整合历史代理变量与关键政策冲击变量\n2. 通过跨时期相关性分析或描述性统计，初步揭示历史遗产与政策冲击的长期影响模式\n3. 运用工具变量法（如两阶段最小二乘法）识别历史变量对当代结果的因果效应\n4. 按地理区位、制度环境等条件进行分样本回归，检验效应的异质性\n5. 检验中间机制（如回报率、迁移成本等），解释因果链条\n6. 通过替换变量、控制潜在混淆因素、更换样本时期等方式进行稳健性检验",
+    "document_id": "fdd21325-3ade-4c12-8553-948f483b05a8",
+    "book_title": "2019夏怡然、陆铭《经济研究》：跨越世纪的城市人力资本足迹_历史遗产_政策冲击和劳动力流动",
+    "chapter_title": "跨越世纪的城市人力资本足迹——历史遗产、政策冲击和劳动力流动",
+    "source_context": {
+      "document_id": "fdd21325-3ade-4c12-8553-948f483b05a8",
+      "book_title": "2019夏怡然、陆铭《经济研究》：跨越世纪的城市人力资本足迹_历史遗产_政策冲击和劳动力流动",
+      "chapter_title": "跨越世纪的城市人力资本足迹——历史遗产、政策冲击和劳动力流动"
+    },
+    "model_name": "deepseek-chat",
+    "api_base": "https://api.deepseek.com"
+  },
+  {
+    "main_skill_id": "main_skill_006",
+    "section_id": "6f9be53f-fae8-4247-8aa8-e75578a4168f",
+    "name": "Causal Chain Analysis with Mediating Mechanism",
+    "normalized_pattern": "Causal Chain Analysis",
+    "file_name": "main_skill_006_Causal_Chain_Analysis_with_Mediating_Mechanism.md",
+    "markdown": "---\nname: \"Causal Chain Analysis with Mediating Mechanism\"\ntype: \"sub_skill\"\ndescription: \"This sub-skill is applicable when the goal is to explain a complex social or economic outcome by constructing a multi-step causal chain, where the primary causal link is mediated by a specific mechanism (e.g., information flow, migration, policy intervention). It is used when the direct relationship between a macro-level factor and an individual-level behavior is not obvious, and a theoretical model is needed to bridge the gap, followed by empirical validation and policy derivation.\"\nsection_id: \"6f9be53f-fae8-4247-8aa8-e75578a4168f\"\nmain_skill_id: \"main_skill_006\"\nnormalized_pattern: \"Causal Chain Analysis\"\nsource_chunk_ids: [2]\n---\n\n# Causal Chain Analysis with Mediating Mechanism\n\n## Description\n\nThis sub-skill is applicable when the goal is to explain a complex social or economic outcome by constructing a multi-step causal chain, where the primary causal link is mediated by a specific mechanism (e.g., information flow, migration, policy intervention). It is used when the direct relationship between a macro-level factor and an individual-level behavior is not obvious, and a theoretical model is needed to bridge the gap, followed by empirical validation and policy derivation.\n\n## Method Program Summary\n\nBegin by establishing a clear causal hypothesis that links a specific antecedent (e.g., expected returns, institutional design) to a behavioral decision (e.g., educational participation, migration choice). Then, identify a mediating mechanism—such as information transmission through social networks or population mobility—that explains how the antecedent influences the behavior. Formalize this mechanism into a mathematical or statistical model (e.g., a weighted expectation model based on spatial distribution of agents). Next, test the model empirically using observed variation across units (e.g., regions, time periods) to confirm the hypothesized causal link. After validation, extend the analysis by introducing an exogenous policy or institutional factor that affects the mediating mechanism, thereby indirectly altering the behavioral outcome. Finally, quantify the magnitude of this indirect effect (e.g., percentage point change in outcome, required resource reallocation) and translate the findings into concrete policy recommendations that target the mediating mechanism or the original antecedent.\n\n## Method Program Example\n\n首先，作者确立了一个核心因果链：个体对教育回报的预期决定其教育参与行为。接着，引入人口流动作为关键的信息传递机制，指出一个地区的外出移民会将高教育回报地的信息传回原籍，从而提升当地年轻人的预期。为了量化这一机制，作者构建了一个加权预期模型，即用其他地区的教育回报率按该地区向各地的移民数量进行加权，来衡量一个地区对外地教育回报的整体预期。随后，作者利用中国各地区间的巨大差异进行实证检验，发现外地加权教育回报率越高，农村青少年高中入学的可能性越大，从而验证了因果链。在此基础上，作者将因果链条延伸至宏观政策：指出限制一线城市人口规模的政策，会减少人口流动，从而降低全国范围内的预期教育回报，最终抑制教育参与。作者进一步量化了这一影响，测算出人口减少对高中入学率的具体百分点影响以及所需增加的额外教育经费。最后，基于这一完整的因果分析，作者提出了系统的政策建议，核心是通过改善教育资源的空间配置（如改善农村义务教育、调整职业教育布局、促进要素流动）来提升教育回报，从而激发教育需求。\n\n## Abstract Action Chain\n\n1. Formulate a core causal hypothesis linking a distal factor to a proximal behavioral outcome.\n2. Introduce a mediating mechanism that explains how the distal factor transmits its influence to the proximal outcome.\n3. Construct a formal model (e.g., weighted expectation, diffusion equation) to operationalize the mediating mechanism.\n4. Empirically test the causal chain using cross-sectional or panel data, exploiting variation in the mediating variable.\n5. Extend the causal chain to a higher-level policy or institutional variable, showing how it modulates the entire mechanism.\n6. Quantify the aggregate impact of the policy variable on the final outcome, and derive actionable recommendations.",
+    "document_id": "8ac2b16a-4642-4177-8c15-a7cd4242e6fb",
+    "book_title": "2019张翕、陆铭《学术月刊》：提高回报__激发需求_改善中国农村教育的空间政治经济学",
+    "chapter_title": "提高回报激发需求——改善中国农村教育的空间政治经济学",
+    "source_context": {
+      "document_id": "8ac2b16a-4642-4177-8c15-a7cd4242e6fb",
+      "book_title": "2019张翕、陆铭《学术月刊》：提高回报__激发需求_改善中国农村教育的空间政治经济学",
+      "chapter_title": "提高回报激发需求——改善中国农村教育的空间政治经济学"
+    },
+    "model_name": "deepseek-chat",
+    "api_base": "https://api.deepseek.com"
+  },
+  {
+    "main_skill_id": "main_skill_007",
+    "section_id": "ab346969-9def-4699-90e7-15d7b5c69a2d",
+    "name": "Causal Chain Analysis",
+    "normalized_pattern": "Causal Chain Analysis",
+    "file_name": "main_skill_007_Causal_Chain_Analysis.md",
+    "markdown": "---\nname: \"Causal Chain Analysis\"\ntype: \"sub_skill\"\ndescription: \"适用于需要从理论推导出发，通过实证检验反驳常见假设，并揭示深层结构性扭曲，最终形成政策建议的论证场景。该方法特别适合处理具有明确因果逻辑链条、且存在普遍误解或争议的复杂问题。\"\nsection_id: \"ab346969-9def-4699-90e7-15d7b5c69a2d\"\nmain_skill_id: \"main_skill_007\"\nnormalized_pattern: \"Causal Chain Analysis\"\nsource_chunk_ids: [3]\n---\n\n# Causal Chain Analysis\n\n## Description\n\n适用于需要从理论推导出发，通过实证检验反驳常见假设，并揭示深层结构性扭曲，最终形成政策建议的论证场景。该方法特别适合处理具有明确因果逻辑链条、且存在普遍误解或争议的复杂问题。\n\n## Method Program Summary\n\n首先，从微观行为或基本假设出发构建一个简化的理论模型，通过逻辑推导得出核心结论或悖论框架。其次，利用相关领域的实证数据（如面板数据、回归分析）对普遍存在的常见假设进行检验，并基于证据予以反驳。然后，引入最优或基准理论，识别并分析导致现实偏离理想状态的供给侧或结构性扭曲因素。最后，基于完整的因果链条，比较不同路径或潜在状态，并据此提出具有针对性的系统性政策建议。\n\n## Method Program Example\n\n首先，构建一个简化的空间均衡模型，从人口自由选址的微观行为出发，推导出人口持续向城市集中的必然性，并引入成本项，进而提出城市发展的“三元悖论”（增长、宜居、和谐不可兼得）。其次，利用中国城市层面的污染和拥堵数据，通过相关性分析和回归分析，反驳“人口规模导致严重城市病”的常见观点，证明城市病主要源于规划和管理问题。然后，引入最优城市规模理论，指出中国数据拟合的倒U型曲线因供给侧扭曲（如土地供应、户籍制度、规划滞后）而低于潜在水平，从而揭示控制人口政策的误导性。最后，基于上述因果链条，提出“有病治病，无需控人”的核心结论，并给出具体的供给侧改革政策建议。\n\n## Abstract Action Chain\n\n1. 构建理论模型并推导核心逻辑结论\n2. 提出悖论或矛盾框架以揭示问题本质\n3. 利用实证数据检验并反驳常见假设\n4. 识别并分析供给侧或结构性扭曲因素\n5. 比较不同路径或潜在状态以揭示偏差\n6. 基于因果链条提出系统性政策建议",
+    "document_id": "f4321a41-45b0-43af-87be-9fdcf2a5c187",
+    "book_title": "2019陆铭、李杰伟、韩立彬《经济社会体制比较》：治理城市病_如何实现增长_宜居与和谐（总结）",
+    "chapter_title": "治理城市病: 如何实现增长、宜居与和谐？",
+    "source_context": {
+      "document_id": "f4321a41-45b0-43af-87be-9fdcf2a5c187",
+      "book_title": "2019陆铭、李杰伟、韩立彬《经济社会体制比较》：治理城市病_如何实现增长_宜居与和谐（总结）",
+      "chapter_title": "治理城市病: 如何实现增长、宜居与和谐？"
+    },
+    "model_name": "deepseek-chat",
+    "api_base": "https://api.deepseek.com"
+  },
+  {
+    "main_skill_id": "main_skill_005",
+    "section_id": "ee363190-d5c3-4400-a581-f58e924e8e5b",
+    "name": "Mechanism Analysis",
+    "normalized_pattern": "Mechanism Analysis",
+    "file_name": "main_skill_005_Mechanism_Analysis.md",
+    "markdown": "---\nname: \"Mechanism Analysis\"\ntype: \"sub_skill\"\ndescription: \"适用于需要解释某一现象或变量如何通过内在逻辑链条产生特定结果的研究场景。该方法通常在提出理论假设后，需要结合实证数据或案例进行验证时使用，尤其适合分析中介机制或传导路径。\"\nsection_id: \"ee363190-d5c3-4400-a581-f58e924e8e5b\"\nmain_skill_id: \"main_skill_005\"\nnormalized_pattern: \"Mechanism Analysis\"\nsource_chunk_ids: [1]\n---\n\n# Mechanism Analysis\n\n## Description\n\n适用于需要解释某一现象或变量如何通过内在逻辑链条产生特定结果的研究场景。该方法通常在提出理论假设后，需要结合实证数据或案例进行验证时使用，尤其适合分析中介机制或传导路径。\n\n## Method Program Summary\n\n首先，从相关理论出发，提出一个核心机制，明确该机制如何通过特定中介因素或过程产生预期结果。然后，基于该机制构建一个多维度分析框架，用于后续验证。接着，引入具体的实证数据或案例材料，作为验证基础。之后，从多个预设维度对机制的表现进行验证，通常包括范围、价格、集聚等可观测指标。进一步，深入分析数据特征，揭示数据在微观决策或宏观指标构建中的信息作用，并展示其动态规律。最后，总结该机制对整体现象的贡献，并据此提出具有可操作性的政策或实践建议。\n\n## Method Program Example\n\n首先，从集聚经济与市场一体化理论出发，提出信息技术通过强化劳动中介的规模经济效应来促进劳动力市场一体化的核心机制。然后，以‘我的打工网’为案例，利用其发薪和招聘订单数据，从跨城市服务范围、用工价格收敛、核心城市集聚趋势三个维度验证该机制。接着，进一步分析就业大数据在微观决策和宏观指数构建中的信息作用，并基于数据展示灵活用工市场的季节性、趋势性和疫情冲击特征。最后，总结信息技术对跨城市协调的贡献，并提出政策建议。\n\n## Abstract Action Chain\n\n1. 提出核心理论机制与逻辑链条\n2. 构建分析框架或验证维度\n3. 引入实证数据或案例材料\n4. 从多个维度验证机制表现\n5. 分析数据特征以揭示深层信息作用\n6. 总结机制贡献并提炼政策或实践含义",
+    "document_id": "192c44f3-de8f-4c5b-9c83-6eb88570b4d1",
+    "book_title": "2022向宽虎、陆铭《苏州大学学报》：信息技术、新型劳动中介和长三角一体化",
+    "chapter_title": "信息技术、新型劳动中介和长三角一体化",
+    "source_context": {
+      "document_id": "192c44f3-de8f-4c5b-9c83-6eb88570b4d1",
+      "book_title": "2022向宽虎、陆铭《苏州大学学报》：信息技术、新型劳动中介和长三角一体化",
+      "chapter_title": "信息技术、新型劳动中介和长三角一体化"
+    },
+    "model_name": "deepseek-chat",
+    "api_base": "https://api.deepseek.com"
+  },
+  {
+    "main_skill_id": "main_skill_016",
+    "section_id": "0006890f-ad25-4803-a1e0-14698cb09d2e",
+    "name": "Causal Derivation with Endogeneity and Distortion Estimation",
+    "normalized_pattern": "Causal Derivation",
+    "file_name": "main_skill_016_Causal_Derivation_with_Endogeneity_and_Distortion_Estimation.md",
+    "markdown": "---\nname: \"Causal Derivation with Endogeneity and Distortion Estimation\"\ntype: \"sub_skill\"\ndescription: \"This sub-skill is applicable when the goal is to establish a causal relationship between an explanatory variable and an outcome variable, address potential endogeneity through instrumental variables, and further quantify the distorting effects of institutional or structural constraints on the estimated causal effect.\"\nsection_id: \"0006890f-ad25-4803-a1e0-14698cb09d2e\"\nmain_skill_id: \"main_skill_016\"\nnormalized_pattern: \"Causal Derivation\"\nsource_chunk_ids: [10]\n---\n\n# Causal Derivation with Endogeneity and Distortion Estimation\n\n## Description\n\nThis sub-skill is applicable when the goal is to establish a causal relationship between an explanatory variable and an outcome variable, address potential endogeneity through instrumental variables, and further quantify the distorting effects of institutional or structural constraints on the estimated causal effect.\n\n## Method Program Summary\n\nFirst, explicitly state the core causal hypothesis that a specific factor drives the outcome. Then, run a baseline regression model (e.g., OLS) on the relevant dataset to establish a preliminary statistical association. Next, test the proposed causal mechanism by regressing a mediating variable on the explanatory variable, confirming the logical pathway. To overcome endogeneity concerns, select an instrumental variable that is correlated with the explanatory variable but exogenous to the outcome, and implement a 2SLS regression. Finally, use the estimated coefficients from the causal model, in conjunction with known or estimated parameters of institutional constraints, to compute the net distortion effect—quantifying how much the observed outcome deviates from the counterfactual scenario without those constraints.\n\n## Method Program Example\n\n作者首先提出人口密度促进服务业发展的核心假设，并通过年度和月度家庭服务消费占比数据以及城乡分样本进行基准回归验证。接着，利用个体时间利用数据检验机制，发现人口密度通过增加社会交往时间、减少休闲时间促进服务消费。然后，针对人口密度的内生性问题，采用土地供应增长率作为工具变量进行两阶段最小二乘回归，并进行了排他性检验。最后，基于户籍制度、土地供应政策等制度约束，利用前文回归系数估算这些扭曲对服务业发展的具体影响幅度，从而量化解释服务业占比偏低的原因。\n\n## Abstract Action Chain\n\n1. Formulate a core causal hypothesis linking a key explanatory variable to an outcome of interest.\n2. Conduct a baseline regression using observational data to test the hypothesized relationship.\n3. Perform mechanism analysis to validate the underlying causal channel through which the explanatory variable operates.\n4. Address endogeneity by identifying and applying a valid instrumental variable in a two-stage least squares (2SLS) regression.\n5. Estimate the magnitude of distortion effects by combining regression coefficients with parameters representing institutional or structural constraints.",
+    "document_id": "c4819dbf-3c02-44da-b1a1-38aa713dfe91",
+    "book_title": "2020钟粤俊、陆铭《管理世界》：集聚与服务业发展_基于人口空间分布的视角",
+    "chapter_title": "集聚与服务业发展——基于人口空间分布的视角",
+    "source_context": {
+      "document_id": "c4819dbf-3c02-44da-b1a1-38aa713dfe91",
+      "book_title": "2020钟粤俊、陆铭《管理世界》：集聚与服务业发展_基于人口空间分布的视角",
+      "chapter_title": "集聚与服务业发展——基于人口空间分布的视角"
+    },
+    "model_name": "deepseek-chat",
+    "api_base": "https://api.deepseek.com"
+  },
+  {
+    "main_skill_id": "main_skill_014",
+    "section_id": "195d2a2a-eda7-4167-8f23-093cca35d300",
+    "name": "Ideal-Reference Comparison",
+    "normalized_pattern": "Concept Comparison",
+    "file_name": "main_skill_014_Ideal-Reference_Comparison.md",
+    "markdown": "---\nname: \"Ideal-Reference Comparison\"\ntype: \"sub_skill\"\ndescription: \"This method is applicable when the goal is to evaluate or analyze a real-world system, policy, or phenomenon by contrasting it with a normative or idealized framework. It is particularly useful for identifying gaps, deviations, or shortcomings in the current state relative to a desired or theoretical standard, and for generating reform directions or improvement strategies.\"\nsection_id: \"195d2a2a-eda7-4167-8f23-093cca35d300\"\nmain_skill_id: \"main_skill_014\"\nnormalized_pattern: \"Concept Comparison\"\nsource_chunk_ids: [7]\n---\n\n# Ideal-Reference Comparison\n\n## Description\n\nThis method is applicable when the goal is to evaluate or analyze a real-world system, policy, or phenomenon by contrasting it with a normative or idealized framework. It is particularly useful for identifying gaps, deviations, or shortcomings in the current state relative to a desired or theoretical standard, and for generating reform directions or improvement strategies.\n\n## Method Program Summary\n\nFirst, define a normative or ideal reference framework that embodies the desired goals, values, or principles, and explicitly break it down into its core dimensions. Then, systematically compare the actual system or phenomenon against each dimension of this reference, noting where and how the reality diverges. Next, investigate the historical, institutional, or contextual factors that have caused these divergences. Finally, based on the identified gaps and their root causes, formulate concrete recommendations or reform pathways to move the real system closer to the ideal reference.\n\n## Method Program Example\n\n作者首先构建了一个‘长期、全局、多维的发展’作为理想参照系，并对其三个维度进行详细分解。随后，将中国特色社会主义市场经济体制（包括一般性、社会主义价值观、中国特色）与该参照系进行系统比较，识别出地方政府行为等现实因素与理想目标之间的偏差。最后，通过历史追溯（从计划经济到双轨制再到市场定价）解释这些偏差的体制根源，并据此提出完善市场经济体制的改革方向。\n\n## Abstract Action Chain\n\n1. Construct an ideal reference framework with clearly defined dimensions or criteria\n2. Decompose the reference framework into its constituent dimensions or principles\n3. Map the real-world system or phenomenon onto the same dimensions for systematic comparison\n4. Identify specific deviations or gaps between the real system and the ideal reference\n5. Trace the historical or structural origins of the identified deviations\n6. Propose targeted adjustments or reforms to align the real system with the ideal reference",
+    "document_id": "b2f2de67-627e-48ed-bda9-dacb9941a207",
+    "book_title": "2022陆铭《学术月刊》：面向长期、全局、多维的发展：中国道路的政治经济学（总结）",
+    "chapter_title": "面向长期、全局、多维的发展：中国道路的政治经济学",
+    "source_context": {
+      "document_id": "b2f2de67-627e-48ed-bda9-dacb9941a207",
+      "book_title": "2022陆铭《学术月刊》：面向长期、全局、多维的发展：中国道路的政治经济学（总结）",
+      "chapter_title": "面向长期、全局、多维的发展：中国道路的政治经济学"
+    },
+    "model_name": "deepseek-chat",
+    "api_base": "https://api.deepseek.com"
+  },
+  {
+    "main_skill_id": "main_skill_014",
+    "section_id": "195d2a2a-eda7-4167-8f23-093cca35d300",
+    "name": "Concept Redefinition",
+    "normalized_pattern": "Concept Redefinition",
+    "file_name": "main_skill_014_Concept_Redefinition.md",
+    "markdown": "---\nname: \"Concept Redefinition\"\ntype: \"sub_skill\"\ndescription: \"当现有核心概念无法准确解释现实问题或导致认知偏差时，通过重新定义该概念（如扩大、缩小或转换其内涵与外延），以建立新的分析框架，从而揭示深层问题并推导出解决方案。\"\nsection_id: \"195d2a2a-eda7-4167-8f23-093cca35d300\"\nmain_skill_id: \"main_skill_014\"\nnormalized_pattern: \"Concept Redefinition\"\nsource_chunk_ids: [8]\n---\n\n# Concept Redefinition\n\n## Description\n\n当现有核心概念无法准确解释现实问题或导致认知偏差时，通过重新定义该概念（如扩大、缩小或转换其内涵与外延），以建立新的分析框架，从而揭示深层问题并推导出解决方案。\n\n## Method Program Summary\n\n首先，对现有核心概念进行重新定义，通常是通过扩大、缩小或转换其内涵与外延，以纠正原有概念带来的认知偏差或分析局限。接着，通过国际比较、历史比较或理论对比等方式，论证新定义的合理性与更强的解释力。然后，基于新定义的分析框架，系统识别并分析阻碍目标实现的制度性或结构性障碍。在此基础上，深入分析这些障碍如何导致资源错配、效率损失或结构失衡等负面后果。最后，论证通过采纳新定义所指向的路径或策略（如一体化、协同发展），可以释放被压抑的结构性红利，实现经济、社会或系统的转型与高质量发展。\n\n## Method Program Example\n\n首先，通过国际比较（如东京、纽约都市圈）重新定义‘城市’为‘都市圈’这一经济空间单元，以纠正行政辖区概念带来的认知偏差。然后，系统识别户籍、土地、金融等制度性障碍，分析这些障碍如何导致劳动力、土地、资本等生产要素的空间错配和结构失衡（如城市化不充分、城乡收入差距、投资消费失衡）。最后，论证通过打破行政边界、推进都市圈一体化（如统一规划、轨道交通、土地开发）可以释放结构性红利，实现经济结构转型和高质量发展。\n\n## Abstract Action Chain\n\n1. 重新定义核心概念，明确其新内涵与外延\n2. 通过比较（如国际比较、历史比较）论证新定义的合理性与解释力\n3. 基于新定义识别并分析阻碍目标实现的制度性或结构性障碍\n4. 分析障碍如何导致资源错配、效率损失或结构失衡\n5. 论证基于新定义的路径或策略如何释放潜在红利、实现转型目标",
+    "document_id": "b2f2de67-627e-48ed-bda9-dacb9941a207",
+    "book_title": "2022陆铭《学术月刊》：面向长期、全局、多维的发展：中国道路的政治经济学（总结）",
+    "chapter_title": "面向长期、全局、多维的发展：中国道路的政治经济学",
+    "source_context": {
+      "document_id": "b2f2de67-627e-48ed-bda9-dacb9941a207",
+      "book_title": "2022陆铭《学术月刊》：面向长期、全局、多维的发展：中国道路的政治经济学（总结）",
+      "chapter_title": "面向长期、全局、多维的发展：中国道路的政治经济学"
+    },
+    "model_name": "deepseek-chat",
+    "api_base": "https://api.deepseek.com"
+  },
+  {
+    "main_skill_id": "main_skill_010",
+    "section_id": "1eca51b3-e951-421e-b238-44ac05fea898",
+    "name": "Causal Chain Analysis",
+    "normalized_pattern": "Causal Chain Analysis",
+    "file_name": "main_skill_010_Causal_Chain_Analysis.md",
+    "markdown": "---\nname: \"Causal Chain Analysis\"\ntype: \"sub_skill\"\ndescription: \"适用于需要验证一个核心自变量对因变量的因果影响，并进一步揭示其作用机制和异质性条件的研究场景。该方法通常在研究者已具备理论假说、面板数据或准自然实验条件时使用，旨在通过逐步递进的实证检验构建完整的因果链条。\"\nsection_id: \"1eca51b3-e951-421e-b238-44ac05fea898\"\nmain_skill_id: \"main_skill_010\"\nnormalized_pattern: \"Causal Chain Analysis\"\nsource_chunk_ids: [2]\n---\n\n# Causal Chain Analysis\n\n## Description\n\n适用于需要验证一个核心自变量对因变量的因果影响，并进一步揭示其作用机制和异质性条件的研究场景。该方法通常在研究者已具备理论假说、面板数据或准自然实验条件时使用，旨在通过逐步递进的实证检验构建完整的因果链条。\n\n## Method Program Summary\n\n首先从理论出发，明确自变量对因变量的预期影响方向与逻辑，形成可检验的假说。接着，选择适当的因果识别策略（如双重差分、工具变量等）构建基准回归模型，估计核心因果效应。然后，对识别假设进行诊断性检验（如平行趋势检验、安慰剂检验等），确保估计结果的可信度。在此基础上，通过分组回归或交互项分析，考察因果效应在不同子样本或调节变量下的异质性表现。最后，引入中介变量或使用更细粒度的数据，通过逐步回归或结构方程等方法，验证从自变量到因变量的中间传导机制，从而完成整个因果链条的实证闭合。\n\n## Method Program Example\n\n首先基于理论推导提出假说，明确税收激励变化对商服和住宅用地出让的因果影响；然后利用渐进DID模型进行基准回归，验证核心因果效应；接着通过平行趋势检验确保识别有效性；再通过异质性分析（受改革影响程度、财政指标、土地供给约束）揭示因果机制的异质性；最后利用微观数据和中介效应分析进一步验证机制和空间差异。\n\n## Abstract Action Chain\n\n1. 基于理论推导提出核心因果假说\n2. 构建并估计基准计量模型以验证主效应\n3. 检验识别假设的有效性（如平行趋势）\n4. 通过异质性分析揭示因果效应的条件差异\n5. 利用中介效应或微观数据检验中间机制",
+    "document_id": "2e5428c9-e1ff-4204-815a-264790f9da1f",
+    "book_title": "2022陆铭、刘雅丽《经济学（季刊）》：税收激励与城市商住用地结构...—来自“营改增”的经验证据_张莉",
+    "chapter_title": "税收激励与城市商住用地结构——来自“营改增”的经验证据",
+    "source_context": {
+      "document_id": "2e5428c9-e1ff-4204-815a-264790f9da1f",
+      "book_title": "2022陆铭、刘雅丽《经济学（季刊）》：税收激励与城市商住用地结构...—来自“营改增”的经验证据_张莉",
+      "chapter_title": "税收激励与城市商住用地结构——来自“营改增”的经验证据"
+    },
+    "model_name": "deepseek-chat",
+    "api_base": "https://api.deepseek.com"
+  },
+  {
+    "main_skill_id": "main_skill_011",
+    "section_id": "6acf3a30-6488-482f-a641-8925aca709ee",
+    "name": "Concept Decomposition for Policy Analysis",
+    "normalized_pattern": "Concept Decomposition",
+    "file_name": "main_skill_011_Concept_Decomposition_for_Policy_Analysis.md",
+    "markdown": "---\nname: \"Concept Decomposition for Policy Analysis\"\ntype: \"sub_skill\"\ndescription: \"This sub-skill is applicable when the goal is to analyze a complex institutional or policy object (e.g., a land system, a regulation, or a social program) by breaking it down into its conceptual components, redefining its core terms, and then deriving differentiated recommendations based on contextual factors.\"\nsection_id: \"6acf3a30-6488-482f-a641-8925aca709ee\"\nmain_skill_id: \"main_skill_011\"\nnormalized_pattern: \"Concept Decomposition\"\nsource_chunk_ids: [3]\n---\n\n# Concept Decomposition for Policy Analysis\n\n## Description\n\nThis sub-skill is applicable when the goal is to analyze a complex institutional or policy object (e.g., a land system, a regulation, or a social program) by breaking it down into its conceptual components, redefining its core terms, and then deriving differentiated recommendations based on contextual factors.\n\n## Method Program Summary\n\nBegin by applying a relevant theoretical lens to decompose the target concept into its essential attributes or rights, establishing a clear definition. Then, systematically identify and critique any common misunderstandings or false equivalencies that obscure the concept's true nature. Next, demonstrate how the concept's components can be logically separated or unbundled, which allows for more nuanced treatment. After establishing this conceptual clarity, introduce external comparative factors (such as geography or industry) that determine the concept's practical significance. Use these factors to classify the subject into a limited set of archetypes. Finally, for each archetype, derive and propose a tailored set of actions or policies that are logically consistent with the preceding analysis.\n\n## Method Program Example\n\n首先，从产权理论出发，明确宅基地的产权属性，指出其可交易性和可分割性是市场配置资源的前提。其次，批判性地辨析宅基地与社会保障的关系，论证宅基地不能替代社会保障，并指出限制流转的误区。然后，基于产权可分割性理论，论证宅基地权利可以分解，并强调明确权利界定的必要性。接着，引入地理与产业比较优势，说明宅基地价值取决于区位和产业条件。最后，以山西省吕梁市为例，将闲置宅基地分为四类（城市近郊、良好禀赋、偏远地区、易地搬迁），分别提出因地制宜的改革建议，并总结政策方向。\n\n## Abstract Action Chain\n\n1. Decompose the core concept into its fundamental attributes or rights using established theoretical frameworks.\n2. Critically examine and refute common misconceptions or conflations associated with the concept.\n3. Argue for the separability or divisibility of the concept's components to enable flexible application.\n4. Identify key contextual or comparative factors (e.g., geographic, economic) that influence the concept's value or behavior.\n5. Classify the object of analysis into distinct types based on the identified factors.\n6. Formulate differentiated, context-specific recommendations or policy directions for each type.",
+    "document_id": "35691a9d-cdca-4b55-9576-74aa199198da",
+    "book_title": "2021陆铭、贾宁、郑怡林《农业经济问题》：有效利用农村宅基地——基于山西省吕梁市调研的理论和政策分析_陆铭",
+    "chapter_title": "有效利用农村宅基地——基于山西省吕梁市调研的理论和政策分析",
+    "source_context": {
+      "document_id": "35691a9d-cdca-4b55-9576-74aa199198da",
+      "book_title": "2021陆铭、贾宁、郑怡林《农业经济问题》：有效利用农村宅基地——基于山西省吕梁市调研的理论和政策分析_陆铭",
+      "chapter_title": "有效利用农村宅基地——基于山西省吕梁市调研的理论和政策分析"
+    },
+    "model_name": "deepseek-chat",
+    "api_base": "https://api.deepseek.com"
+  },
+  {
+    "main_skill_id": "main_skill_009",
+    "section_id": "8dd2b3a0-0828-49a3-b4b0-d14aeb6f0718",
+    "name": "Historical Evolution Analysis",
+    "normalized_pattern": "Historical Evolution Analysis",
+    "file_name": "main_skill_009_Historical_Evolution_Analysis.md",
+    "markdown": "---\nname: \"Historical Evolution Analysis\"\ntype: \"sub_skill\"\ndescription: \"适用于分析某一政策或干预措施在长期历史背景下的效果演变，特别是当需要检验政策效果的持久性、是否存在回归历史趋势的机制，以及识别导致效果消退的因果因素时。该方法尤其适合利用历史自然实验或外生冲击来识别因果效应。\"\nsection_id: \"8dd2b3a0-0828-49a3-b4b0-d14aeb6f0718\"\nmain_skill_id: \"main_skill_009\"\nnormalized_pattern: \"Historical Evolution Analysis\"\nsource_chunk_ids: [1]\n---\n\n# Historical Evolution Analysis\n\n## Description\n\n适用于分析某一政策或干预措施在长期历史背景下的效果演变，特别是当需要检验政策效果的持久性、是否存在回归历史趋势的机制，以及识别导致效果消退的因果因素时。该方法尤其适合利用历史自然实验或外生冲击来识别因果效应。\n\n## Method Program Summary\n\n首先，从现实或理论问题出发，明确待检验的政策干预及其长期效果假设，并阐述相关的理论机制（如路径依赖、自我强化或回归趋势）。然后，利用历史数据（如历史人物、事件或地理分布）构建一个反映长期均衡状态的历史基准分布。接着，识别一个外生的政策冲击（如历史上的搬迁、改革或自然实验），并论证其外生性。通过比较政策干预前后，当前分布与历史基准分布之间的相关性或相似度的变化，来评估政策效果的持久性：若相关性随时间回升，则表明存在回归历史趋势。最后，通过因果推断方法（如工具变量、分样本分析）检验导致回归趋势的具体机制（如地理、经济或制度因素），并总结政策效果的长期动态及其政策含义。\n\n## Method Program Example\n\n首先，作者从现实问题出发，提出行政性人力资本均衡政策是否可持续的疑问。然后，从理论上阐述人力资本空间集聚的自我强化机制和路径依赖，并指出政策干预可能无效的条件。接着，利用明清进士数据构建历史人力资本分布，并识别20世纪50年代高校搬迁作为外生政策冲击。通过比较不同时期城市人力资本与历史分布的相关性，发现政策效果随时间弱化，而历史分布的影响逐渐增强。最后，通过工具变量回归和分样本分析，揭示地理区位和贸易开放是导致政策效果消退、人力资本向历史分布回归的因果机制。\n\n## Abstract Action Chain\n\n1. 界定研究问题与理论框架\n2. 构建历史基准分布数据\n3. 识别并验证外生政策冲击\n4. 比较政策前后分布与历史基准的相关性变化\n5. 检验回归历史趋势的因果机制\n6. 总结政策效果的长期动态与含义",
+    "document_id": "01e2944a-2087-431f-8d07-7282dabbf078",
+    "book_title": "2018夏怡然、陆铭《学术月刊》：行政主导的人力资本均衡可否持续_让历史告诉未来",
+    "chapter_title": "行政主导的人力资本均衡可否持续：让历史告诉未来",
+    "source_context": {
+      "document_id": "01e2944a-2087-431f-8d07-7282dabbf078",
+      "book_title": "2018夏怡然、陆铭《学术月刊》：行政主导的人力资本均衡可否持续_让历史告诉未来",
+      "chapter_title": "行政主导的人力资本均衡可否持续：让历史告诉未来"
+    },
+    "model_name": "deepseek-chat",
+    "api_base": "https://api.deepseek.com"
+  },
+  {
+    "main_skill_id": "main_skill_013",
+    "section_id": "945fef32-3c4a-43ee-b0ca-653bc442b8d4",
+    "name": "Causal Derivation via Exogenous Shock",
+    "normalized_pattern": "Causal Derivation",
+    "file_name": "main_skill_013_Causal_Derivation_via_Exogenous_Shock.md",
+    "markdown": "---\nname: \"Causal Derivation via Exogenous Shock\"\ntype: \"sub_skill\"\ndescription: \"该方法适用于需要从观测数据中推断因果关系，且存在一个明确的外生事件（如政策变化、市场准入、自然灾害等）可作为竞争或处理强度代理变量的场景。核心前提是研究者能够基于理论提出可检验的因果假设，并拥有足够的数据进行多维度验证。\"\nsection_id: \"945fef32-3c4a-43ee-b0ca-653bc442b8d4\"\nmain_skill_id: \"main_skill_013\"\nnormalized_pattern: \"Causal Derivation\"\nsource_chunk_ids: [5]\n---\n\n# Causal Derivation via Exogenous Shock\n\n## Description\n\n该方法适用于需要从观测数据中推断因果关系，且存在一个明确的外生事件（如政策变化、市场准入、自然灾害等）可作为竞争或处理强度代理变量的场景。核心前提是研究者能够基于理论提出可检验的因果假设，并拥有足够的数据进行多维度验证。\n\n## Method Program Summary\n\n首先，基于理论分析提出待检验的因果假设，明确自变量与因变量之间的预期关系。然后，识别一个外生事件作为自然实验或竞争强度的代理变量，据此构建关键解释变量（如市场份额、处理组指示变量等）。接着，建立适当的计量模型（如面板固定效应模型、双重差分模型等）进行基准回归，检验核心假设是否成立。之后，通过替换变量定义、安慰剂检验、工具变量法、排除遗漏变量等多种策略进行稳健性检验，以增强因果推断的可信度。在此基础上，通过分组回归或交互项分析进行异质性分析，探索不同情境或子样本下因果效应的差异。最后，进一步分析该因果效应在相关领域（如溢出效应、长期影响等）的经济后果，从而完整地论证因果链条的成立与影响范围。\n\n## Method Program Example\n\n首先，基于理论分析提出两个核心假设：评级竞争导致评级虚高（H1）和评级质量下降（H2）。然后，利用D评级机构进入市场这一外生事件，构建以行业市场份额（Share）衡量竞争程度的计量模型。通过基准回归验证假设，随后通过替换变量、安慰剂检验、工具变量等多种方法进行稳健性检验，以增强因果推断的可信度。接着，通过分组回归进行异质性分析，探讨利益冲突、外资背景等因素如何调节竞争的影响。最后，进一步分析评级质量下降对股票市场的溢出效应，从而完整地论证了评级竞争对债券市场和股票市场的因果链条。\n\n## Abstract Action Chain\n\n1. 基于理论提出核心因果假设\n2. 利用外生事件构建关键解释变量\n3. 建立计量模型进行基准回归检验\n4. 通过多种稳健性检验排除替代解释\n5. 进行异质性分析揭示调节机制\n6. 拓展分析因果链条的经济后果",
+    "document_id": "984c0f90-c654-4614-9d25-63dc92903714",
+    "book_title": "2022钟辉勇《金融研究》：金融中介机构竞争的市场反应——来自信用评级机构的证据_林晚发",
+    "chapter_title": "金融中介机构竞争的市场反应--来自信用评级机构的证据",
+    "source_context": {
+      "document_id": "984c0f90-c654-4614-9d25-63dc92903714",
+      "book_title": "2022钟辉勇《金融研究》：金融中介机构竞争的市场反应——来自信用评级机构的证据_林晚发",
+      "chapter_title": "金融中介机构竞争的市场反应--来自信用评级机构的证据"
+    },
+    "model_name": "deepseek-chat",
+    "api_base": "https://api.deepseek.com"
+  },
+  {
+    "main_skill_id": "main_skill_013",
+    "section_id": "945fef32-3c4a-43ee-b0ca-653bc442b8d4",
+    "name": "Concept Comparison",
+    "normalized_pattern": "Concept Comparison",
+    "file_name": "main_skill_013_Concept_Comparison.md",
+    "markdown": "---\nname: \"Concept Comparison\"\ntype: \"sub_skill\"\ndescription: \"适用于需要评估现实系统与理想或理论基准之间差距的场景，特别是当存在明确的理论标准（如最优条件、均衡状态）可用于衡量现实偏差时。该方法常用于诊断结构性或系统性问题，并推导改进方向。\"\nsection_id: \"945fef32-3c4a-43ee-b0ca-653bc442b8d4\"\nmain_skill_id: \"main_skill_013\"\nnormalized_pattern: \"Concept Comparison\"\nsource_chunk_ids: [6]\n---\n\n# Concept Comparison\n\n## Description\n\n适用于需要评估现实系统与理想或理论基准之间差距的场景，特别是当存在明确的理论标准（如最优条件、均衡状态）可用于衡量现实偏差时。该方法常用于诊断结构性或系统性问题，并推导改进方向。\n\n## Method Program Summary\n\n首先，明确并构建一个或多个理论参照系（如最优条件、均衡状态），作为衡量现实的标准。然后，系统性地将现实系统的关键特征（如数据、行为、配置）与参照系进行对比，识别出所有显著的偏差或差距。接着，对这些偏差进行分类和定性（如结构性扭曲、空间错配），并深入分析其产生的根本原因及带来的后果。最后，基于偏差的成因分析，推导出纠正偏差、使现实趋近于参照系的具体行动或政策方向。\n\n## Method Program Example\n\n首先，作者引入经济增长的黄金律和空间均衡作为两个理论参照系，建立短期与长期、局部与全局的最优关系标准。然后，将中国经济的实际运行数据（如投资率、利率、人口流动、土地供应等）与参照系进行系统对比，揭示出偏离黄金律的结构性扭曲（如金融抑制、投资过度、消费不足）和偏离空间均衡的空间错配（如人口流入地土地供应不足、欠发达地区过度投资）。接着，基于这些偏差，作者诊断中国经济增速下滑并非通常的经济周期，而是结构性扭曲的代价，并进一步分析2003年政策拐点如何加剧了资源错配。最后，从生产要素市场改革、政府行为转型、转移支付有效性等角度提出纠正扭曲、释放制度红利的政策含义。\n\n## Abstract Action Chain\n\n1. 建立理论参照系或理想基准\n2. 将现实系统状态与参照系进行系统对比\n3. 识别并分类关键偏差（如结构性扭曲、错配）\n4. 分析偏差的成因与后果\n5. 基于偏差分析推导改进或政策方向",
+    "document_id": "984c0f90-c654-4614-9d25-63dc92903714",
+    "book_title": "2022钟辉勇《金融研究》：金融中介机构竞争的市场反应——来自信用评级机构的证据_林晚发",
+    "chapter_title": "金融中介机构竞争的市场反应--来自信用评级机构的证据",
+    "source_context": {
+      "document_id": "984c0f90-c654-4614-9d25-63dc92903714",
+      "book_title": "2022钟辉勇《金融研究》：金融中介机构竞争的市场反应——来自信用评级机构的证据_林晚发",
+      "chapter_title": "金融中介机构竞争的市场反应--来自信用评级机构的证据"
+    },
+    "model_name": "deepseek-chat",
+    "api_base": "https://api.deepseek.com"
+  },
+  {
+    "main_skill_id": "main_skill_015",
+    "section_id": "a7452baf-903b-4c73-98f0-3712b690b019",
+    "name": "Causal Derivation via Multi-Level Empirical Validation",
+    "normalized_pattern": "Causal Derivation",
+    "file_name": "main_skill_015_Causal_Derivation_via_Multi-Level_Empirical_Validation.md",
+    "markdown": "---\nname: \"Causal Derivation via Multi-Level Empirical Validation\"\ntype: \"sub_skill\"\ndescription: \"适用于需要从宏观与微观两个层面，系统性地验证一个核心自变量对因变量的因果影响，并进一步检验调节效应与中介机制的研究场景。该方法特别适合使用面板数据，且需要排除多种替代性解释、进行稳健性检验和反事实测算的实证分析。\"\nsection_id: \"a7452baf-903b-4c73-98f0-3712b690b019\"\nmain_skill_id: \"main_skill_015\"\nnormalized_pattern: \"Causal Derivation\"\nsource_chunk_ids: [9]\n---\n\n# Causal Derivation via Multi-Level Empirical Validation\n\n## Description\n\n适用于需要从宏观与微观两个层面，系统性地验证一个核心自变量对因变量的因果影响，并进一步检验调节效应与中介机制的研究场景。该方法特别适合使用面板数据，且需要排除多种替代性解释、进行稳健性检验和反事实测算的实证分析。\n\n## Method Program Summary\n\n首先，基于理论或事实提出核心因果假设，并构建包含核心自变量、控制变量和固定效应的线性回归模型。然后，利用面板数据进行基准回归，并通过替换变量、调整固定效应、控制更多特征、剔除极端值等多种方式进行稳健性检验。接着，通过控制已知的干扰因素（如政策、区域特征）以及使用微观层面数据验证核心效应的特定表现，来排除替代性解释。之后，引入调节变量与核心自变量的交互项，检验调节效应，并针对不同子样本进行异质性分析。最后，利用微观层面的中介变量数据，检验核心自变量通过该中介变量影响因变量的机制路径，并基于模型结果进行反事实测算，量化核心自变量变化或调节变量存在时对因变量的实际影响程度。\n\n## Method Program Example\n\n首先，基于中国服务业占比偏低的事实，提出人口密度促进服务业发展的核心假设，并构建包含人口密度、控制变量和固定效应的线性回归模型。其次，利用城市面板数据进行基准回归，并通过替换变量、调整固定效应、控制更多特征、剔除极端值等多种方式进行稳健性检验。然后，通过控制资源型城市、行政区划调整、新城建设等干扰因素，以及使用微观企业数据验证人口密度对生活型服务业的特定影响，进一步排除替代性解释。接着，引入劳动力流动障碍（无本地户籍占比）与人口密度的交互项，检验其对人口密度促进效应的削弱作用，并进行大城市与小城市的异质性分析。最后，利用家庭微观数据（CFPS）检验人口密度通过影响家庭服务消费支出进而促进服务业发展的机制路径，并基于反事实测算量化人口密度下降和流动障碍对服务业占比的抑制程度。\n\n## Abstract Action Chain\n\n1. 提出核心假设并构建基准计量模型\n2. 进行基准回归与多维度稳健性检验\n3. 排除替代性解释与干扰因素\n4. 引入交互项检验调节效应并进行异质性分析\n5. 利用微观数据验证中介机制路径\n6. 进行反事实测算以量化因果效应强度",
+    "document_id": "bdcca8fd-4af0-4745-90fd-4669fb3e9ae5",
+    "book_title": "2022陆铭、彭冲《中山大学学报》：再辩大城市：消费中心城市的视角_陆铭",
+    "chapter_title": "再辩大城市：消费中心城市的视角",
+    "source_context": {
+      "document_id": "bdcca8fd-4af0-4745-90fd-4669fb3e9ae5",
+      "book_title": "2022陆铭、彭冲《中山大学学报》：再辩大城市：消费中心城市的视角_陆铭",
+      "chapter_title": "再辩大城市：消费中心城市的视角"
+    },
+    "model_name": "deepseek-chat",
+    "api_base": "https://api.deepseek.com"
+  },
+  {
+    "main_skill_id": "main_skill_012",
+    "section_id": "ab976eae-410a-403a-9024-cb947629c4e6",
+    "name": "Comparative Analysis with Spatial Equilibrium Modeling",
+    "normalized_pattern": "Comparative Analysis",
+    "file_name": "main_skill_012_Comparative_Analysis_with_Spatial_Equilibrium_Modeling.md",
+    "markdown": "---\nname: \"Comparative Analysis with Spatial Equilibrium Modeling\"\ntype: \"sub_skill\"\ndescription: \"This sub-skill is applicable when the goal is to evaluate a spatial or regional development pattern by comparing multiple geographic scales (international, national, sub-national) and using empirical data to challenge or refine existing policy assumptions. It is triggered when the analysis requires both cross-country benchmarking and within-country spatial decomposition to support a theoretical argument about agglomeration and balance.\"\nsection_id: \"ab976eae-410a-403a-9024-cb947629c4e6\"\nmain_skill_id: \"main_skill_012\"\nnormalized_pattern: \"Comparative Analysis\"\nsource_chunk_ids: [4]\n---\n\n# Comparative Analysis with Spatial Equilibrium Modeling\n\n## Description\n\nThis sub-skill is applicable when the goal is to evaluate a spatial or regional development pattern by comparing multiple geographic scales (international, national, sub-national) and using empirical data to challenge or refine existing policy assumptions. It is triggered when the analysis requires both cross-country benchmarking and within-country spatial decomposition to support a theoretical argument about agglomeration and balance.\n\n## Method Program Summary\n\nBegin by conducting international and bilateral comparisons to establish a benchmark and identify a key spatial-economic discrepancy (e.g., population lagging behind economic agglomeration). Then, decompose data across multiple administrative or geographic levels (e.g., regional, city-level) to confirm the pattern and rule out aggregation bias. Next, build a theoretical model—such as a spatial equilibrium framework—to formalize the logic behind the observed pattern, often emphasizing comparative advantage and agglomeration effects. Subsequently, use econometric methods (e.g., OLS, IV) to test how geographic variables (e.g., distance to ports, distance to large cities) affect outcomes like GDP, population mobility, or investment elasticity. After establishing empirical evidence, compare the consequences of different policy interventions (e.g., promoting industries with vs. without comparative advantage) to diagnose spatial misallocation. Finally, derive policy recommendations that aim to balance efficiency and spatial equity, grounded in the model and empirical results.\n\n## Method Program Example\n\n首先，通过国际比较和中美比较，确立“人口集聚滞后于经济集聚”这一核心判断，并以此反驳“过度集聚”的流行看法。接着，从地区层面和地级市层面进行数据分解，进一步验证人口与经济集聚的不同步性。然后，构建一个基于比较优势的空间均衡理论模型，阐述“在集聚中走向平衡”的内在逻辑。在此基础上，运用计量回归方法，系统检验地理距离（到大港口、到大城市）对GDP、人口流动、投资弹性等关键经济指标的影响，揭示地理因素的决定性作用。最后，通过对比不同区域发展政策（如帮助发展有比较优势的产业 vs. 发展无比较优势的产业）的后果，批判性地分析现有政策导致的空间错配问题，并据此提出兼顾效率与平衡的政策建议。\n\n## Abstract Action Chain\n\n1. Establish a baseline through cross-country comparisons to identify a core discrepancy or pattern\n2. Decompose data across multiple geographic scales (e.g., national, regional, local) to validate the observed discrepancy\n3. Construct a theoretical model (e.g., spatial equilibrium) to explain the underlying mechanism\n4. Apply econometric regression to test the relationship between geographic factors and key economic outcomes\n5. Compare alternative policy scenarios to evaluate spatial misallocation or inefficiency\n6. Synthesize findings into policy recommendations that reconcile efficiency and equity",
+    "document_id": "5a8801dc-1d47-4ae1-8cc9-d9f419a29a34",
+    "book_title": "2019陆铭、李鹏飞、钟辉勇《管理世界》：发展与平衡的新时代_新中国70年的空间政治经济学（总结）",
+    "chapter_title": "发展与平衡的新时代——新中国70年的空间政治经济学",
+    "source_context": {
+      "document_id": "5a8801dc-1d47-4ae1-8cc9-d9f419a29a34",
+      "book_title": "2019陆铭、李鹏飞、钟辉勇《管理世界》：发展与平衡的新时代_新中国70年的空间政治经济学（总结）",
+      "chapter_title": "发展与平衡的新时代——新中国70年的空间政治经济学"
+    },
+    "model_name": "deepseek-chat",
+    "api_base": "https://api.deepseek.com"
+  },
+  {
+    "main_skill_id": "main_skill_021",
+    "section_id": "707dd5ce-5053-4d30-8e87-6ba5212db610",
+    "name": "Institutional Constraint Analysis",
+    "normalized_pattern": "Institutional Constraint Analysis",
+    "file_name": "main_skill_021_Institutional_Constraint_Analysis.md",
+    "markdown": "---\nname: \"Institutional Constraint Analysis\"\ntype: \"sub_skill\"\ndescription: \"适用于分析特定领域或系统中，由现有制度、规则或政策框架所引发的结构性障碍、效率损失或资源配置失衡问题。该方法在需要诊断制度性成因、评估其系统性后果，并推导出基于理论原则的改革方向时使用。\"\nsection_id: \"707dd5ce-5053-4d30-8e87-6ba5212db610\"\nmain_skill_id: \"main_skill_021\"\nnormalized_pattern: \"Institutional Constraint Analysis\"\nsource_chunk_ids: [7]\n---\n\n# Institutional Constraint Analysis\n\n## Description\n\n适用于分析特定领域或系统中，由现有制度、规则或政策框架所引发的结构性障碍、效率损失或资源配置失衡问题。该方法在需要诊断制度性成因、评估其系统性后果，并推导出基于理论原则的改革方向时使用。\n\n## Method Program Summary\n\n首先，建立一个清晰的理论框架或分析基准，用以界定理想状态或效率标准。然后，系统性地识别并列举出当前存在的具体制度、规则或政策障碍。接着，逐一分析这些制度障碍如何通过特定的机制，导致资源错配、效率损失或其他负面后果。在此基础上，通过对比不同情境（如不同区域、主体或时间点）下的影响差异，揭示制度约束的非对称性。最后，基于初始的理论基准和比较优势原则，提出旨在消除或缓解这些制度障碍的改革方向或政策建议。\n\n## Method Program Example\n\n该方法以理论澄清为起点，确立分析基准；随后系统识别并列举多项具体制度障碍（如规划、土地、财政），逐一分析其如何导致资源空间错配和效率损失；通过对比人口流入地与流出地的不同情境，揭示制度约束的差异化影响；最后基于空间均衡和比较优势原则，提出针对性的政策改革路径。\n\n## Abstract Action Chain\n\n1. 确立分析的理论基准与核心概念\n2. 系统识别并列举关键制度或规则障碍\n3. 分析每项制度障碍如何导致预期外的负面后果\n4. 对比不同情境或主体下的差异化影响\n5. 基于理论原则推导出针对性的改革或优化路径",
+    "document_id": "c6231488-b097-49f7-8e1e-82b438aaa349",
+    "book_title": "2021陆铭《农业经济问题》：从分散到集聚：农村城镇化的理论、误区与改革（总结）",
+    "chapter_title": "从分散到集聚：农村城镇化的理论、误区与改革",
+    "source_context": {
+      "document_id": "c6231488-b097-49f7-8e1e-82b438aaa349",
+      "book_title": "2021陆铭《农业经济问题》：从分散到集聚：农村城镇化的理论、误区与改革（总结）",
+      "chapter_title": "从分散到集聚：农村城镇化的理论、误区与改革"
+    },
+    "model_name": "deepseek-chat",
+    "api_base": "https://api.deepseek.com"
+  },
+  {
+    "main_skill_id": "main_skill_018",
+    "section_id": "72ae6b66-ebf8-4f8e-ab98-30e9db279663",
+    "name": "Causal Derivation",
+    "normalized_pattern": "Causal Derivation",
+    "file_name": "main_skill_018_Causal_Derivation.md",
+    "markdown": "---\nname: \"Causal Derivation\"\ntype: \"sub_skill\"\ndescription: \"适用于需要从理论假说出发，通过构建计量模型和实证数据，系统性地检验因果关系、异质性效应及传导机制，并最终推导出政策含义或结论的研究场景。该方法特别适合处理具有内生性挑战或需要分步验证因果链条的实证分析问题。\"\nsection_id: \"72ae6b66-ebf8-4f8e-ab98-30e9db279663\"\nmain_skill_id: \"main_skill_018\"\nnormalized_pattern: \"Causal Derivation\"\nsource_chunk_ids: [3, 4]\n---\n\n# Causal Derivation\n\n## Description\n\n适用于需要从理论假说出发，通过构建计量模型和实证数据，系统性地检验因果关系、异质性效应及传导机制，并最终推导出政策含义或结论的研究场景。该方法特别适合处理具有内生性挑战或需要分步验证因果链条的实证分析问题。\n\n## Method Program Summary\n\n该方法从理论假说出发，明确待检验的因果逻辑关系。随后构建基准计量模型（如OLS、泊松回归或固定效应模型），并匹配相应的面板或截面数据。为克服遗漏变量、样本选择等内生性问题，采用工具变量法（如利用自然或历史变量作为工具）进行IV估计，确保因果识别的稳健性。在基准结果基础上，按关键分组变量（如时间、群体特征、规模等）进行异质性分析，揭示效应在不同条件下的差异。接着，通过分步检验中介变量或传导路径（如使用Probit模型或固定效应模型），验证因果机制的具体链条。最后，整合所有实证发现，推导出具有政策含义或理论贡献的结论。\n\n## Method Program Example\n\n作者从中国特殊的政治经济体制出发，提出官员变更、年龄与新城建设之间的因果假说。通过手工整理的地级市官员变更、新城建设和城投债面板数据，构建泊松回归和固定效应模型进行实证检验。在基准回归后，进一步按时间、人口流向和城市规模进行分组回归，以揭示效应的异质性。随后，通过Probit模型和固定效应模型检验新城建设对城投债发行、投资和短期经济增长的传导机制，并辅以稳健性检验排除竞争性假说，最终形成完整的因果链条论证。\n\n## Abstract Action Chain\n\n1. 提出理论假说并明确因果逻辑\n2. 构建基准计量模型并匹配实证数据\n3. 处理内生性问题以增强因果识别\n4. 进行异质性分析以揭示条件差异\n5. 检验机制路径以验证传导链条\n6. 整合实证发现并推导结论或政策含义",
+    "document_id": "2216f603-2531-4f0b-96d3-ff87f6e19d3b",
+    "book_title": "2019彭冲、陆铭《管理世界》：从新城看治理_增长目标短期化下的建城热潮及后果_彭冲",
+    "chapter_title": "从新城看治理: 增长目标短期化下的建城热潮及后果",
+    "source_context": {
+      "document_id": "2216f603-2531-4f0b-96d3-ff87f6e19d3b",
+      "book_title": "2019彭冲、陆铭《管理世界》：从新城看治理_增长目标短期化下的建城热潮及后果_彭冲",
+      "chapter_title": "从新城看治理: 增长目标短期化下的建城热潮及后果"
+    },
+    "model_name": "deepseek-chat",
+    "api_base": "https://api.deepseek.com"
+  },
+  {
+    "main_skill_id": "main_skill_019",
+    "section_id": "c724085d-9e11-46c0-ae13-3e769fa98828",
+    "name": "Causal Derivation with Instrumental Variable and Heterogeneity Analysis",
+    "normalized_pattern": "Causal Derivation",
+    "file_name": "main_skill_019_Causal_Derivation_with_Instrumental_Variable_and_Heterogeneity_Analysis.md",
+    "markdown": "---\nname: \"Causal Derivation with Instrumental Variable and Heterogeneity Analysis\"\ntype: \"sub_skill\"\ndescription: \"该方法适用于需要从观测数据中推断因果关系，且存在潜在内生性问题的研究场景。当理论假设明确，但核心解释变量可能受遗漏变量、反向因果或测量误差影响时，可采用此方法。该方法通过引入外生工具变量解决内生性，并通过分组回归和机制检验验证因果效应的稳健性与作用路径，最终将实证结果置于理论框架中推导政策含义。\"\nsection_id: \"c724085d-9e11-46c0-ae13-3e769fa98828\"\nmain_skill_id: \"main_skill_019\"\nnormalized_pattern: \"Causal Derivation\"\nsource_chunk_ids: [5]\n---\n\n# Causal Derivation with Instrumental Variable and Heterogeneity Analysis\n\n## Description\n\n该方法适用于需要从观测数据中推断因果关系，且存在潜在内生性问题的研究场景。当理论假设明确，但核心解释变量可能受遗漏变量、反向因果或测量误差影响时，可采用此方法。该方法通过引入外生工具变量解决内生性，并通过分组回归和机制检验验证因果效应的稳健性与作用路径，最终将实证结果置于理论框架中推导政策含义。\n\n## Method Program Summary\n\n首先，基于理论框架提出明确的因果假设。然后，构建计量模型（如OLS），并针对核心解释变量的内生性问题，选择外生的工具变量（如历史自然条件或政策冲击），采用两阶段最小二乘法（2SLS）进行估计。在第一阶段回归中验证工具变量与内生变量的相关性，在第二阶段回归中获取因果效应的无偏估计。接着，通过分组回归（如按样本特征或环境条件划分）进行异质性分析，检验因果效应在不同子群体中的差异，以增强结论的稳健性。随后，通过中介效应或交互项检验，识别因果路径中的关键机制变量。最后，将实证结果置于宏观理论框架（如均衡模型或结构性理论）中，解释其理论意义，并据此推导出具有现实指导意义的政策建议。\n\n## Method Program Example\n\n首先，基于理论提出农村移民早进城对劳动力市场回报具有正向因果效应的假设。其次，采用OLS和IV估计方法，以春季旱涝等级作为工具变量，解决首次进城年龄的内生性问题，并通过第一阶段和第二阶段回归验证工具变量的合理性。然后，通过分组回归（如按受教育水平、流入城市类型、流动经历）进行异质性分析，检验因果效应的条件性。接着，通过机制检验（行业选择、非认知能力）揭示因果路径。最后，结合经济增长黄金律和空间均衡理论，将实证结果置于宏观结构性扭曲和空间错配的框架中，推导出户籍制度改革等政策建议。\n\n## Abstract Action Chain\n\n1. 基于理论提出可检验的因果假设\n2. 构建计量模型并引入工具变量处理内生性\n3. 执行基准回归并验证工具变量的有效性\n4. 通过分组回归进行异质性分析，检验因果效应的条件性\n5. 检验作用机制以揭示因果路径\n6. 结合理论框架解释实证结果并推导政策含义",
+    "document_id": "95a2e054-bac2-4b1c-834c-7c910df411b6",
+    "book_title": "2021魏东霞、陆铭《经济研究》：早进城的回报：农村移民的城市经历和就业表现",
+    "chapter_title": "早进城的回报:农村移民的城市经历和就业表现",
+    "source_context": {
+      "document_id": "95a2e054-bac2-4b1c-834c-7c910df411b6",
+      "book_title": "2021魏东霞、陆铭《经济研究》：早进城的回报：农村移民的城市经历和就业表现",
+      "chapter_title": "早进城的回报:农村移民的城市经历和就业表现"
+    },
+    "model_name": "deepseek-chat",
+    "api_base": "https://api.deepseek.com"
+  },
+  {
+    "main_skill_id": "main_skill_020",
+    "section_id": "dbb78f77-c718-431d-871c-6a3650b9bb09",
+    "name": "Ideal Reference Comparison",
+    "normalized_pattern": "Concept Comparison",
+    "file_name": "main_skill_020_Ideal_Reference_Comparison.md",
+    "markdown": "---\nname: \"Ideal Reference Comparison\"\ntype: \"sub_skill\"\ndescription: \"This method is applicable when evaluating multiple competing theories or approaches against a normative standard. It is used to systematically identify the strengths and weaknesses of each alternative by measuring their deviation from an idealized reference point, thereby justifying the need for a more comprehensive or superior solution.\"\nsection_id: \"dbb78f77-c718-431d-871c-6a3650b9bb09\"\nmain_skill_id: \"main_skill_020\"\nnormalized_pattern: \"Concept Comparison\"\nsource_chunk_ids: [6]\n---\n\n# Ideal Reference Comparison\n\n## Description\n\nThis method is applicable when evaluating multiple competing theories or approaches against a normative standard. It is used to systematically identify the strengths and weaknesses of each alternative by measuring their deviation from an idealized reference point, thereby justifying the need for a more comprehensive or superior solution.\n\n## Method Program Summary\n\nFirst, construct an idealized reference frame that represents the optimal or desired state across multiple relevant dimensions. This reference serves as the absolute standard for evaluation. Next, list all competing theories, models, or approaches that need to be compared. For each alternative, systematically map its characteristics onto the same dimensions defined by the reference frame, and measure the degree of deviation or alignment. Based on these comparisons, pinpoint the specific limitations or shortcomings of each alternative. Finally, integrate the insights from all comparisons to propose a new direction or solution that overcomes the collective limitations, moving closer to the ideal reference.\n\n## Method Program Example\n\n首先，作者设定了一个理想化的参照系，即“长期的全局的多目标最优”，作为评估标准。然后，作者依次引入周黎安、张五常、陈钊和徐彤、以及陆铭等人的理论。对于每个理论，作者都将其与参照系进行对比，明确指出其在“长期”、“全局”、“多目标”这三个维度上的偏离或不足。通过这种比较，作者揭示了现有理论的局限性，并最终论证了构建一个能够综合这三个维度的新理论的必要性。\n\n## Abstract Action Chain\n\n1. Define an idealized reference frame as the evaluation benchmark\n2. Enumerate the set of competing alternatives to be assessed\n3. For each alternative, compare its key dimensions against the reference frame\n4. Identify specific limitations or gaps in each alternative based on deviations\n5. Synthesize findings to argue for a direction that addresses the identified gaps",
+    "document_id": "a4d27f85-97db-4763-86d3-153286636acb",
+    "book_title": "2020陆铭《国际经济评论》：诊断中国经济：结构转型下的增长与波动_陆铭",
+    "chapter_title": "诊断中国经济：结构转型下的增长与波动",
+    "source_context": {
+      "document_id": "a4d27f85-97db-4763-86d3-153286636acb",
+      "book_title": "2020陆铭《国际经济评论》：诊断中国经济：结构转型下的增长与波动_陆铭",
+      "chapter_title": "诊断中国经济：结构转型下的增长与波动"
+    },
+    "model_name": "deepseek-chat",
+    "api_base": "https://api.deepseek.com"
+  },
+  {
+    "main_skill_id": "main_skill_017",
+    "section_id": "e4c9e1d5-340c-4ec2-9ec3-4780b19f81a7",
+    "name": "Causal Derivation via Instrumental Variable and Mechanism Decomposition",
+    "normalized_pattern": "Causal Derivation",
+    "file_name": "main_skill_017_Causal_Derivation_via_Instrumental_Variable_and_Mechanism_Decomposition.md",
+    "markdown": "---\nname: \"Causal Derivation via Instrumental Variable and Mechanism Decomposition\"\ntype: \"sub_skill\"\ndescription: \"This method is applicable when the goal is to establish a causal relationship from observational data, particularly when the core explanatory variable is potentially endogenous due to omitted variables or reverse causality. It is also used when the theoretical mechanism involves multiple channels (e.g., collective action vs. polarization) that need to be empirically distinguished.\"\nsection_id: \"e4c9e1d5-340c-4ec2-9ec3-4780b19f81a7\"\nmain_skill_id: \"main_skill_017\"\nnormalized_pattern: \"Causal Derivation\"\nsource_chunk_ids: [1, 2]\n---\n\n# Causal Derivation via Instrumental Variable and Mechanism Decomposition\n\n## Description\n\nThis method is applicable when the goal is to establish a causal relationship from observational data, particularly when the core explanatory variable is potentially endogenous due to omitted variables or reverse causality. It is also used when the theoretical mechanism involves multiple channels (e.g., collective action vs. polarization) that need to be empirically distinguished.\n\n## Method Program Summary\n\nThe method begins by deriving competing theoretical hypotheses from established theories, then specifies a linear regression model with a clearly defined core explanatory variable, outcome variable, and a set of control variables. Baseline OLS regression is run, progressively adding controls to check the stability of the coefficient. To mitigate endogeneity, an instrumental variable is constructed based on historical or exogenous shocks, and two-stage least squares (2SLS) is applied, with formal tests for instrument relevance and exogeneity. The mechanism is then decomposed by splitting the outcome into theoretically distinct sub-categories (e.g., collective vs. individual contributions) to isolate the causal channel. Interaction terms are introduced to test for moderation effects, such as complementarity or substitution between the core variable and a policy variable. Finally, the core explanatory variable is replaced with an alternative proxy to verify the robustness of the main findings.\n\n## Method Program Example\n\n作者首先基于集体行动理论和宗族极化理论提出宗族多样性影响农村公共品私人供给及政府支出效率的竞争性假说。然后构建截面线性回归模型，使用县级层面的历史数据，以姓氏数目和姓氏集中度衡量宗族多样性，以1949-1990年农村公共品私人供给金额、人均金额和虚拟变量为被解释变量。基准回归采用OLS，通过逐步加入经济发展、文化、地理等控制变量检验结果的稳健性。为缓解遗漏变量导致的内生性问题，作者先利用宗族多样性对城乡公共品供给影响的差异进行组间比较，再构造宋元之际战争次数作为工具变量进行2SLS估计，并详细论证工具变量的相关性和外生性。在机制分析中，作者将公共品私人供给区分为群众集资和个人捐赠，检验宗族多样性是否仅通过影响集体行动成本（集资）而非个人捐赠发挥作用。最后，通过引入宗族多样性与政府支出的交互项，检验宗族多样性对政府支出效率的调节效应，并控制宗族械斗变量排除极化理论的替代解释。\n\n## Abstract Action Chain\n\n1. Formulate competing theoretical hypotheses and specify the causal model with core variables and controls.\n2. Conduct baseline regression (e.g., OLS) with progressive inclusion of control variables to assess robustness.\n3. Address endogeneity by constructing a valid instrumental variable and performing 2SLS estimation, including validation of relevance and exogeneity.\n4. Decompose the outcome variable into distinct sub-components to test specific theoretical mechanisms.\n5. Test for interaction effects to examine moderating or complementary relationships between the core variable and other factors.\n6. Perform robustness checks by substituting the core explanatory variable with alternative measures.",
+    "document_id": "02670601-ab28-4c6b-8288-dc5a7bc79ff5",
+    "book_title": "2020陆铭《经济研究》：农村公共品提供_社会与政府的互补机制",
+    "chapter_title": "农村公共品提供: 社会与政府的互补机制",
+    "source_context": {
+      "document_id": "02670601-ab28-4c6b-8288-dc5a7bc79ff5",
+      "book_title": "2020陆铭《经济研究》：农村公共品提供_社会与政府的互补机制",
+      "chapter_title": "农村公共品提供: 社会与政府的互补机制"
+    },
+    "model_name": "deepseek-chat",
+    "api_base": "https://api.deepseek.com"
+  },
+  {
+    "main_skill_id": "main_skill_023",
+    "section_id": "eef81f81-75fa-40ac-b7ea-2832ff0266bf",
+    "name": "Causal Derivation via Rival Hypotheses and Exogenous Shocks",
+    "normalized_pattern": "Causal Derivation",
+    "file_name": "main_skill_023_Causal_Derivation_via_Rival_Hypotheses_and_Exogenous_Shocks.md",
+    "markdown": "---\nname: \"Causal Derivation via Rival Hypotheses and Exogenous Shocks\"\ntype: \"sub_skill\"\ndescription: \"This sub-skill is applicable when the goal is to establish a causal relationship between a core explanatory variable and an outcome, particularly when facing potential omitted variable bias or alternative explanations. It is used to strengthen causal inference by systematically testing and ruling out rival hypotheses, controlling for confounders, and leveraging exogenous policy or environmental shocks for heterogeneity analysis.\"\nsection_id: \"eef81f81-75fa-40ac-b7ea-2832ff0266bf\"\nmain_skill_id: \"main_skill_023\"\nnormalized_pattern: \"Causal Derivation\"\nsource_chunk_ids: [9]\n---\n\n# Causal Derivation via Rival Hypotheses and Exogenous Shocks\n\n## Description\n\nThis sub-skill is applicable when the goal is to establish a causal relationship between a core explanatory variable and an outcome, particularly when facing potential omitted variable bias or alternative explanations. It is used to strengthen causal inference by systematically testing and ruling out rival hypotheses, controlling for confounders, and leveraging exogenous policy or environmental shocks for heterogeneity analysis.\n\n## Method Program Summary\n\nBegin by explicitly stating a plausible rival hypothesis that could undermine the causal claim. Then, introduce a control variable that operationalizes this rival factor into the regression model, and observe whether the coefficient of the core explanatory variable remains statistically significant and stable in magnitude. Next, systematically add other potential confounders (e.g., economic or demographic variables) as controls to further test robustness. After establishing baseline robustness, identify an exogenous shock that creates a natural experiment. Split the sample into pre- and post-shock periods (or treatment/control groups based on exposure to the shock). Re-run the regression within each subsample, and compare the estimated coefficients. If the core effect is stronger or only present in the subsample affected by the shock, this provides evidence for a causal mechanism. Finally, integrate all findings—coefficient stability, exclusion of alternatives, and heterogeneous effects—to support the causal derivation.\n\n## Method Program Example\n\n首先，作者提出一个竞争性假设（地理因素可能影响新城建设），然后通过引入城市坡度变量作为控制变量进行回归，检验核心解释变量（土地产权保护传统）的系数是否稳健。接着，作者进一步排除房价作为替代解释，通过将房价加入控制变量进行回归。最后，利用2008年经济刺激政策作为外生冲击，将样本分为政策前后两个阶段进行异质性分析，通过比较回归系数的显著性和大小，论证土地产权保护传统在特定情境（经济刺激）下对新城规划效率的因果作用。\n\n## Abstract Action Chain\n\n1. Identify and formalize plausible rival hypotheses that could explain the observed relationship.\n2. Introduce control variables representing the rival factors into the baseline regression to test the stability of the core coefficient.\n3. Further exclude additional alternative explanations by sequentially adding relevant control variables.\n4. Identify an exogenous shock (e.g., policy change, natural event) that partitions the sample into distinct contexts.\n5. Conduct heterogeneity analysis by splitting the sample based on the exogenous shock and comparing regression coefficients across subsamples.\n6. Synthesize the evidence from robustness checks and heterogeneity analysis to argue for the causal interpretation.",
+    "document_id": "dac3c0c4-06da-40f6-a42e-8ac235cdef9c",
+    "book_title": "2018陆铭、常晨《经济研究》：制度与城市_土地产权保护传统有利于新城建设效率的证据_陆铭",
+    "chapter_title": "制度与城市: 土地产权保护传统有利于新城建设效率的证据",
+    "source_context": {
+      "document_id": "dac3c0c4-06da-40f6-a42e-8ac235cdef9c",
+      "book_title": "2018陆铭、常晨《经济研究》：制度与城市_土地产权保护传统有利于新城建设效率的证据_陆铭",
+      "chapter_title": "制度与城市: 土地产权保护传统有利于新城建设效率的证据"
+    },
+    "model_name": "deepseek-chat",
+    "api_base": "https://api.deepseek.com"
+  },
+  {
+    "main_skill_id": "main_skill_024",
+    "section_id": "ef508657-2eac-4f81-b209-40ca51737fbf",
+    "name": "Causal Derivation",
+    "normalized_pattern": "Causal Derivation",
+    "file_name": "main_skill_024_Causal_Derivation.md",
+    "markdown": "---\nname: \"Causal Derivation\"\ntype: \"sub_skill\"\ndescription: \"当需要从实证数据中验证核心因果关系的稳健性，并基于验证后的因果效应推导出可操作的政策或实践建议时使用。该方法适用于已完成初步因果识别、但需排除替代解释并量化影响幅度的研究阶段。\"\nsection_id: \"ef508657-2eac-4f81-b209-40ca51737fbf\"\nmain_skill_id: \"main_skill_024\"\nnormalized_pattern: \"Causal Derivation\"\nsource_chunk_ids: [10]\n---\n\n# Causal Derivation\n\n## Description\n\n当需要从实证数据中验证核心因果关系的稳健性，并基于验证后的因果效应推导出可操作的政策或实践建议时使用。该方法适用于已完成初步因果识别、但需排除替代解释并量化影响幅度的研究阶段。\n\n## Method Program Summary\n\n首先，通过系统性地替换关键变量、改变样本范围或调整识别策略（如更换工具变量），对核心因果效应进行多重稳健性检验，以排除内生性、测量误差或样本选择偏差等威胁。然后，基于最可靠的因果估计系数，构建反事实情景（如消除某一关键障碍或改变某一政策变量），模拟该情景下目标结果变量的变化幅度。最后，将反事实模拟的量化结果转化为具体的政策或实践建议，明确指出应调整哪些可干预因素以实现期望的结果变化。\n\n## Method Program Example\n\n作者首先通过三种稳健性检验（更换工具变量、替换变量、全样本检验）确认核心因果关系的可靠性，然后利用回归系数进行反事实分析，模拟消除劳动力流动障碍后的农业规模变化和粮食净进口下降幅度，最后基于实证结果推导出减少劳动力流动障碍、推动城市化等政策建议。\n\n## Abstract Action Chain\n\n1. 通过多种替代设定检验因果关系的稳健性\n2. 利用估计的因果系数进行反事实情景模拟\n3. 基于模拟结果推导出具有政策或实践意义的结论",
+    "document_id": "db8c1a57-ef25-4d73-bd28-d6632c232e86",
+    "book_title": "2021徐灏龙、陆铭《学术月刊》：求解中国农业困局：国际视野...的农业规模经营与农业竞争力",
+    "chapter_title": "求解中国农业困局：国际视野中的农业规模经营与农业竞争力",
+    "source_context": {
+      "document_id": "db8c1a57-ef25-4d73-bd28-d6632c232e86",
+      "book_title": "2021徐灏龙、陆铭《学术月刊》：求解中国农业困局：国际视野...的农业规模经营与农业竞争力",
+      "chapter_title": "求解中国农业困局：国际视野中的农业规模经营与农业竞争力"
+    },
+    "model_name": "deepseek-chat",
+    "api_base": "https://api.deepseek.com"
+  },
+  {
+    "main_skill_id": "main_skill_022",
+    "section_id": "fee58028-549c-40b6-922f-f72a7e9a13a3",
+    "name": "Causal Derivation via Regression Decomposition",
+    "normalized_pattern": "Causal Derivation",
+    "file_name": "main_skill_022_Causal_Derivation_via_Regression_Decomposition.md",
+    "markdown": "---\nname: \"Causal Derivation via Regression Decomposition\"\ntype: \"sub_skill\"\ndescription: \"This method is applicable when the goal is to derive a causal or counterfactual argument by estimating the marginal effect of a key variable on an outcome, comparing its magnitude against an alternative effect, and decomposing the outcome into sub-dimensions to explain an unexpected or non-obvious result.\"\nsection_id: \"fee58028-549c-40b6-922f-f72a7e9a13a3\"\nmain_skill_id: \"main_skill_022\"\nnormalized_pattern: \"Causal Derivation\"\nsource_chunk_ids: [8]\n---\n\n# Causal Derivation via Regression Decomposition\n\n## Description\n\nThis method is applicable when the goal is to derive a causal or counterfactual argument by estimating the marginal effect of a key variable on an outcome, comparing its magnitude against an alternative effect, and decomposing the outcome into sub-dimensions to explain an unexpected or non-obvious result.\n\n## Method Program Summary\n\nBegin by constructing a regression model that estimates the marginal effect of the focal independent variable on the dependent variable, using appropriate data and controls. Retrieve the estimated coefficient and apply it to a specific case or counterfactual to quantify the absolute effect. Then, identify a second effect (e.g., from a different variable or policy) to serve as a benchmark, and compare the two magnitudes to support a causal claim about relative costs or benefits. Next, break the dependent variable into logically separate components or channels. For each component, run a separate regression or perform descriptive analysis to determine how the focal variable influences that component. Finally, integrate the component-level findings to provide a mechanistic explanation for the observed aggregate relationship, especially when it deviates from intuitive expectations.\n\n## Method Program Example\n\n首先，利用截面数据建立通勤时间与就业人口规模、密度、产业结构等变量的计量回归模型，估计出人口规模对通勤时间的边际效应。然后，基于回归系数，以北京市为例，计算人口增加造成的通勤损失与人口减少造成的工资损失，通过对比论证控人得不偿失。接着，将通勤时间的变化分解为交通拥堵、通勤方式和通勤距离三个维度，分别对每个维度进行回归分析或描述性统计，解释为何人口规模增加并未显著增加通勤时间。\n\n## Abstract Action Chain\n\n1. Specify and estimate a regression model linking the primary explanatory variable to the outcome of interest, controlling for relevant covariates.\n2. Extract the estimated coefficient for the primary variable and use it to compute the implied effect under a counterfactual scenario.\n3. Compare the computed effect against a reference effect (e.g., from another variable or alternative scenario) to establish relative magnitude or trade-off.\n4. Decompose the outcome into conceptually distinct sub-dimensions or mechanisms.\n5. For each sub-dimension, conduct separate regression or descriptive analysis to assess how the primary variable affects that component.\n6. Synthesize the decomposition results to explain why the aggregate effect is smaller or larger than expected.",
+    "document_id": "d7f59e8d-cb5d-425a-ba71-99f1b15a7bda",
+    "book_title": "2018李杰伟、陆铭《世界经济文汇》：城市人多添堵_人口与通勤的实证研究和中美比较",
+    "chapter_title": "城市人多添堵?——人口与通勤的实证研究和中美比较",
+    "source_context": {
+      "document_id": "d7f59e8d-cb5d-425a-ba71-99f1b15a7bda",
+      "book_title": "2018李杰伟、陆铭《世界经济文汇》：城市人多添堵_人口与通勤的实证研究和中美比较",
+      "chapter_title": "城市人多添堵?——人口与通勤的实证研究和中美比较"
+    },
+    "model_name": "deepseek-chat",
+    "api_base": "https://api.deepseek.com"
+  },
+  {
+    "main_skill_id": "main_skill_026",
+    "section_id": "5f2acb72-523c-40e3-a9e7-0d3f02ef1c93",
+    "name": "Causal Derivation with Conditional Effect Testing",
+    "normalized_pattern": "Causal Derivation",
+    "file_name": "main_skill_026_Causal_Derivation_with_Conditional_Effect_Testing.md",
+    "markdown": "---\nname: \"Causal Derivation with Conditional Effect Testing\"\ntype: \"sub_skill\"\ndescription: \"This method is applicable when the goal is to derive a causal proposition from theoretical reasoning and empirically test it using observational data, particularly when the causal effect is hypothesized to be contingent on a moderating or conditional factor. It is suitable for panel data settings where the researcher aims to establish a main causal relationship and then examine how it varies across subgroups defined by a key conditioning variable.\"\nsection_id: \"5f2acb72-523c-40e3-a9e7-0d3f02ef1c93\"\nmain_skill_id: \"main_skill_026\"\nnormalized_pattern: \"Causal Derivation\"\nsource_chunk_ids: [2]\n---\n\n# Causal Derivation with Conditional Effect Testing\n\n## Description\n\nThis method is applicable when the goal is to derive a causal proposition from theoretical reasoning and empirically test it using observational data, particularly when the causal effect is hypothesized to be contingent on a moderating or conditional factor. It is suitable for panel data settings where the researcher aims to establish a main causal relationship and then examine how it varies across subgroups defined by a key conditioning variable.\n\n## Method Program Summary\n\nBegin by formulating a clear causal proposition derived from theoretical or logical reasoning. Then, operationalize the core concepts into specific, measurable variables, including the main explanatory variable and the outcome variable. Specify a regression model appropriate for the data structure (e.g., fixed effects for panel data) and estimate the baseline model to establish the main causal effect. Next, test the conditional hypothesis by either splitting the sample into subgroups based on the conditioning variable or by including an interaction term in the model. Finally, conduct a series of robustness checks (e.g., alternative specifications, sensitivity analyses) to ensure the stability of the results, and synthesize the evidence into a coherent causal conclusion.\n\n## Method Program Example\n\n作者从威权体制下制度约束的理论分析出发，推导出‘执政稳定性’与经济增长正相关且以制度约束为前提的命题。随后，通过构建‘执政稳定性’指数和十年平均增长率等指标，利用跨国面板数据固定效应模型进行基准回归验证主效应。接着，通过将样本按个人集权与非个人集权、多党选举合法与非法进行分组回归，检验制度约束的条件效应，并辅以多种稳健性检验，最终得出因果结论。\n\n## Abstract Action Chain\n\n1. Derive a causal proposition from theoretical or logical reasoning\n2. Operationalize the key constructs into measurable variables\n3. Specify and estimate a baseline regression model to test the main causal effect\n4. Conduct subgroup or interaction analysis to test the conditional effect\n5. Perform robustness checks to validate the findings\n6. Summarize the causal conclusion",
+    "document_id": "afd71d42-35c1-4148-b668-2de23e1a6eae",
+    "book_title": "2018冯博、陆铭《经济社会体制比较》：执政稳定_制度约束与经济增长",
+    "chapter_title": "执政稳定、制度约束与经济增长",
+    "source_context": {
+      "document_id": "afd71d42-35c1-4148-b668-2de23e1a6eae",
+      "book_title": "2018冯博、陆铭《经济社会体制比较》：执政稳定_制度约束与经济增长",
+      "chapter_title": "执政稳定、制度约束与经济增长"
+    },
+    "model_name": "deepseek-chat",
+    "api_base": "https://api.deepseek.com"
+  },
+  {
+    "main_skill_id": "main_skill_027",
+    "section_id": "714b74e1-5437-4fe5-8d5e-77cd3d69fa85",
+    "name": "Policy Shock-Based Causal Derivation via Difference-in-Differences",
+    "normalized_pattern": "Causal Derivation",
+    "file_name": "main_skill_027_Policy_Shock-Based_Causal_Derivation_via_Difference-in-Differences.md",
+    "markdown": "---\nname: \"Policy Shock-Based Causal Derivation via Difference-in-Differences\"\ntype: \"sub_skill\"\ndescription: \"适用于存在一个明确的时间点或空间维度上的政策转折，且该转折可被视为外生冲击，研究者希望识别该政策变化对某一连续结果变量的因果效应，并需要排除替代性解释的场景。\"\nsection_id: \"714b74e1-5437-4fe5-8d5e-77cd3d69fa85\"\nmain_skill_id: \"main_skill_027\"\nnormalized_pattern: \"Causal Derivation\"\nsource_chunk_ids: [3]\n---\n\n# Policy Shock-Based Causal Derivation via Difference-in-Differences\n\n## Description\n\n适用于存在一个明确的时间点或空间维度上的政策转折，且该转折可被视为外生冲击，研究者希望识别该政策变化对某一连续结果变量的因果效应，并需要排除替代性解释的场景。\n\n## Method Program Summary\n\n首先，从制度背景或历史事件中识别出一个明确的外生政策转折点，并基于该转折点将样本划分为处理组与对照组。接着，通过统计模型（如Probit或Logit）验证分组变量是否主要由外生地理、历史或制度因素决定，而非由结果变量或地方行为反向决定。然后，设定双重差分回归模型，以处理组虚拟变量与政策后时间虚拟变量的交互项为核心解释变量，估计政策变化对结果变量的因果效应。在基准回归后，必须进行共同趋势检验，通常通过绘制处理组与对照组在政策前的结果变量时间趋势图或进行事件研究法验证。最后，执行一系列稳健性检验，包括但不限于子样本回归、控制潜在混杂变量、改变分组或时间定义、进行反事实检验等，以系统性地排除遗漏变量、测量误差、样本选择偏差及替代性时间拐点等竞争性解释，从而巩固因果推断的可靠性。\n\n## Method Program Example\n\n作者首先从制度背景中识别出2003年土地供给政策向中西部倾斜的转折点，并据此将城市分为土地供给收紧组和放松组。接着，通过Probit模型验证分组的外生性，证明收紧主要由地理和前期土地供给占比决定，不受地方政府操控。然后，构建类似双重差分的回归模型，以Treat×Post交互项为核心解释变量，估计土地收紧对房价上涨的因果效应。在基准回归后，作者通过共同趋势图检验2003年前后两组房价趋势的差异，并依次进行子样本回归、控制移民因素、改变分组方法、控制人口规模与经济发展水平以及反事实检验等多组稳健性检验，以排除遗漏变量、测量误差和替代性时间拐点等竞争性解释，最终确认土地供给收紧是导致城市间房价分化的主要原因。\n\n## Abstract Action Chain\n\n1. 识别并定义外生政策转折点与处理/对照组分组依据\n2. 验证分组的外生性，排除分组受内生因素操控的可能性\n3. 构建双重差分回归模型，以交互项估计因果效应\n4. 检验共同趋势假设，确认处理组与对照组在政策前具有可比趋势\n5. 执行多维度稳健性检验，排除替代性解释与测量误差",
+    "document_id": "e6a9fcd7-d467-40cc-a469-417bf06e443b",
+    "book_title": "2018韩立彬、陆铭《世界经济》：供需错配_解开中国房价分化之谜_韩立彬",
+    "chapter_title": "供需错配: 解开中国房价分化之谜",
+    "source_context": {
+      "document_id": "e6a9fcd7-d467-40cc-a469-417bf06e443b",
+      "book_title": "2018韩立彬、陆铭《世界经济》：供需错配_解开中国房价分化之谜_韩立彬",
+      "chapter_title": "供需错配: 解开中国房价分化之谜"
+    },
+    "model_name": "deepseek-chat",
+    "api_base": "https://api.deepseek.com"
+  },
+  {
+    "main_skill_id": "main_skill_027",
+    "section_id": "714b74e1-5437-4fe5-8d5e-77cd3d69fa85",
+    "name": "Counterexample Argument via Placebo Timing Shift",
+    "normalized_pattern": "Counterexample Argument",
+    "file_name": "main_skill_027_Counterexample_Argument_via_Placebo_Timing_Shift.md",
+    "markdown": "---\nname: \"Counterexample Argument via Placebo Timing Shift\"\ntype: \"sub_skill\"\ndescription: \"This method is applicable when a causal identification strategy relies on a specific time-based discontinuity (e.g., a policy implementation year) and requires validation that no other time point could plausibly produce the same effect. It is used to rule out alternative timing explanations and confirm the uniqueness of the designated cutoff.\"\nsection_id: \"714b74e1-5437-4fe5-8d5e-77cd3d69fa85\"\nmain_skill_id: \"main_skill_027\"\nnormalized_pattern: \"Counterexample Argument\"\nsource_chunk_ids: [4]\n---\n\n# Counterexample Argument via Placebo Timing Shift\n\n## Description\n\nThis method is applicable when a causal identification strategy relies on a specific time-based discontinuity (e.g., a policy implementation year) and requires validation that no other time point could plausibly produce the same effect. It is used to rule out alternative timing explanations and confirm the uniqueness of the designated cutoff.\n\n## Method Program Summary\n\nFor each candidate alternative time point (e.g., one year before or after the actual event), treat it as the hypothetical event time and re-estimate the same regression model with an interaction term for that shifted point. If the interaction term becomes insignificant when the shift is after the true event, or becomes significant when the shift is before the true event, the alternative timing is invalid. By systematically testing and rejecting all plausible alternative time points, the method isolates the original event time as the only valid causal discontinuity.\n\n## Method Program Example\n\n作者首先假设政策发生在除2003年外的其他年份（如2002年），然后通过回归检验交互项系数是否显著。若假设拐点后的交互项不显著，或假设拐点前的交互项显著，则说明该替代拐点不成立。通过逐一排除所有可能的替代年份，最终确认2003年是唯一真实的政策拐点。\n\n## Abstract Action Chain\n\n1. Construct counterfactual scenarios by shifting the assumed event time forward or backward\n2. Test the significance of the interaction term under each shifted timing assumption\n3. Evaluate whether the shifted timing produces spurious significant effects or fails to replicate the original pattern\n4. Iteratively eliminate all plausible alternative time points\n5. Conclude the uniqueness of the original event time as the sole valid discontinuity",
+    "document_id": "e6a9fcd7-d467-40cc-a469-417bf06e443b",
+    "book_title": "2018韩立彬、陆铭《世界经济》：供需错配_解开中国房价分化之谜_韩立彬",
+    "chapter_title": "供需错配: 解开中国房价分化之谜",
+    "source_context": {
+      "document_id": "e6a9fcd7-d467-40cc-a469-417bf06e443b",
+      "book_title": "2018韩立彬、陆铭《世界经济》：供需错配_解开中国房价分化之谜_韩立彬",
+      "chapter_title": "供需错配: 解开中国房价分化之谜"
+    },
+    "model_name": "deepseek-chat",
+    "api_base": "https://api.deepseek.com"
+  },
+  {
+    "main_skill_id": "main_skill_025",
+    "section_id": "da54548c-b032-4074-bda3-945664c24025",
+    "name": "Concept Decomposition",
+    "normalized_pattern": "Concept Decomposition",
+    "file_name": "main_skill_025_Concept_Decomposition.md",
+    "markdown": "---\nname: \"Concept Decomposition\"\ntype: \"sub_skill\"\ndescription: \"当需要分析一个复杂、多维度的核心概念或政策时，通过将其拆解为若干理论视角或分析维度（如局部与整体、效率与公平），进行分项评估后再综合，以得出系统性结论或原则。\"\nsection_id: \"da54548c-b032-4074-bda3-945664c24025\"\nmain_skill_id: \"main_skill_025\"\nnormalized_pattern: \"Concept Decomposition\"\nsource_chunk_ids: [1]\n---\n\n# Concept Decomposition\n\n## Description\n\n当需要分析一个复杂、多维度的核心概念或政策时，通过将其拆解为若干理论视角或分析维度（如局部与整体、效率与公平），进行分项评估后再综合，以得出系统性结论或原则。\n\n## Method Program Summary\n\n首先明确待分析的核心概念或政策对象，然后将其拆解为两个或多个互补的理论视角或分析维度（例如局部与全局、效率与公平）。对每个维度分别进行理论推演或实证评估，随后引入交叉维度进行综合权衡，最后基于分项分析与综合评估的结果，推导出具有指导性的结论、原则或建议。\n\n## Method Program Example\n\n作者将地区发展政策这一复杂问题分解为局部均衡效应、一般均衡效应和公平含义三个子问题，分别从效率与公平两个角度进行理论分析，并结合实证证据，最终综合推导出在发展中促进相对平衡的政策原则。\n\n## Abstract Action Chain\n\n1. 界定并明确核心分析对象\n2. 将核心对象分解为多个理论视角或分析维度\n3. 对每个维度进行独立分析或评估\n4. 引入交叉维度进行综合考量\n5. 基于分项与综合结果推导出结论或原则",
+    "document_id": "2048685f-fcad-469f-9540-08a668bc6152",
+    "book_title": "2022向宽虎、陆铭《国际经济评论》：在发展中促进相对平衡：对中国地区发展政策的思考",
+    "chapter_title": "在发中促进相对平衡：对中国地区发展政策的思考",
+    "source_context": {
+      "document_id": "2048685f-fcad-469f-9540-08a668bc6152",
+      "book_title": "2022向宽虎、陆铭《国际经济评论》：在发展中促进相对平衡：对中国地区发展政策的思考",
+      "chapter_title": "在发中促进相对平衡：对中国地区发展政策的思考"
+    },
+    "model_name": "deepseek-chat",
+    "api_base": "https://api.deepseek.com"
+  },
+  {
+    "main_skill_id": "main_skill_028",
+    "section_id": "d129df9e-1574-4b8e-a562-821a5858b9fc",
+    "name": "Comparative Analysis",
+    "normalized_pattern": "Comparative Analysis",
+    "file_name": "main_skill_028_Comparative_Analysis.md",
+    "markdown": "---\nname: \"Comparative Analysis\"\ntype: \"sub_skill\"\ndescription: \"适用于需要识别并论证某一系统或现象面临的核心障碍，并通过与国际或国内标杆案例的多维度比较，揭示认知偏差或制度缺陷，最终提出基于客观规律的政策建议或改进方案。\"\nsection_id: \"d129df9e-1574-4b8e-a562-821a5858b9fc\"\nmain_skill_id: \"main_skill_028\"\nnormalized_pattern: \"Comparative Analysis\"\nsource_chunk_ids: [1]\n---\n\n# Comparative Analysis\n\n## Description\n\n适用于需要识别并论证某一系统或现象面临的核心障碍，并通过与国际或国内标杆案例的多维度比较，揭示认知偏差或制度缺陷，最终提出基于客观规律的政策建议或改进方案。\n\n## Method Program Summary\n\n首先，系统识别并界定分析对象面临的核心障碍或问题维度，明确分析焦点。然后，选取具有代表性的国际或国内标杆案例，从多个关键维度（如规模、模式、效率等）进行结构化比较。接着，基于比较结果揭示当前认知、规划或体制中存在的偏差或缺陷，并论证其与客观规律（如经济集聚规律、城市发展规律）的背离。最后，以比较结论和规律遵循为逻辑基础，提出具体、可操作的政策建议或改进方案。\n\n## Method Program Example\n\n首先，作者识别出上海都市圈建设面临的观念、规划和体制三大障碍。然后，通过将上海都市圈与东京、纽约等国际大都市圈进行多维度比较（如人口规模、土地开发强度、城市建设模式），揭示国内在认知和规划上的偏差。接着，基于比较结果论证现有障碍的不合理性，并强调遵循经济集聚和城市发展规律的必要性。最后，提出一系列具体的政策建议以突破障碍，推动上海都市圈健康发展。\n\n## Abstract Action Chain\n\n1. 识别并界定待分析对象面临的核心障碍或问题维度\n2. 选取具有代表性的国际或国内标杆案例进行多维度比较\n3. 基于比较结果揭示认知偏差、制度缺陷或规律违背\n4. 论证现有障碍的不合理性并强调遵循客观规律的必要性\n5. 提出基于比较结论和规律导向的具体改进建议",
+    "document_id": "ba449963-f302-4bf4-bb84-b25596aafc9a",
+    "book_title": "2019陆铭、韩立彬《财经智库》：加快上海都市圈建设_突破长三角一体化示范区和上海发展的障碍_陆铭",
+    "chapter_title": "加快上海都市圈建设：突破长三角一体化示范区上海发展的障碍",
+    "source_context": {
+      "document_id": "ba449963-f302-4bf4-bb84-b25596aafc9a",
+      "book_title": "2019陆铭、韩立彬《财经智库》：加快上海都市圈建设_突破长三角一体化示范区和上海发展的障碍_陆铭",
+      "chapter_title": "加快上海都市圈建设：突破长三角一体化示范区上海发展的障碍"
+    },
+    "model_name": "deepseek-chat",
+    "api_base": "https://api.deepseek.com"
+  }
+]

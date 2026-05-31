@@ -1,0 +1,199 @@
+{
+  "sub_skills": [
+    {
+      "name": "Counterexample Argument",
+      "description": "当需要反驳一个广泛持有但可能错误的观点、流行误区或常见反对意见时，该方法通过系统性地引入反例、数据、比较和逻辑推理来瓦解原观点，并建立替代性正确结论。适用于论证中需要先破后立的场景，尤其是面对直觉上合理但实际有误的信念。",
+      "abstract_action_chain": [
+        "明确陈述待反驳的流行观点或常见反对意见",
+        "引入具体数据、事实或案例作为直接反例",
+        "通过国际比较或跨情境对比揭示原观点的局限性",
+        "运用逻辑推理（如归谬、成本收益分析）进一步瓦解原观点",
+        "提出反事实问题或替代性解释以强化反驳力度",
+        "总结并确立经过反驳后更合理的正确结论"
+      ],
+      "method_program_summary": "首先识别并清晰陈述一个广泛流传但可能错误的观点或常见反对意见。然后，通过引用具体的数据、事实或典型案例作为直接反例，初步动摇该观点的可信度。接着，引入国际比较或跨情境的对比分析，展示原观点在更广阔背景下的不适用性。在此基础上，运用逻辑推理工具（如归谬法、成本收益分析）进一步揭示原观点的内在矛盾或缺陷。为了增强说服力，可以提出反事实问题或构建替代性解释，迫使读者重新审视原假设。最后，综合所有反驳证据，系统性地总结并确立一个经过验证的更合理的正确结论。",
+      "section_id": "9a252c27-c906-48d2-8289-e3745b0ae874",
+      "main_skill_id": "main_skill_001",
+      "normalized_pattern": "Counterexample Argument",
+      "source_chunk_ids": [
+        1,
+        2
+      ],
+      "method_program_example": "作者首先识别并陈述一个关于城市化的流行误区（如城市太拥挤、承载力有限），然后通过引用具体数据（如人口规划失败案例）、国际比较（如城市间人口规模差距）、逻辑推理（如价格机制的作用）以及反事实提问（如为什么人们不逃离大城市）来系统性地反驳该误区，最终论证大城市规模扩张的合理性和必要性。"
+    },
+    {
+      "name": "Causal Chain Analysis",
+      "description": "适用于分析具有明确制度背景或初始条件的复杂系统性问题，特别是当需要揭示多因素之间的因果传导机制、反馈循环以及结构性矛盾时。该方法常用于评估政策、体制或结构性障碍如何通过一系列中间环节产生最终后果，并支持比较与反事实推理。",
+      "abstract_action_chain": [
+        "界定初始制度条件与核心变量",
+        "识别激励与约束机制及其相互作用",
+        "追踪因果链条中的中间现象与反馈循环",
+        "引入比较视角或反事实情景进行验证",
+        "综合推导结构性后果与政策含义"
+      ],
+      "method_program_summary": "首先，明确分析对象的制度背景或初始条件，界定核心变量及其基本关系。然后，识别并分析该背景下各主体面临的激励与约束机制，揭示这些机制如何塑造行为模式。接着，沿着因果链条追踪中间现象（如市场分割、要素流动障碍等），并关注其中的反馈循环或累积效应。在此基础上，通过引入外部比较案例或构建反事实情景（如替代政策路径），检验因果推理的稳健性与唯一性。最后，综合所有链条推导出系统性的结构性后果，并提炼出具有政策或制度调整意义的结论。",
+      "section_id": "b1687e46-a64d-41f4-b61a-22e9c12f7395",
+      "main_skill_id": "main_skill_002",
+      "normalized_pattern": "Causal Chain Analysis",
+      "source_chunk_ids": [
+        3
+      ],
+      "method_program_example": "首先，作者从分权体制出发，指出其对地方政府的激励（经济增长考核）与约束（市场分割倾向），形成初始因果链。接着，通过分析市场分割、产业同构、地方保护等具体现象，揭示其与大国规模经济之间的张力。然后，引入劳动力、土地、资本三大要素市场的分割事实，进一步追踪这些制度障碍如何导致城市化滞后、收入差距扩大、债务风险累积等后果。在此基础上，作者通过国际比较（日本、欧洲）和反事实推理（如自由移民的替代方案），论证劳动力自由流动和统一市场是大国发展的唯一可行路径。最后，总结出制度转型与全局利益协调的必要性。"
+    },
+    {
+      "name": "Comparative Analysis",
+      "description": "适用于需要借助跨国、跨时期或跨案例的实证数据（如图表、统计模型）来检验或反驳某一流行观点、误解或理论假设，并从中归纳出普遍规律，进而应用于特定情境（如本国案例）以推导政策建议或预测的场景。",
+      "abstract_action_chain": [
+        "明确待检验的流行观点或常见误解",
+        "引用权威研究或实证数据作为反驳依据",
+        "展示跨国或跨时期的比较图表或统计模型",
+        "归纳数据中呈现的普遍规律或模式",
+        "将普遍规律应用于特定案例进行分析",
+        "基于分析结果推导政策含义或未来预测"
+      ],
+      "method_program_summary": "首先，识别并陈述一个广泛持有但可能错误的观点或假设。接着，通过引用相关学术研究或权威数据源，为后续比较提供理论或实证基础。然后，利用图表或统计模型展示多个国家或不同时期的数据对比，以揭示变量间的普遍关系或趋势。在此基础上，从比较结果中抽象出具有普适性的规律或模式。随后，将该规律应用于目标案例（如特定国家或地区），检验其适用性或解释其特殊性。最后，根据分析结论，提出具体的政策建议或对未来发展做出预测，形成从实证到应用的完整逻辑闭环。",
+      "section_id": "1d660ee1-a2cd-4e61-bb24-5eb9def4868b",
+      "main_skill_id": "main_skill_003",
+      "normalized_pattern": "Comparative Analysis",
+      "source_chunk_ids": [
+        1
+      ],
+      "method_program_example": "作者首先列举关于中国城市化的常见误解（如速度太快、人口应受控制），然后通过引用万广华的研究、展示全球城市人口与工资、密度、港口距离等关系的图表，进行跨国比较，证明中国城市发展遵循全球普遍规律。接着，作者运用齐夫法则和全球首位城市人口模型，预测上海未来人口规模，并对比东京等国际大都市的历史经验，反驳‘逆城市化’等观点。最后，作者从‘在集聚中走向平衡’的理论出发，论证自由移民对缩小区域差距的重要性，并指出制度障碍是导致问题的主因。整个分析以实证比较为核心，层层递进，最终导向政策建议。"
+    },
+    {
+      "name": "Comparative Analysis for Policy Derivation",
+      "description": "This sub-skill is applicable when the goal is to explain a complex socio-economic phenomenon by comparing two or more entities (e.g., countries, regions, or cities) to identify structural mismatches or causal mechanisms, and to derive actionable policy implications or theoretical insights. It is particularly useful when the target audience holds a common misconception that can be refuted through cross-case evidence.",
+      "abstract_action_chain": [
+        "Frame a comparative question or hypothesis that challenges a prevailing assumption.",
+        "Present comparative data or case evidence (e.g., charts, metrics, or qualitative examples) to highlight key differences or patterns.",
+        "Compute or extract a derived indicator (e.g., per capita metrics, ratios) to reveal underlying structural mismatches.",
+        "Identify and articulate the core deviation or causal factor that explains the observed pattern.",
+        "Refute the common misconception by contrasting it with the evidence, and propose an alternative mechanism.",
+        "Generalize the findings into a predictive framework or policy recommendations applicable to the target context."
+      ],
+      "method_program_summary": "Begin by posing a sharp comparative question that sets up a contrast between two or more cases, often to challenge a dominant narrative. Then, present empirical data (quantitative or qualitative) that visually or logically illustrates the disparity. Compute a derived metric (e.g., per capita values, ratios) to isolate the structural mismatch. Next, identify the key deviation or causal factor that explains why the cases differ, and explicitly refute the common misconception by showing it does not fit the evidence. Finally, synthesize the findings into a generalizable mechanism or set of policy principles, projecting how the observed dynamics will evolve or what actions should be taken in the target context.",
+      "section_id": "ac93eda4-eec6-4053-8f32-63ae488b2e5e",
+      "main_skill_id": "main_skill_004",
+      "normalized_pattern": "Comparative Analysis",
+      "source_chunk_ids": [
+        2,
+        3
+      ],
+      "method_program_example": "作者首先通过一个假设性问题引出中美对比，然后展示两国GDP份额与人口份额的柱状图与曲线图，通过简单算术揭示美国人均GDP趋同而中国人均GDP差距大的事实。接着，作者否定中国流行的‘经济过度集聚导致不平衡’的观点，指出真正问题是人口集聚滞后于经济集聚。最后，作者基于规模经济与比较优势理论，预测中国未来将走向‘在集聚中走向平衡’的路径，并反复用‘柱子与曲线’的比喻强化这一机制。"
+    },
+    {
+      "name": "Historical Evolution Analysis",
+      "description": "适用于研究某一社会经济变量（如人力资本、经济发展水平等）的长期路径依赖与条件性演变，尤其当需要跨越多个历史时期（如传统社会、计划经济、改革开放后），并利用历史遗产与政策冲击作为外生变异来源时。该方法要求研究者能够构建长时段面板数据，并具备处理历史代理变量与工具变量的能力。",
+      "abstract_action_chain": [
+        "构建跨越多个历史时期的长时段面板数据，整合历史代理变量与关键政策冲击变量",
+        "通过跨时期相关性分析或描述性统计，初步揭示历史遗产与政策冲击的长期影响模式",
+        "运用工具变量法（如两阶段最小二乘法）识别历史变量对当代结果的因果效应",
+        "按地理区位、制度环境等条件进行分样本回归，检验效应的异质性",
+        "检验中间机制（如回报率、迁移成本等），解释因果链条",
+        "通过替换变量、控制潜在混淆因素、更换样本时期等方式进行稳健性检验"
+      ],
+      "method_program_summary": "首先，整合历史时期（如明清、计划经济、改革开放后）的代理变量与政策冲击变量，构建统一的长时段面板数据。接着，通过计算不同时期关键变量的空间或时间相关性，初步判断历史遗产与政策冲击的持续性影响。然后，采用工具变量法（如2SLS），以历史代理变量和政策冲击作为工具变量，估计其对当代结果变量的因果效应。在此基础上，按地理区位（如沿海/内陆）或制度特征分样本回归，揭示效应的条件性差异。进一步，通过检验中间机制（如人力资本回报率、劳动力流动成本等）来验证因果路径。最后，通过替换变量定义、控制历史人口密度、更换样本时期或模型设定等方式进行稳健性检验，确保结论的可靠性。",
+      "section_id": "417473de-5e9d-4c18-a524-6b2e997b18c2",
+      "main_skill_id": "main_skill_008",
+      "normalized_pattern": "Historical Evolution Analysis",
+      "source_chunk_ids": [
+        4
+      ],
+      "method_program_example": "首先，利用明清进士数据作为历史人力资本的代理变量，并识别计划经济时期的高校搬迁作为外生政策冲击，构建跨越数百年的城市人力资本面板。其次，通过计算不同时期人力资本空间分布的相关系数，初步揭示历史遗产与政策冲击的长期影响。然后，采用两阶段最小二乘法，以明清进士数和高校搬迁净迁入系数作为当代城市人力资本的工具变量，估计其对劳动力流入的因果效应。接着，按离港口距离分样本回归，发现沿海与内陆城市人力资本形成机制的差异，并进一步检验人力资本回报率作为中间机制。最后，通过替换变量、控制历史人口密度、更换时期等稳健性检验，强化结论的可靠性。",
+      "document_id": "fdd21325-3ade-4c12-8553-948f483b05a8",
+      "book_title": "2019夏怡然、陆铭《经济研究》：跨越世纪的城市人力资本足迹_历史遗产_政策冲击和劳动力流动",
+      "chapter_title": "跨越世纪的城市人力资本足迹——历史遗产、政策冲击和劳动力流动",
+      "source_context": {
+        "document_id": "fdd21325-3ade-4c12-8553-948f483b05a8",
+        "book_title": "2019夏怡然、陆铭《经济研究》：跨越世纪的城市人力资本足迹_历史遗产_政策冲击和劳动力流动",
+        "chapter_title": "跨越世纪的城市人力资本足迹——历史遗产、政策冲击和劳动力流动"
+      }
+    },
+    {
+      "name": "Causal Chain Analysis with Mediating Mechanism",
+      "description": "This sub-skill is applicable when the goal is to explain a complex social or economic outcome by constructing a multi-step causal chain, where the primary causal link is mediated by a specific mechanism (e.g., information flow, migration, policy intervention). It is used when the direct relationship between a macro-level factor and an individual-level behavior is not obvious, and a theoretical model is needed to bridge the gap, followed by empirical validation and policy derivation.",
+      "abstract_action_chain": [
+        "Formulate a core causal hypothesis linking a distal factor to a proximal behavioral outcome.",
+        "Introduce a mediating mechanism that explains how the distal factor transmits its influence to the proximal outcome.",
+        "Construct a formal model (e.g., weighted expectation, diffusion equation) to operationalize the mediating mechanism.",
+        "Empirically test the causal chain using cross-sectional or panel data, exploiting variation in the mediating variable.",
+        "Extend the causal chain to a higher-level policy or institutional variable, showing how it modulates the entire mechanism.",
+        "Quantify the aggregate impact of the policy variable on the final outcome, and derive actionable recommendations."
+      ],
+      "method_program_summary": "Begin by establishing a clear causal hypothesis that links a specific antecedent (e.g., expected returns, institutional design) to a behavioral decision (e.g., educational participation, migration choice). Then, identify a mediating mechanism—such as information transmission through social networks or population mobility—that explains how the antecedent influences the behavior. Formalize this mechanism into a mathematical or statistical model (e.g., a weighted expectation model based on spatial distribution of agents). Next, test the model empirically using observed variation across units (e.g., regions, time periods) to confirm the hypothesized causal link. After validation, extend the analysis by introducing an exogenous policy or institutional factor that affects the mediating mechanism, thereby indirectly altering the behavioral outcome. Finally, quantify the magnitude of this indirect effect (e.g., percentage point change in outcome, required resource reallocation) and translate the findings into concrete policy recommendations that target the mediating mechanism or the original antecedent.",
+      "section_id": "6f9be53f-fae8-4247-8aa8-e75578a4168f",
+      "main_skill_id": "main_skill_006",
+      "normalized_pattern": "Causal Chain Analysis",
+      "source_chunk_ids": [
+        2
+      ],
+      "method_program_example": "首先，作者确立了一个核心因果链：个体对教育回报的预期决定其教育参与行为。接着，引入人口流动作为关键的信息传递机制，指出一个地区的外出移民会将高教育回报地的信息传回原籍，从而提升当地年轻人的预期。为了量化这一机制，作者构建了一个加权预期模型，即用其他地区的教育回报率按该地区向各地的移民数量进行加权，来衡量一个地区对外地教育回报的整体预期。随后，作者利用中国各地区间的巨大差异进行实证检验，发现外地加权教育回报率越高，农村青少年高中入学的可能性越大，从而验证了因果链。在此基础上，作者将因果链条延伸至宏观政策：指出限制一线城市人口规模的政策，会减少人口流动，从而降低全国范围内的预期教育回报，最终抑制教育参与。作者进一步量化了这一影响，测算出人口减少对高中入学率的具体百分点影响以及所需增加的额外教育经费。最后，基于这一完整的因果分析，作者提出了系统的政策建议，核心是通过改善教育资源的空间配置（如改善农村义务教育、调整职业教育布局、促进要素流动）来提升教育回报，从而激发教育需求。",
+      "document_id": "8ac2b16a-4642-4177-8c15-a7cd4242e6fb",
+      "book_title": "2019张翕、陆铭《学术月刊》：提高回报__激发需求_改善中国农村教育的空间政治经济学",
+      "chapter_title": "提高回报激发需求——改善中国农村教育的空间政治经济学",
+      "source_context": {
+        "document_id": "8ac2b16a-4642-4177-8c15-a7cd4242e6fb",
+        "book_title": "2019张翕、陆铭《学术月刊》：提高回报__激发需求_改善中国农村教育的空间政治经济学",
+        "chapter_title": "提高回报激发需求——改善中国农村教育的空间政治经济学"
+      }
+    },
+    {
+      "name": "Causal Chain Analysis",
+      "description": "适用于需要从理论推导出发，通过实证检验反驳常见假设，并揭示深层结构性扭曲，最终形成政策建议的论证场景。该方法特别适合处理具有明确因果逻辑链条、且存在普遍误解或争议的复杂问题。",
+      "abstract_action_chain": [
+        "构建理论模型并推导核心逻辑结论",
+        "提出悖论或矛盾框架以揭示问题本质",
+        "利用实证数据检验并反驳常见假设",
+        "识别并分析供给侧或结构性扭曲因素",
+        "比较不同路径或潜在状态以揭示偏差",
+        "基于因果链条提出系统性政策建议"
+      ],
+      "method_program_summary": "首先，从微观行为或基本假设出发构建一个简化的理论模型，通过逻辑推导得出核心结论或悖论框架。其次，利用相关领域的实证数据（如面板数据、回归分析）对普遍存在的常见假设进行检验，并基于证据予以反驳。然后，引入最优或基准理论，识别并分析导致现实偏离理想状态的供给侧或结构性扭曲因素。最后，基于完整的因果链条，比较不同路径或潜在状态，并据此提出具有针对性的系统性政策建议。",
+      "section_id": "ab346969-9def-4699-90e7-15d7b5c69a2d",
+      "main_skill_id": "main_skill_007",
+      "normalized_pattern": "Causal Chain Analysis",
+      "source_chunk_ids": [
+        3
+      ],
+      "method_program_example": "首先，构建一个简化的空间均衡模型，从人口自由选址的微观行为出发，推导出人口持续向城市集中的必然性，并引入成本项，进而提出城市发展的“三元悖论”（增长、宜居、和谐不可兼得）。其次，利用中国城市层面的污染和拥堵数据，通过相关性分析和回归分析，反驳“人口规模导致严重城市病”的常见观点，证明城市病主要源于规划和管理问题。然后，引入最优城市规模理论，指出中国数据拟合的倒U型曲线因供给侧扭曲（如土地供应、户籍制度、规划滞后）而低于潜在水平，从而揭示控制人口政策的误导性。最后，基于上述因果链条，提出“有病治病，无需控人”的核心结论，并给出具体的供给侧改革政策建议。",
+      "document_id": "f4321a41-45b0-43af-87be-9fdcf2a5c187",
+      "book_title": "2019陆铭、李杰伟、韩立彬《经济社会体制比较》：治理城市病_如何实现增长_宜居与和谐（总结）",
+      "chapter_title": "治理城市病: 如何实现增长、宜居与和谐？",
+      "source_context": {
+        "document_id": "f4321a41-45b0-43af-87be-9fdcf2a5c187",
+        "book_title": "2019陆铭、李杰伟、韩立彬《经济社会体制比较》：治理城市病_如何实现增长_宜居与和谐（总结）",
+        "chapter_title": "治理城市病: 如何实现增长、宜居与和谐？"
+      }
+    },
+    {
+      "name": "Mechanism Analysis",
+      "description": "适用于需要解释某一现象或变量如何通过内在逻辑链条产生特定结果的研究场景。该方法通常在提出理论假设后，需要结合实证数据或案例进行验证时使用，尤其适合分析中介机制或传导路径。",
+      "abstract_action_chain": [
+        "提出核心理论机制与逻辑链条",
+        "构建分析框架或验证维度",
+        "引入实证数据或案例材料",
+        "从多个维度验证机制表现",
+        "分析数据特征以揭示深层信息作用",
+        "总结机制贡献并提炼政策或实践含义"
+      ],
+      "method_program_summary": "首先，从相关理论出发，提出一个核心机制，明确该机制如何通过特定中介因素或过程产生预期结果。然后，基于该机制构建一个多维度分析框架，用于后续验证。接着，引入具体的实证数据或案例材料，作为验证基础。之后，从多个预设维度对机制的表现进行验证，通常包括范围、价格、集聚等可观测指标。进一步，深入分析数据特征，揭示数据在微观决策或宏观指标构建中的信息作用，并展示其动态规律。最后，总结该机制对整体现象的贡献，并据此提出具有可操作性的政策或实践建议。",
+      "section_id": "ee363190-d5c3-4400-a581-f58e924e8e5b",
+      "main_skill_id": "main_skill_005",
+      "normalized_pattern": "Mechanism Analysis",
+      "source_chunk_ids": [
+        1
+      ],
+      "method_program_example": "首先，从集聚经济与市场一体化理论出发，提出信息技术通过强化劳动中介的规模经济效应来促进劳动力市场一体化的核心机制。然后，以‘我的打工网’为案例，利用其发薪和招聘订单数据，从跨城市服务范围、用工价格收敛、核心城市集聚趋势三个维度验证该机制。接着，进一步分析就业大数据在微观决策和宏观指数构建中的信息作用，并基于数据展示灵活用工市场的季节性、趋势性和疫情冲击特征。最后，总结信息技术对跨城市协调的贡献，并提出政策建议。",
+      "document_id": "192c44f3-de8f-4c5b-9c83-6eb88570b4d1",
+      "book_title": "2022向宽虎、陆铭《苏州大学学报》：信息技术、新型劳动中介和长三角一体化",
+      "chapter_title": "信息技术、新型劳动中介和长三角一体化",
+      "source_context": {
+        "document_id": "192c44f3-de8f-4c5b-9c83-6eb88570b4d1",
+        "book_title": "2022向宽虎、陆铭《苏州大学学报》：信息技术、新型劳动中介和长三角一体化",
+        "chapter_title": "信息技术、新型劳动中介和长三角一体化"
+      }
+    }
+  ],
+  "model_name": "deepseek-chat",
+  "api_base": "https://api.deepseek.com"
+}
