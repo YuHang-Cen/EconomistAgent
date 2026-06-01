@@ -50,6 +50,9 @@ def test_build_worker_command_wraps_options() -> None:
 def test_worker_bootstraps_database_before_running_command(monkeypatch: pytest.MonkeyPatch) -> None:
     events: list[str] = []
 
+    def fake_storage_bootstrap() -> None:
+        events.append("storage")
+
     def fake_bootstrap() -> None:
         events.append("bootstrap")
 
@@ -58,6 +61,7 @@ def test_worker_bootstraps_database_before_running_command(monkeypatch: pytest.M
         assert command == ["celery", "fake"]
         return 0
 
+    monkeypatch.setattr("app.cli._bootstrap_storage_from_demo", fake_storage_bootstrap)
     monkeypatch.setattr("app.cli.bootstrap_database_on_startup", fake_bootstrap)
     monkeypatch.setattr("app.cli._build_worker_command", lambda: ["celery", "fake"])
     monkeypatch.setattr("app.cli._run", fake_run)
@@ -66,13 +70,14 @@ def test_worker_bootstraps_database_before_running_command(monkeypatch: pytest.M
         worker()
 
     assert exc.value.code == 0
-    assert events == ["bootstrap", "run"]
+    assert events == ["storage", "bootstrap", "run"]
 
 
 def test_worker_exits_when_bootstrap_fails(monkeypatch: pytest.MonkeyPatch) -> None:
     def fail_bootstrap() -> None:
         raise StartupDatabaseBootstrapError("bootstrap failed")
 
+    monkeypatch.setattr("app.cli._bootstrap_storage_from_demo", lambda: None)
     monkeypatch.setattr("app.cli.bootstrap_database_on_startup", fail_bootstrap)
 
     with pytest.raises(SystemExit) as exc:
@@ -84,6 +89,9 @@ def test_worker_exits_when_bootstrap_fails(monkeypatch: pytest.MonkeyPatch) -> N
 def test_serve_bootstraps_database_before_running_command(monkeypatch: pytest.MonkeyPatch) -> None:
     events: list[str] = []
 
+    def fake_storage_bootstrap() -> None:
+        events.append("storage")
+
     def fake_bootstrap() -> None:
         events.append("bootstrap")
 
@@ -92,6 +100,7 @@ def test_serve_bootstraps_database_before_running_command(monkeypatch: pytest.Mo
         assert command == ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
         return 0
 
+    monkeypatch.setattr("app.cli._bootstrap_storage_from_demo", fake_storage_bootstrap)
     monkeypatch.setattr("app.cli.bootstrap_database_on_startup", fake_bootstrap)
     monkeypatch.setattr("app.cli._run", fake_run)
 
@@ -99,4 +108,4 @@ def test_serve_bootstraps_database_before_running_command(monkeypatch: pytest.Mo
         serve()
 
     assert exc.value.code == 0
-    assert events == ["bootstrap", "run"]
+    assert events == ["storage", "bootstrap", "run"]

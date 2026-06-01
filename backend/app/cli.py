@@ -6,6 +6,7 @@ import os
 import subprocess
 import sys
 from collections.abc import Mapping, Sequence
+from pathlib import Path
 
 from app.infra.db_recovery import (
     StartupDatabaseBootstrapError,
@@ -19,7 +20,17 @@ def _run(command: Sequence[str]) -> int:
     return completed.returncode
 
 
+def _bootstrap_storage_from_demo() -> None:
+    backend_root = Path(__file__).resolve().parents[1]
+    bootstrap_storage_script = backend_root / "scripts" / "bootstrap_storage.py"
+    if bootstrap_storage_script.exists():
+        storage_code = _run([sys.executable, str(bootstrap_storage_script)])
+        if storage_code != 0:
+            raise SystemExit(storage_code)
+
+
 def _bootstrap_or_exit() -> None:
+    _bootstrap_storage_from_demo()
     try:
         bootstrap_database_on_startup()
     except StartupDatabaseBootstrapError as exc:
