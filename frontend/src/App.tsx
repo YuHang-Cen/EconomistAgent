@@ -96,6 +96,10 @@ function findJobAcrossAuthors(history: Record<string, Job[]>, jobId: string): Jo
   return null;
 }
 
+function filterReadableAnswerJobs(jobs: Job[]): Job[] {
+  return jobs.filter((job) => job.status !== "success" || job.outputsReady);
+}
+
 export default function App() {
   const [activeTab, setActiveTab] = useState<Tab>(UI_ANALYSIS_ONLY ? "answer" : "landing");
   const [isCreateAuthorOpen, setCreateAuthorOpen] = useState(false);
@@ -345,7 +349,10 @@ export default function App() {
             jobType: "author_answer",
             limit: 50,
           });
-          setAnalysisHistoryByAuthor((prev) => ({ ...prev, [authorId]: result.items }));
+          setAnalysisHistoryByAuthor((prev) => ({
+            ...prev,
+            [authorId]: filterReadableAnswerJobs(result.items),
+          }));
         } finally {
           setAnalysisLoadingByAuthor((prev) => ({ ...prev, [authorId]: false }));
           analysisHistoryInflightRef.current.delete(authorId);
@@ -709,11 +716,19 @@ export default function App() {
     setSelectedAnswerJobId(jobId);
     const job = findJobAcrossAuthors(analysisHistoryByAuthor, jobId);
     if (!job || job.status !== "success" || !job.outputsReady) {
-      setGlobalError("回答任务尚未完成或无可用输出，请稍后再试。");
+      setSelectedAnswerJobId(null);
+      setGlobalError("This analysis result is no longer available. The history list will refresh.");
       return;
     }
     if (answersByJob[jobId]) return;
-    await loadAnswerByJobId(jobId).catch(handleError);
+    try {
+      await loadAnswerByJobId(jobId);
+    } catch (error) {
+      setSelectedAnswerJobId(null);
+      await ensureAnalysisHistory(job.authorId, true).catch(() => undefined);
+      setGlobalError("This analysis result is missing on disk and has been removed from the active history.");
+      throw error;
+    }
   };
 
   const handleGenerateAnswer = async () => {

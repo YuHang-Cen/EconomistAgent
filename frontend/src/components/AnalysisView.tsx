@@ -47,6 +47,47 @@ function normalizeProgress(value: number | null | undefined): number {
   return Math.max(0, Math.min(100, Math.round(value)));
 }
 
+function renderEssayMarkdown(
+  markdown: string,
+  options?: { muted?: boolean; headingLevel?: "h2" | "h3" }
+) {
+  const headingLevel = options?.headingLevel ?? "h2";
+  const paragraphClass = options?.muted
+    ? "font-body text-[1.05rem] text-secondary/90 leading-[1.85] mb-6"
+    : "font-body text-[1.1rem] text-secondary leading-[1.8] mb-6";
+  const headingClass =
+    headingLevel === "h3"
+      ? "font-headline text-2xl font-bold text-on-surface mt-12 mb-5 leading-snug"
+      : "font-headline text-3xl font-bold text-on-surface mt-14 mb-6 leading-snug";
+
+  return markdown.split(/\n+/).map((block, i) => {
+    const text = block.trim();
+    if (!text) return null;
+
+    if (text.startsWith("#")) {
+      const headingText = text.replace(/^#+\s*/, "");
+      if (headingLevel === "h3") {
+        return (
+          <h3 key={i} className={headingClass}>
+            {headingText}
+          </h3>
+        );
+      }
+      return (
+        <h2 key={i} className={headingClass}>
+          {headingText}
+        </h2>
+      );
+    }
+
+    return (
+      <p key={i} className={paragraphClass}>
+        {text}
+      </p>
+    );
+  });
+}
+
 export default function AnalysisView({
   authors,
   selectedAuthorId,
@@ -67,44 +108,52 @@ export default function AnalysisView({
     const generateDateValue = formatGenerateDate(
       selectedAnswer.generatedAt ?? selectedJob?.finishedAt ?? null
     );
-    // 获取当前作者名称
-    const authorDisplayName = authors.find(a => a.authorId === selectedAuthorId)?.authorName || "Unknown Author";
+    const authorDisplayName =
+      authors.find((a) => a.authorId === selectedAuthorId)?.authorName || "Unknown Author";
 
     return (
       <main className="flex-grow bg-surface overflow-y-auto custom-scrollbar">
         <div className="px-12 py-12 max-w-6xl mx-auto">
-          {/* 顶部导航 */}
           <nav className="mb-12">
             <ol className="flex items-center gap-2 font-label text-[10px] tracking-[0.2em] text-secondary font-semibold uppercase">
               <li>Analysis</li>
-              <li><ChevronRight className="w-3 h-3 text-outline-variant opacity-50" /></li>
+              <li>
+                <ChevronRight className="w-3 h-3 text-outline-variant opacity-50" />
+              </li>
               <li>{authorDisplayName}</li>
-              <li><ChevronRight className="w-3 h-3 text-outline-variant opacity-50" /></li>
+              <li>
+                <ChevronRight className="w-3 h-3 text-outline-variant opacity-50" />
+              </li>
               <li className="text-primary">{selectedAnswer.answer.topic || "Answer"}</li>
             </ol>
           </nav>
 
-          {/* 标题与元数据 */}
           <header className="mb-12">
             <h1 className="font-headline text-5xl lg:text-[3.5rem] font-bold text-on-surface mb-12 tracking-tight leading-[1.15]">
               {selectedAnswer.answer.title || "Generated Answer"}
             </h1>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pb-6 border-b border-outline-variant/10">
               <div>
-                <span className="block font-label text-[9px] uppercase tracking-widest text-outline-variant mb-2">Author</span>
+                <span className="block font-label text-[9px] uppercase tracking-widest text-outline-variant mb-2">
+                  Author
+                </span>
                 <span className="font-body text-sm font-semibold text-on-surface">
                   {authorDisplayName}
                 </span>
               </div>
               <div>
-                <span className="block font-label text-[9px] uppercase tracking-widest text-outline-variant mb-2">Topic</span>
+                <span className="block font-label text-[9px] uppercase tracking-widest text-outline-variant mb-2">
+                  Topic
+                </span>
                 <span className="font-body text-sm font-semibold text-on-surface">
                   {selectedAnswer.answer.topic}
                 </span>
               </div>
               <div>
-                <span className="block font-label text-[9px] uppercase tracking-widest text-outline-variant mb-2">Generate Date</span>
+                <span className="block font-label text-[9px] uppercase tracking-widest text-outline-variant mb-2">
+                  Generate Date
+                </span>
                 <span className="font-body text-sm font-semibold text-on-surface">
                   {generateDateValue}
                 </span>
@@ -112,8 +161,11 @@ export default function AnalysisView({
             </div>
           </header>
 
-          {/* Research Inquiry */}
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-12 bg-surface-container-lowest border-l-[3px] border-outline-variant/30 pl-6 py-2">
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-12 bg-surface-container-lowest border-l-[3px] border-outline-variant/30 pl-6 py-2"
+          >
             <span className="block font-label text-[10px] uppercase tracking-widest text-secondary mb-3 font-bold">
               Research Inquiry
             </span>
@@ -128,7 +180,6 @@ export default function AnalysisView({
             </div>
           )}
 
-          {/* Answer Summary 卡片 */}
           {selectedAnswer.answer.summary && (
             <div className="mb-12 bg-surface-container-low p-8 rounded-sm editorial-shadow">
               <span className="block font-label text-[10px] uppercase tracking-widest text-primary mb-4 font-bold">
@@ -140,32 +191,39 @@ export default function AnalysisView({
             </div>
           )}
 
-          {/* 正文解析 (Markdown) */}
           <article className="prose prose-slate max-w-none mb-20">
-            {selectedAnswer.answer.markdown.split(/\n+/).map((block, i) => {
-              const text = block.trim();
-              if (!text) return null;
-              
-              // 标题处理
-              if (text.startsWith('#')) {
-                const headingText = text.replace(/^#+\s*/, '');
-                return (
-                  <h2 key={i} className="font-headline text-3xl font-bold text-on-surface mt-14 mb-6 leading-snug">
-                    {headingText}
-                  </h2>
-                );
-              }
-              
-              // 普通段落处理
-              return (
-                <p key={i} className="font-body text-[1.1rem] text-secondary leading-[1.8] mb-6">
-                  {text}
-                </p>
-              );
-            })}
+            {renderEssayMarkdown(selectedAnswer.answer.markdown)}
           </article>
 
-          {/* Methodological Footprint */}
+          {selectedAnswer.directApiArticle && (
+            <section className="mt-16 pt-10 border-t border-outline-variant/15 mb-20">
+              <div className="max-w-4xl">
+                <span className="block font-label text-[10px] uppercase tracking-[0.2em] text-secondary mb-4 font-bold">
+                  Direct API Output
+                </span>
+                <h3 className="font-headline text-3xl lg:text-4xl font-bold text-on-surface mb-4 leading-tight">
+                  纯单次 API 生成结果
+                </h3>
+                <p className="font-body text-base text-secondary leading-relaxed mb-10">
+                  以下内容展示同一问题下，直接单次调用模型生成的文章结果。
+                </p>
+
+                {selectedAnswer.directApiArticle.title && (
+                  <h4 className="font-headline text-2xl font-bold text-on-surface mb-6 leading-snug">
+                    {selectedAnswer.directApiArticle.title}
+                  </h4>
+                )}
+
+                <article className="prose prose-slate max-w-none">
+                  {renderEssayMarkdown(selectedAnswer.directApiArticle.markdown, {
+                    muted: true,
+                    headingLevel: "h3",
+                  })}
+                </article>
+              </div>
+            </section>
+          )}
+
           <section className="pt-10 border-t border-outline-variant/15">
             <div className="flex items-center gap-2 mb-8">
               <Sparkles className="w-4 h-4 text-secondary" />
@@ -175,7 +233,6 @@ export default function AnalysisView({
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
-              {/* Main Skill */}
               <div className="md:col-span-4">
                 <span className="block font-label text-[9px] uppercase tracking-widest text-outline-variant mb-3">
                   Main Skill
@@ -208,7 +265,6 @@ export default function AnalysisView({
                 </div>
               </div>
 
-              {/* Sub Skills */}
               <div className="md:col-span-8">
                 <span className="block font-label text-[9px] uppercase tracking-widest text-outline-variant mb-3">
                   Sub Skills
@@ -216,22 +272,25 @@ export default function AnalysisView({
                 <div className="flex flex-wrap gap-3">
                   {selectedAnswer.selectedSubSkillNames.length > 0 ? (
                     selectedAnswer.selectedSubSkillNames.map((skill, idx) => (
-                      <span key={idx} className="flex items-center gap-2 bg-surface-container-low px-4 py-2.5 rounded-sm border border-outline-variant/10">
+                      <span
+                        key={idx}
+                        className="flex items-center gap-2 bg-surface-container-low px-4 py-2.5 rounded-sm border border-outline-variant/10"
+                      >
                         <span className="w-1.5 h-1.5 rounded-full bg-outline-variant/40"></span>
                         <span className="font-body text-xs text-secondary">{skill}</span>
                       </span>
                     ))
                   ) : (
-                    <span className="text-sm text-outline-variant italic mt-2">No sub skills recorded.</span>
+                    <span className="text-sm text-outline-variant italic mt-2">
+                      No sub skills recorded.
+                    </span>
                   )}
                 </div>
               </div>
             </div>
 
-            {/* 模型与 API 信息底部栏 */}
             <div className="pt-8 mt-12 flex items-center justify-between border-t border-outline-variant/15">
               <div className="flex flex-col gap-1.5">
-                {/* TODO: 后端需要在此处对齐并传入真实的 Model Name 和 API Base 数据 */}
                 <span className="text-[10px] font-mono text-outline-variant normal-case tracking-widest">
                   Model Name: {selectedAnswer.modelName || "Unknown"}
                 </span>
@@ -246,7 +305,6 @@ export default function AnalysisView({
     );
   }
 
-  // 以下为生成页面默认态
   return (
     <main className="flex-grow bg-surface overflow-y-auto custom-scrollbar">
       <div className="px-12 py-12">

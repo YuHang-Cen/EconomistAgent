@@ -23,6 +23,7 @@ from app.infra import storage
 from app.infra.settings import get_settings
 from app.services.analyze_method_chunks import run_analyze_method_chunks
 from app.services.answer_with_skills import run_answer_with_skills
+from app.services.direct_api_article import run_direct_api_article
 from app.services.document_status_service import reconcile_stale_processing_documents
 from app.services.extract_paragraphs import run_extract_paragraphs
 from app.services.llm_utils import get_effective_model_config, model_config_override_scope
@@ -634,6 +635,22 @@ def _run_answer_with_skills_with_language(
         )
 
 
+def _run_direct_api_article_with_language(
+    query: str,
+    *,
+    language: str,
+    author_name: str,
+) -> dict[str, str]:
+    try:
+        return run_direct_api_article(
+            query=query,
+            language=language,
+            author_name=author_name,
+        )
+    except TypeError:
+        return run_direct_api_article(query=query)
+
+
 def _load_job_model_config(job: PipelineJob) -> dict[str, Any]:
     raw = getattr(job, "model_config_json", "{}")
     if not isinstance(raw, str):
@@ -1213,10 +1230,16 @@ def run_author_answer(session: Session, job: PipelineJob) -> None:
             language=author_language,
             author_name=author.author_name,
         )
+        direct_api_article = _run_direct_api_article_with_language(
+            query=job.query,
+            language=author_language,
+            author_name=author.author_name,
+        )
     generated_at = _now_iso()
     answer_json["generated_at"] = generated_at
     answer_json["model_name"] = llm_metadata.get("model_name", "")
     answer_json["api_base"] = llm_metadata.get("api_base", "")
+    answer_json["direct_api_article"] = direct_api_article
 
     outputs = _store_answer_artifact(
         author_id=job.author_id, job_id=job.job_id, answer_json=answer_json

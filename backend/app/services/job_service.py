@@ -56,9 +56,23 @@ def _extract_public_outputs(outputs_json: str) -> dict[str, Any]:
     return {key: value for key, value in outputs.items() if key in allowed}
 
 
+def _has_readable_public_outputs(outputs_json: str) -> bool:
+    """Return whether at least one public output points to a readable artifact."""
+    outputs = _extract_public_outputs(outputs_json)
+    for value in outputs.values():
+        if not isinstance(value, str) or not value.strip():
+            continue
+        try:
+            path = storage.resolve_storage_uri(value)
+        except Exception:
+            continue
+        if path.exists():
+            return True
+    return False
+
+
 def _serialize_job(job: PipelineJob) -> dict[str, Any]:
     """将任务模型序列化为轮询响应结构。"""
-    public_outputs = _extract_public_outputs(job.outputs_json or "{}")
     return {
         "jobId": job.job_id,
         "authorId": job.author_id,
@@ -73,7 +87,7 @@ def _serialize_job(job: PipelineJob) -> dict[str, Any]:
         "updatedAt": job.updated_at,
         "finishedAt": job.finished_at,
         "retryable": job.status in {JobStatus.FAILED.value, JobStatus.CANCELED.value},
-        "outputsReady": bool(public_outputs),
+        "outputsReady": _has_readable_public_outputs(job.outputs_json or "{}"),
     }
 
 

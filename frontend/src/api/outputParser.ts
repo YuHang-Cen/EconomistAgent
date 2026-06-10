@@ -24,6 +24,16 @@ function asStringArray(value: unknown): string[] {
   return value.filter((item): item is string => typeof item === "string");
 }
 
+function parseOptionalArticle(value: unknown): { title: string; markdown: string } | null {
+  if (!isRecord(value)) return null;
+  const markdown = asString(value.markdown) || "";
+  if (!markdown) return null;
+  return {
+    title: asString(value.title) || "",
+    markdown,
+  };
+}
+
 export function parseMainSkillsMdJson(content: unknown): Array<Record<string, unknown>> {
   if (!Array.isArray(content)) {
     throw new Error("main_skills_md_json is not an array");
@@ -97,5 +107,8 @@ export function parseAnswerJson(content: unknown): AnswerVM {
       summary: asString(answer.summary) || "",
       markdown: asString(answer.markdown) || "",
     },
+    directApiArticle: parseOptionalArticle(
+      content.directApiArticle ?? content.direct_api_article
+    ),
   };
 }

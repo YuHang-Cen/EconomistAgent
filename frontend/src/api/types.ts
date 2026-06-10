@@ -116,4 +116,8 @@ export interface AnswerVM {
     summary: string;
     markdown: string;
   };
+  directApiArticle: {
+    title: string;
+    markdown: string;
+  } | null;
 }
