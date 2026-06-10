@@ -38,6 +38,7 @@ import SegmentSidebar from "./components/SegmentSidebar";
 import SegmentView from "./components/SegmentView";
 import SettingsModal, { RuntimeSettingsState } from "./components/SettingsModal";
 import Sidebar from "./components/Sidebar";
+import { UI_ANALYSIS_ONLY } from "./config/ui";
 import {
   buildResolvedMethodologySections,
   type ResolvedMethodologySection,
@@ -96,7 +97,7 @@ function findJobAcrossAuthors(history: Record<string, Job[]>, jobId: string): Jo
 }
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<Tab>("landing");
+  const [activeTab, setActiveTab] = useState<Tab>(UI_ANALYSIS_ONLY ? "answer" : "landing");
   const [isCreateAuthorOpen, setCreateAuthorOpen] = useState(false);
   const [isSettingsOpen, setSettingsOpen] = useState(false);
   const [runtimeSettings, setRuntimeSettings] = useState<RuntimeSettingsState>(EMPTY_SETTINGS);
@@ -783,12 +784,18 @@ export default function App() {
     }
   };
 
+  useEffect(() => {
+    if (UI_ANALYSIS_ONLY && activeTab !== "answer") {
+      setActiveTab("answer");
+    }
+  }, [activeTab]);
+
   return (
     <div className="min-h-screen bg-background text-on-background font-body flex flex-col">
       <Navbar activeTab={activeTab} onTabChange={setActiveTab} onSettingsOpen={() => setSettingsOpen(true)} />
 
       <AnimatePresence mode="wait">
-        {activeTab === "landing" && <LandingPage onStart={() => setActiveTab("archive")} />}
+        {!UI_ANALYSIS_ONLY && activeTab === "landing" && <LandingPage onStart={() => setActiveTab("archive")} />}
       </AnimatePresence>
 
       <main className="pt-20 flex-grow flex flex-col">

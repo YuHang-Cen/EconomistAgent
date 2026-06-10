@@ -61,6 +61,8 @@ services:
   frontend:
     build:
       context: ./frontend
+      args:
+        VITE_UI_ANALYSIS_ONLY: ${VITE_UI_ANALYSIS_ONLY:-false}
     depends_on:
       backend:
         condition: service_healthy

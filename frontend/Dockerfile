@@ -2,6 +2,9 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
+ARG VITE_UI_ANALYSIS_ONLY=false
+ENV VITE_UI_ANALYSIS_ONLY=${VITE_UI_ANALYSIS_ONLY}
+
 COPY package.json package-lock.json ./
 RUN npm ci
 

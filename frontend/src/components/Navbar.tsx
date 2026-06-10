@@ -1,4 +1,5 @@
 import { Search, UserCircle, Settings } from 'lucide-react';
+import { UI_ANALYSIS_ONLY } from '../config/ui';
 
 interface NavbarProps {
   activeTab: 'archive' | 'analysis' | 'methodology' | 'answer' | 'landing';
@@ -6,28 +7,35 @@ interface NavbarProps {
   onSettingsOpen: () => void;
 }
 
+type NavItem = {
+  id: 'archive' | 'analysis' | 'methodology' | 'answer';
+  label: string;
+};
+
 export default function Navbar({ activeTab, onTabChange, onSettingsOpen }: NavbarProps) {
-  const showSearch = activeTab === 'archive';
+  const showSearch = !UI_ANALYSIS_ONLY && activeTab === 'archive';
 
   const navItems = [
     { id: 'archive', label: 'Archive' },
     { id: 'analysis', label: 'Segment' },
     { id: 'methodology', label: 'Methodology' },
     { id: 'answer', label: 'Analysis' },
-  ] as const;
+  ] satisfies NavItem[];
+
+  const visibleNavItems = navItems.filter((item) => !UI_ANALYSIS_ONLY || item.id === 'answer');
 
   return (
     <nav className="fixed top-0 w-full z-50 bg-background/80 backdrop-blur-xl shadow-sm border-b border-outline-variant/10">
       <div className="flex justify-between items-center px-8 h-20 max-w-screen-2xl mx-auto">
         <div className="flex items-center gap-12">
           <span 
-            onClick={() => onTabChange('landing')}
+            onClick={() => onTabChange(UI_ANALYSIS_ONLY ? 'answer' : 'landing')}
             className="text-2xl cursor-pointer active:opacity-70 transition-opacity font-headline font-bold tracking-tight text-blue-900"
           >
             The Economist Agent
           </span>
           <div className="hidden md:flex items-center gap-8 font-headline font-medium tracking-tight">
-            {navItems.map((item) => (
+            {visibleNavItems.map((item) => (
               <button
                 key={item.id}
                 onClick={() => onTabChange(item.id)}

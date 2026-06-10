@@ -11,6 +11,7 @@ $ErrorActionPreference = "Stop"
 $repoRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 $backendDir = Join-Path $repoRoot "backend"
 $frontendDir = Join-Path $repoRoot "frontend"
+$backendEnvFile = Join-Path $backendDir ".env"
 
 if (-not (Test-Path $backendDir)) {
   throw "backend directory not found: $backendDir"
@@ -168,6 +169,29 @@ function Start-DevWindow {
     | Out-Null
 }
 
+function Get-EnvFileValue {
+  param(
+    [Parameter(Mandatory = $true)][string]$Path,
+    [Parameter(Mandatory = $true)][string]$Key
+  )
+
+  if (-not (Test-Path $Path)) {
+    return $null
+  }
+
+  foreach ($line in Get-Content -Path $Path) {
+    $trimmed = $line.Trim()
+    if ($trimmed.Length -eq 0 -or $trimmed.StartsWith("#")) {
+      continue
+    }
+    if ($trimmed -match "^(?<name>[A-Za-z_][A-Za-z0-9_]*)=(?<value>.*)$" -and $Matches.name -eq $Key) {
+      return $Matches.value.Trim()
+    }
+  }
+
+  return $null
+}
+
 function Resolve-ServiceStartupDecision {
   param(
     [Parameter(Mandatory = $true)][string]$ServiceName,
@@ -239,7 +263,11 @@ $frontendDecision = if ($DryRun) {
 
 switch ($frontendDecision.Action) {
   "start" {
-    Start-DevWindow -Title "EconomistAgent Frontend" -WorkingDirectory $frontendDir -Command "npm run dev"
+    $analysisOnly = Get-EnvFileValue -Path $backendEnvFile -Key "VITE_UI_ANALYSIS_ONLY"
+    if ([string]::IsNullOrWhiteSpace($analysisOnly)) {
+      $analysisOnly = "false"
+    }
+    Start-DevWindow -Title "EconomistAgent Frontend" -WorkingDirectory $frontendDir -Command "`$env:VITE_UI_ANALYSIS_ONLY='$analysisOnly'; npm run dev"
   }
   "reuse" {
     Write-Host $frontendDecision.Message

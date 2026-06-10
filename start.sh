@@ -28,7 +28,7 @@ fi
 mkdir -p "${STORAGE_DIR}"
 
 cd "${ROOT_DIR}"
-docker compose up -d --build
+docker compose --env-file "${ENV_FILE}" up -d --build
 
 echo "[INFO] Waiting for backend health..."
 ready=0
