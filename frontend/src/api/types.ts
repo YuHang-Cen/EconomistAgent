@@ -46,6 +46,7 @@ export interface DocumentVM {
   authorId: string;
   bookTitle: string;
   pdfUri: string;
+  documentKind: "book" | "paper" | string;
   status: "processing" | "active" | "failed" | string;
 }
 

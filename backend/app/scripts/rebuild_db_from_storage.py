@@ -14,6 +14,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+from app.domain.document_kind import normalize_document_kind
 from app.domain.enums import JobStatus, JobType, OutputType, Stage
 from app.domain.language import normalize_author_language
 from app.domain.models import (
@@ -212,6 +213,7 @@ def rebuild_from_storage(storage_root: Path) -> RebuildSummary:
                     if isinstance(document_meta, dict):
                         book_title = str(document_meta.get("book_title") or document_id)
                         pdf_uri = str(document_meta.get("pdf_uri") or "")
+                        document_kind = normalize_document_kind(document_meta.get("document_kind"))
                         status = str(document_meta.get("status") or "active")
                         doc_created_at = str(document_meta.get("created_at") or now)
                         doc_updated_at = str(document_meta.get("updated_at") or doc_created_at)
@@ -221,6 +223,7 @@ def rebuild_from_storage(storage_root: Path) -> RebuildSummary:
                         )
                         book_title = document_id
                         pdf_uri = ""
+                        document_kind = normalize_document_kind(None)
                         status = "active"
                         doc_created_at = now
                         doc_updated_at = now
@@ -233,6 +236,7 @@ def rebuild_from_storage(storage_root: Path) -> RebuildSummary:
                                 author_id=author_id,
                                 book_title=book_title,
                                 pdf_uri=pdf_uri,
+                                document_kind=document_kind,
                                 status=status,
                                 created_at=doc_created_at,
                                 updated_at=doc_updated_at,
@@ -243,6 +247,7 @@ def rebuild_from_storage(storage_root: Path) -> RebuildSummary:
                         existing_doc.author_id = author_id
                         existing_doc.book_title = book_title
                         existing_doc.pdf_uri = pdf_uri
+                        existing_doc.document_kind = document_kind
                         existing_doc.status = status
                         existing_doc.updated_at = doc_updated_at
 

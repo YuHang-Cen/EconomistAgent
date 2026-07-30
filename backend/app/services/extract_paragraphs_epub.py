@@ -287,7 +287,12 @@ def _extract_epub_blocks_between(content: str, start_anchor: str | None, end_anc
             blocks.append(text)
     return blocks
 
-def _extract_from_epub(epub_path: Path, book_title: str) -> list[dict[str, Any]]:
+def _extract_from_epub(
+    epub_path: Path,
+    book_title: str,
+    *,
+    single_section: bool = False,
+) -> list[dict[str, Any]]:
     try:
         from ebooklib import epub
     except Exception as exc:  # pragma: no cover
@@ -301,6 +306,31 @@ def _extract_from_epub(epub_path: Path, book_title: str) -> list[dict[str, Any]]
     spine_documents = _get_epub_spine_documents(book)
     if not spine_documents:
         return []
+
+    if single_section:
+        blocks: list[str] = []
+        for document in spine_documents:
+            blocks.extend(
+                _extract_epub_blocks_between(
+                    content=document.content,
+                    start_anchor=None,
+                    end_anchor=None,
+                )
+            )
+
+        paragraphs = _build_paragraphs(blocks, skip_numeric_prefix=False)
+        records: list[dict[str, Any]] = []
+        section_title = book_title.strip() or "Full Paper"
+        for paragraph_idx, content in enumerate(paragraphs, start=1):
+            records.append(
+                {
+                    "section_title": section_title,
+                    "chunk_id": f"001-{paragraph_idx:04d}",
+                    "content": content,
+                    "order_index": paragraph_idx - 1,
+                }
+            )
+        return records
 
     toc_entries = _extract_epub_toc_entries(book)
     section_ranges = _build_epub_section_ranges(toc_entries)

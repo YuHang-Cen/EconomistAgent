@@ -493,7 +493,12 @@ export default function App() {
     }
   };
 
-  const handleUploadDocument = async (payload: { authorId: string; bookTitle: string; file: File }) => {
+  const handleUploadDocument = async (payload: {
+    authorId: string;
+    bookTitle: string;
+    documentKind: "book" | "paper";
+    file: File;
+  }) => {
     try {
       setUploadingDocument(true);
       const created = await uploadDocumentFile(payload);

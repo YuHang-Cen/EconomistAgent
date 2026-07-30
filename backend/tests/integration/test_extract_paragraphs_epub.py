@@ -33,3 +33,21 @@ def test_run_extract_paragraphs_extracts_main_chapters_from_epub(
     assert all("\u4e0a\u7bc7" not in str(item["section_title"]) for item in extracted)
     assert all("\u81f4\u8c22" not in str(item["content"]) for item in extracted)
     assert all("\u6ce8\u91ca" not in str(item["content"]) for item in extracted)
+
+
+def test_run_extract_paragraphs_keeps_epub_as_single_section_for_paper(
+    create_test_epub: Callable[[str], str],
+) -> None:
+    epub_uri = create_test_epub("extract-paper.epub")
+
+    extracted = run_extract_paragraphs(
+        book_title="Paper Title",
+        pdf_uri=epub_uri,
+        document_kind="paper",
+    )
+
+    assert extracted
+    assert {str(item["section_title"]) for item in extracted} == {"Paper Title"}
+    merged_content = "\n".join(str(item["content"]) for item in extracted)
+    assert CHAPTER_ONE_TITLE in merged_content
+    assert CHAPTER_TWO_TITLE in merged_content

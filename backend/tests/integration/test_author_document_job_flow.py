@@ -12,6 +12,35 @@ from app.infra.db import session_scope
 from fastapi.testclient import TestClient
 
 
+def _build_multi_section_pdf_bytes() -> bytes:
+    import fitz
+
+    document = fitz.open()
+    first_page = document.new_page()
+    first_page.insert_textbox(
+        fitz.Rect(72, 72, 540, 780),
+        "Chapter 1 Foundations\n\nFirst chapter paragraph about institutional baselines.",
+        fontsize=11,
+    )
+    second_page = document.new_page()
+    second_page.insert_textbox(
+        fitz.Rect(72, 72, 540, 780),
+        "Chapter 2 Dynamics\n\nSecond chapter paragraph about policy propagation.",
+        fontsize=11,
+    )
+    pdf_bytes = document.tobytes()
+    document.close()
+    return pdf_bytes
+
+
+def _create_multi_section_pdf_path() -> str:
+    input_root = Path("storage") / "test_tmp" / "test_inputs"
+    input_root.mkdir(parents=True, exist_ok=True)
+    path = input_root / f"{uuid4()}-multi-section.pdf"
+    path.write_bytes(_build_multi_section_pdf_bytes())
+    return str(path)
+
+
 def _wait_job_status(
     client: TestClient, job_id: str, expected: str, max_attempts: int = 15
 ) -> dict[str, Any]:
@@ -102,6 +131,7 @@ def test_upload_document_creates_reload_job(
     assert payload["success"] is True
     assert payload["data"]["documentId"]
     assert payload["data"]["reloadJobId"]
+    assert payload["data"]["documentKind"] == "book"
 
     job_id = payload["data"]["reloadJobId"]
     final_payload = _wait_job_status(client=client, job_id=job_id, expected="success")
@@ -134,6 +164,7 @@ def test_multipart_upload_document_creates_reload_job(
     assert payload["success"] is True
     assert payload["data"]["documentId"]
     assert payload["data"]["reloadJobId"]
+    assert payload["data"]["documentKind"] == "book"
 
     job_id = payload["data"]["reloadJobId"]
     final_payload = _wait_job_status(client=client, job_id=job_id, expected="success")
@@ -162,6 +193,7 @@ def test_upload_epub_document_creates_reload_job(
     assert payload["success"] is True
     assert payload["data"]["documentId"]
     assert payload["data"]["reloadJobId"]
+    assert payload["data"]["documentKind"] == "book"
 
     job_id = payload["data"]["reloadJobId"]
     final_payload = _wait_job_status(client=client, job_id=job_id, expected="success")
@@ -194,6 +226,7 @@ def test_multipart_upload_epub_document_creates_reload_job(
     assert payload["success"] is True
     assert payload["data"]["documentId"]
     assert payload["data"]["reloadJobId"]
+    assert payload["data"]["documentKind"] == "book"
 
     job_id = payload["data"]["reloadJobId"]
     final_payload = _wait_job_status(client=client, job_id=job_id, expected="success")
@@ -225,6 +258,7 @@ def test_multipart_upload_markdown_document_creates_reload_job(
     assert payload["success"] is True
     assert payload["data"]["documentId"]
     assert payload["data"]["reloadJobId"]
+    assert payload["data"]["documentKind"] == "book"
 
     document_id = payload["data"]["documentId"]
     job_id = payload["data"]["reloadJobId"]
@@ -240,6 +274,102 @@ def test_multipart_upload_markdown_document_creates_reload_job(
     segments = _list_chapter_segments(client, author_id, document_id, chapters[0]["chapterId"])
     assert segments
     assert any("Section Context" in str(item["content"]) for item in segments)
+
+
+def test_multipart_upload_paper_pdf_creates_single_chapter(
+    client: TestClient,
+) -> None:
+    create_author_response = client.post(
+        "/api/authors",
+        json={"authorName": "Multipart Paper PDF Author", "school": "Test", "avatarUrl": ""},
+    )
+    author_id = create_author_response.json()["data"]["authorId"]
+
+    upload_response = client.post(
+        f"/api/authors/{author_id}/documents/upload",
+        data={"bookTitle": "Paper PDF Title", "documentKind": "paper"},
+        files={"file": ("paper-upload.pdf", _build_multi_section_pdf_bytes(), "application/pdf")},
+    )
+    payload = upload_response.json()
+    assert upload_response.status_code == 200
+    assert payload["success"] is True
+    assert payload["data"]["documentKind"] == "paper"
+
+    document_id = payload["data"]["documentId"]
+    job_id = payload["data"]["reloadJobId"]
+    final_payload = _wait_job_status(client=client, job_id=job_id, expected="success")
+    assert final_payload["status"] == "success"
+
+    chapters = _list_document_chapters(client, author_id, document_id)
+    assert len(chapters) == 1
+    assert chapters[0]["chapterTitle"] == "Paper PDF Title"
+
+    segments = _list_chapter_segments(client, author_id, document_id, chapters[0]["chapterId"])
+    merged_content = "\n".join(str(item["content"]) for item in segments)
+    assert "First chapter paragraph" in merged_content
+    assert "Second chapter paragraph" in merged_content
+
+
+def test_multipart_upload_paper_markdown_creates_single_chapter(
+    client: TestClient,
+    create_test_markdown: Callable[[str, str | None], str],
+) -> None:
+    create_author_response = client.post(
+        "/api/authors",
+        json={"authorName": "Multipart Paper Markdown Author", "school": "Test", "avatarUrl": ""},
+    )
+    author_id = create_author_response.json()["data"]["authorId"]
+    markdown_uri = create_test_markdown("multipart-paper-upload.md")
+    markdown_bytes = Path(markdown_uri).read_bytes()
+
+    upload_response = client.post(
+        f"/api/authors/{author_id}/documents/upload",
+        data={"bookTitle": "Paper Markdown Title", "documentKind": "paper"},
+        files={"file": ("multipart-paper-upload.md", markdown_bytes, "text/markdown")},
+    )
+    payload = upload_response.json()
+    assert upload_response.status_code == 200
+    assert payload["data"]["documentKind"] == "paper"
+
+    document_id = payload["data"]["documentId"]
+    job_id = payload["data"]["reloadJobId"]
+    final_payload = _wait_job_status(client=client, job_id=job_id, expected="success")
+    assert final_payload["status"] == "success"
+
+    chapters = _list_document_chapters(client, author_id, document_id)
+    assert len(chapters) == 1
+    assert chapters[0]["chapterTitle"] == "Paper Markdown Title"
+
+
+def test_multipart_upload_paper_epub_creates_single_chapter(
+    client: TestClient,
+    create_test_epub: Callable[[str], str],
+) -> None:
+    create_author_response = client.post(
+        "/api/authors",
+        json={"authorName": "Multipart Paper EPUB Author", "school": "Test", "avatarUrl": ""},
+    )
+    author_id = create_author_response.json()["data"]["authorId"]
+    epub_uri = create_test_epub("multipart-paper-upload.epub")
+    epub_bytes = Path(epub_uri).read_bytes()
+
+    upload_response = client.post(
+        f"/api/authors/{author_id}/documents/upload",
+        data={"bookTitle": "Paper EPUB Title", "documentKind": "paper"},
+        files={"file": ("multipart-paper-upload.epub", epub_bytes, "application/epub+zip")},
+    )
+    payload = upload_response.json()
+    assert upload_response.status_code == 200
+    assert payload["data"]["documentKind"] == "paper"
+
+    document_id = payload["data"]["documentId"]
+    job_id = payload["data"]["reloadJobId"]
+    final_payload = _wait_job_status(client=client, job_id=job_id, expected="success")
+    assert final_payload["status"] == "success"
+
+    chapters = _list_document_chapters(client, author_id, document_id)
+    assert len(chapters) == 1
+    assert chapters[0]["chapterTitle"] == "Paper EPUB Title"
 
 
 def test_multipart_upload_rejects_unsupported_document(client: TestClient) -> None:
@@ -440,3 +570,38 @@ def test_document_reload_fails_when_pdf_has_no_extractable_segments(
     assert "no extractable segments" in str(final_payload["errorMessage"])
     assert final_payload["outputsReady"] is False
     assert _find_document_status(client, author_id, payload["documentId"]) == "failed"
+
+
+def test_reload_document_defaults_to_book_when_document_kind_missing(
+    client: TestClient,
+) -> None:
+    create_author_response = client.post(
+        "/api/authors",
+        json={"authorName": "Legacy Kind Author", "school": "Test", "avatarUrl": ""},
+    )
+    author_id = create_author_response.json()["data"]["authorId"]
+    pdf_uri = _create_multi_section_pdf_path()
+    document_id = str(uuid4())
+
+    with session_scope() as session:
+        session.add(
+            AuthorDocument(
+                document_id=document_id,
+                author_id=author_id,
+                book_title="Legacy Kind Book",
+                pdf_uri=pdf_uri,
+                document_kind="",
+                status="processing",
+                created_at="2026-01-01T00:00:00+00:00",
+                updated_at="2026-01-01T00:00:00+00:00",
+            )
+        )
+
+    reload_response = client.post(f"/api/authors/{author_id}/documents/{document_id}/reload")
+    assert reload_response.status_code == 200
+    job_id = reload_response.json()["data"]["reloadJobId"]
+    final_payload = _wait_job_status(client, job_id, "success")
+    assert final_payload["status"] == "success"
+
+    chapters = _list_document_chapters(client, author_id, document_id)
+    assert len(chapters) >= 2

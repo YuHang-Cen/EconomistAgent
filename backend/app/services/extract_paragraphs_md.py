@@ -76,8 +76,13 @@ def _flush_block(blocks: list[str], current_lines: list[str]) -> None:
     current_lines.clear()
 
 
-def _extract_markdown_blocks(text: str, book_title: str) -> tuple[str, list[str]]:
-    section_title = book_title.strip() or "Full Document"
+def _extract_markdown_blocks(
+    text: str,
+    book_title: str,
+    *,
+    single_section: bool = False,
+) -> tuple[str, list[str]]:
+    section_title = book_title.strip() or ("Full Paper" if single_section else "Full Document")
     stripped_text = _strip_front_matter(text)
 
     blocks: list[str] = []
@@ -100,7 +105,7 @@ def _extract_markdown_blocks(text: str, book_title: str) -> tuple[str, list[str]
                 heading_text = _strip_markdown_inline(heading_match.group(2).strip().rstrip("#").strip())
                 if not heading_text:
                     continue
-                if heading_level == 1 and not seen_h1:
+                if heading_level == 1 and not single_section and not seen_h1:
                     section_title = heading_text
                     seen_h1 = True
                 else:
@@ -126,9 +131,18 @@ def _extract_markdown_blocks(text: str, book_title: str) -> tuple[str, list[str]
     return section_title, blocks
 
 
-def _extract_from_md(md_path: Path, book_title: str) -> list[dict[str, str | int]]:
+def _extract_from_md(
+    md_path: Path,
+    book_title: str,
+    *,
+    single_section: bool = False,
+) -> list[dict[str, str | int]]:
     raw_text = md_path.read_text(encoding="utf-8-sig")
-    section_title, blocks = _extract_markdown_blocks(raw_text, book_title=book_title)
+    section_title, blocks = _extract_markdown_blocks(
+        raw_text,
+        book_title=book_title,
+        single_section=single_section,
+    )
     paragraphs = _build_paragraphs(blocks, skip_numeric_prefix=False)
 
     records: list[dict[str, str | int]] = []
