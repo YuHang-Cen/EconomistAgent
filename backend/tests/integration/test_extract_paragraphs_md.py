@@ -45,3 +45,22 @@ def test_run_extract_paragraphs_preserves_numeric_content_in_markdown(
     assert "3.2%" in merged_content
     assert "2倍" in merged_content
     assert "0.45" in merged_content
+
+
+def test_run_extract_paragraphs_keeps_markdown_as_single_section_for_paper(
+    create_test_markdown: Callable[[str, str | None], str],
+) -> None:
+    markdown_uri = create_test_markdown("extract-paper.md")
+
+    extracted = run_extract_paragraphs(
+        book_title="Paper Title",
+        pdf_uri=markdown_uri,
+        document_kind="paper",
+    )
+
+    assert extracted
+    assert {str(item["section_title"]) for item in extracted} == {"Paper Title"}
+    merged_content = "\n".join(str(item["content"]) for item in extracted)
+    assert "Markdown Import Title" in merged_content
+    assert "Section Context" in merged_content
+    assert "Detail Notes" in merged_content

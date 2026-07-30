@@ -9,6 +9,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+from app.domain.document_kind import DEFAULT_DOCUMENT_KIND, normalize_document_kind
 from app.domain.enums import JobStatus, OutputType
 from app.domain.language import normalize_author_language
 from app.domain.models import (
@@ -132,14 +133,21 @@ def _persist_avatar_file(author_id: str, suffix: str, content: bytes) -> Path:
     return target
 
 
-def _create_document_with_reload_job(author_id: str, book_title: str, pdf_uri: str) -> dict[str, str]:
+def _create_document_with_reload_job(
+    author_id: str,
+    book_title: str,
+    pdf_uri: str,
+    document_kind: str = DEFAULT_DOCUMENT_KIND,
+) -> dict[str, str]:
     """Create one document record and enqueue reload job."""
     now = _now_iso()
+    normalized_document_kind = normalize_document_kind(document_kind)
     document = AuthorDocument(
         document_id=str(uuid.uuid4()),
         author_id=author_id,
         book_title=book_title,
         pdf_uri=pdf_uri,
+        document_kind=normalized_document_kind,
         status="processing",
         created_at=now,
         updated_at=now,
@@ -166,6 +174,7 @@ def _create_document_with_reload_job(author_id: str, book_title: str, pdf_uri: s
                 "author_id": author_id,
                 "book_title": document.book_title,
                 "pdf_uri": document.pdf_uri,
+                "document_kind": document.document_kind,
                 "status": document.status,
                 "created_at": document.created_at,
                 "updated_at": document.updated_at,
@@ -182,7 +191,11 @@ def _create_document_with_reload_job(author_id: str, book_title: str, pdf_uri: s
             document_id,
             exc,
         )
-    return {"document_id": document_id, "reload_job_id": str(job["jobId"])}
+    return {
+        "document_id": document_id,
+        "reload_job_id": str(job["jobId"]),
+        "document_kind": document.document_kind,
+    }
 
 
 def _count_manuscripts_by_author(session: Any, author_id: str) -> int:
@@ -495,14 +508,22 @@ def upload_document(author_id: str, payload: AuthorDocumentUploadRequest) -> dic
         author_id=author_id,
         book_title=payload.book_title,
         pdf_uri=payload.pdf_uri,
+        document_kind=payload.document_kind,
     )
 
 
-def upload_document_file(author_id: str, book_title: str, filename: str, content: bytes) -> dict[str, str]:
+def upload_document_file(
+    author_id: str,
+    book_title: str,
+    document_kind: str,
+    filename: str,
+    content: bytes,
+) -> dict[str, str]:
     """Upload one document file from multipart payload, persist it, and enqueue reload job."""
     suffix = Path(filename).suffix.lower()
     if suffix not in ALLOWED_DOCUMENT_SUFFIXES:
         raise HTTPException(status_code=422, detail="uploaded file must end with .pdf, .epub, or .md")
+    normalized_document_kind = normalize_document_kind(document_kind)
 
     # Ensure author exists before writing storage files.
     with session_scope() as session:
@@ -522,6 +543,7 @@ def upload_document_file(author_id: str, book_title: str, filename: str, content
         author_id=author_id,
         book_title=book_title,
         pdf_uri=stored_pdf_uri,
+        document_kind=normalized_document_kind,
         status="processing",
         created_at=now,
         updated_at=now,
@@ -547,6 +569,7 @@ def upload_document_file(author_id: str, book_title: str, filename: str, content
                 "author_id": author_id,
                 "book_title": document.book_title,
                 "pdf_uri": document.pdf_uri,
+                "document_kind": document.document_kind,
                 "status": document.status,
                 "created_at": document.created_at,
                 "updated_at": document.updated_at,
@@ -563,7 +586,11 @@ def upload_document_file(author_id: str, book_title: str, filename: str, content
             document_id,
             exc,
         )
-    return {"document_id": document_id, "reload_job_id": str(job["jobId"])}
+    return {
+        "document_id": document_id,
+        "reload_job_id": str(job["jobId"]),
+        "document_kind": document.document_kind,
+    }
 
 
 def upload_author_avatar(
@@ -631,6 +658,7 @@ def list_documents(author_id: str) -> list[AuthorDocumentResponse]:
             author_id=item.author_id,
             book_title=item.book_title,
             pdf_uri=item.pdf_uri,
+            document_kind=normalize_document_kind(getattr(item, "document_kind", None)),
             status=item.status,
         )
         for item in documents

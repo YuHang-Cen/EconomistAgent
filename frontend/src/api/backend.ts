@@ -62,14 +62,16 @@ export function listDocuments(authorId: string): Promise<DocumentVM[]> {
 export function uploadDocument(input: {
   authorId: string;
   bookTitle: string;
+  documentKind?: "book" | "paper";
   pdfUri: string;
-}): Promise<{ documentId: string; reloadJobId: string }> {
-  return apiRequest<{ documentId: string; reloadJobId: string }>(
+}): Promise<{ documentId: string; reloadJobId: string; documentKind: string }> {
+  return apiRequest<{ documentId: string; reloadJobId: string; documentKind: string }>(
     `/authors/${input.authorId}/documents`,
     {
       method: "POST",
       body: JSON.stringify({
         bookTitle: input.bookTitle,
+        documentKind: input.documentKind,
         pdfUri: input.pdfUri,
       }),
     }
@@ -79,12 +81,14 @@ export function uploadDocument(input: {
 export async function uploadDocumentFile(input: {
   authorId: string;
   bookTitle: string;
+  documentKind: "book" | "paper";
   file: File;
-}): Promise<{ documentId: string; reloadJobId: string }> {
+}): Promise<{ documentId: string; reloadJobId: string; documentKind: string }> {
   const formData = new FormData();
   formData.set("bookTitle", input.bookTitle);
+  formData.set("documentKind", input.documentKind);
   formData.set("file", input.file);
-  return apiRequest<{ documentId: string; reloadJobId: string }>(
+  return apiRequest<{ documentId: string; reloadJobId: string; documentKind: string }>(
     `/authors/${input.authorId}/documents/upload`,
     {
       method: "POST",

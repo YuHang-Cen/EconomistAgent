@@ -9,6 +9,7 @@ import uuid
 from datetime import UTC, datetime
 from typing import Any
 
+from app.domain.document_kind import normalize_document_kind
 from app.domain.enums import JobStatus, OutputType, Stage
 from app.domain.language import normalize_author_language
 from app.domain.models import (
@@ -1360,7 +1361,9 @@ def run_document_reload(session: Session, job: PipelineJob) -> None:
     _ensure_not_canceled(session, job)
 
     extracted_rows = run_extract_paragraphs(
-        book_title=document.book_title, pdf_uri=document.pdf_uri
+        book_title=document.book_title,
+        pdf_uri=document.pdf_uri,
+        document_kind=normalize_document_kind(getattr(document, "document_kind", None)),
     )
     try:
         storage.write_json(
@@ -1376,6 +1379,9 @@ def run_document_reload(session: Session, job: PipelineJob) -> None:
                 "author_id": job.author_id,
                 "book_title": document.book_title,
                 "pdf_uri": document.pdf_uri,
+                "document_kind": normalize_document_kind(
+                    getattr(document, "document_kind", None)
+                ),
                 "status": document.status,
                 "created_at": document.created_at,
                 "updated_at": document.updated_at,
@@ -1416,6 +1422,9 @@ def run_document_reload(session: Session, job: PipelineJob) -> None:
                 "author_id": job.author_id,
                 "book_title": document.book_title,
                 "pdf_uri": document.pdf_uri,
+                "document_kind": normalize_document_kind(
+                    getattr(document, "document_kind", None)
+                ),
                 "status": document.status,
                 "created_at": document.created_at,
                 "updated_at": document.updated_at,

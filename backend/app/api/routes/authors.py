@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import Annotated, Any
 
 from app.api.deps import get_request_id, verify_api_key
+from app.domain.document_kind import DEFAULT_DOCUMENT_KIND
 from app.domain.schemas import (
     AuthorCreateRequest,
     AuthorDocumentUploadRequest,
@@ -89,6 +90,7 @@ async def upload_document_file(
     author_id: str,
     request_id: Annotated[str, Depends(get_request_id)],
     book_title: str = Form(..., alias="bookTitle"),
+    document_kind: str = Form(DEFAULT_DOCUMENT_KIND, alias="documentKind"),
     file: UploadFile = File(...),
 ) -> dict[str, Any]:
     """Upload PDF via multipart/form-data and trigger document_reload."""
@@ -96,6 +98,7 @@ async def upload_document_file(
     result = author_service.upload_document_file(
         author_id=author_id,
         book_title=book_title,
+        document_kind=document_kind,
         filename=file.filename or "",
         content=content,
     )

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import base64
+import json
 import os
 import shutil
 from collections.abc import Callable
@@ -72,6 +73,9 @@ def test_rebuild_db_from_storage_recovers_author_document_segments_and_skills(
         storage.document_root(author_id=author_id, document_id=document_id) / "document_meta.json"
     )
     assert document_meta_path.exists()
+    document_meta = json.loads(document_meta_path.read_text(encoding="utf-8"))
+    document_meta.pop("document_kind", None)
+    document_meta_path.write_text(json.dumps(document_meta), encoding="utf-8")
     extracted_path = (
         storage.document_root(author_id=author_id, document_id=document_id)
         / "extracted_segments.json"
@@ -99,7 +103,8 @@ def test_rebuild_db_from_storage_recovers_author_document_segments_and_skills(
     assert any(item["authorId"] == author_id for item in authors)
 
     documents = client.get(f"/api/authors/{author_id}/documents").json()["data"]
-    assert any(item["documentId"] == document_id for item in documents)
+    recovered_document = next(item for item in documents if item["documentId"] == document_id)
+    assert recovered_document["documentKind"] == "book"
 
     chapters = client.get(
         f"/api/authors/{author_id}/documents/{document_id}/chapters"

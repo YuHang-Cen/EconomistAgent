@@ -353,7 +353,12 @@ def _extract_text_blocks_from_doc(doc: Any, start_page: int, end_page: int) -> l
 
     return [blk for blk in all_blocks if blk.strip()]
 
-def _extract_from_pdf(pdf_path: Path, book_title: str) -> list[dict[str, Any]]:
+def _extract_from_pdf(
+    pdf_path: Path,
+    book_title: str,
+    *,
+    single_section: bool = False,
+) -> list[dict[str, Any]]:
     try:
         import fitz
     except Exception as exc:  # pragma: no cover
@@ -364,8 +369,17 @@ def _extract_from_pdf(pdf_path: Path, book_title: str) -> list[dict[str, Any]]:
     try:
         doc = fitz.open(pdf_path)
         try:
-            section_hints = _detect_sections(doc)
-            section_ranges = _build_section_ranges(section_hints, doc.page_count)
+            if single_section:
+                section_ranges = [
+                    SectionRange(
+                        title=book_title.strip() or "Full Paper",
+                        start_page=1,
+                        end_page=doc.page_count,
+                    )
+                ]
+            else:
+                section_hints = _detect_sections(doc)
+                section_ranges = _build_section_ranges(section_hints, doc.page_count)
 
             order_index = 0
             for section_idx, section in enumerate(section_ranges, start=1):

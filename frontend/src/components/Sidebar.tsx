@@ -2,12 +2,19 @@ import { FileUp, Upload } from "lucide-react";
 import { useMemo, useState } from "react";
 import type { Author } from "../types";
 
+type DocumentKind = "book" | "paper";
+
 interface SidebarProps {
   authors: Author[];
   selectedAuthorId: string | null;
   uploading?: boolean;
   onAuthorChange: (authorId: string) => void;
-  onUpload: (payload: { authorId: string; bookTitle: string; file: File }) => Promise<void> | void;
+  onUpload: (payload: {
+    authorId: string;
+    bookTitle: string;
+    documentKind: DocumentKind;
+    file: File;
+  }) => Promise<void> | void;
 }
 
 export default function Sidebar({
@@ -18,6 +25,7 @@ export default function Sidebar({
   onUpload,
 }: SidebarProps) {
   const [bookTitle, setBookTitle] = useState("");
+  const [documentKind, setDocumentKind] = useState<DocumentKind>("paper");
   const [file, setFile] = useState<File | null>(null);
   const selectedAuthor = useMemo(
     () => authors.find((item) => item.authorId === selectedAuthorId),
@@ -45,9 +53,11 @@ export default function Sidebar({
             await onUpload({
               authorId: selectedAuthorId,
               bookTitle: bookTitle.trim(),
+              documentKind,
               file,
             });
             setBookTitle("");
+            setDocumentKind("paper");
             setFile(null);
           }}
         >
@@ -69,6 +79,31 @@ export default function Sidebar({
                 </option>
               ))}
             </select>
+          </label>
+
+          <label className="block">
+            <span className="font-label text-[10px] uppercase tracking-widest text-secondary block mb-2">
+              Document Type
+            </span>
+            <div className="grid grid-cols-2 gap-2">
+              {(["paper", "book"] as const).map((kind) => {
+                const active = documentKind === kind;
+                return (
+                  <button
+                    key={kind}
+                    type="button"
+                    onClick={() => setDocumentKind(kind)}
+                    className={`rounded-sm border px-4 py-3 text-sm font-label uppercase tracking-wide transition-all ${
+                      active
+                        ? "border-primary bg-primary text-on-primary"
+                        : "border-outline-variant/20 bg-white text-secondary hover:border-primary/40"
+                    }`}
+                  >
+                    {kind}
+                  </button>
+                );
+              })}
+            </div>
           </label>
 
           <label className="block">

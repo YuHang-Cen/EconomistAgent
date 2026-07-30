@@ -5,6 +5,7 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from typing import Any
 
+from app.domain.document_kind import DEFAULT_DOCUMENT_KIND, DocumentKind
 from app.domain.language import DEFAULT_AUTHOR_LANGUAGE, AuthorLanguage
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -99,6 +100,7 @@ class AuthorDocumentUploadRequest(CamelModel):
 
     book_title: str = Field(min_length=1, max_length=255)
     pdf_uri: str = Field(min_length=1, max_length=1024)
+    document_kind: DocumentKind = Field(default=DEFAULT_DOCUMENT_KIND)
 
 
 class AuthorDocumentResponse(CamelModel):
@@ -108,6 +110,7 @@ class AuthorDocumentResponse(CamelModel):
     author_id: str
     book_title: str
     pdf_uri: str
+    document_kind: DocumentKind = DEFAULT_DOCUMENT_KIND
     status: str
 
 
@@ -116,6 +119,7 @@ class AuthorDocumentUploadResponse(CamelModel):
 
     document_id: str
     reload_job_id: str
+    document_kind: DocumentKind = DEFAULT_DOCUMENT_KIND
 
 
 class ReloadJobResponse(CamelModel):

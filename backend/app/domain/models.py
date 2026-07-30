@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 
+from app.domain.document_kind import DEFAULT_DOCUMENT_KIND
 from app.domain.language import DEFAULT_AUTHOR_LANGUAGE
 from app.infra.db import Base
 from sqlalchemy import Boolean, Integer, String, Text, UniqueConstraint
@@ -37,6 +38,9 @@ class AuthorDocument(Base):
     author_id: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
     book_title: Mapped[str] = mapped_column(String(255), nullable=False)
     pdf_uri: Mapped[str] = mapped_column(String(1024), nullable=False)
+    document_kind: Mapped[str] = mapped_column(
+        String(16), nullable=False, default=DEFAULT_DOCUMENT_KIND
+    )
     status: Mapped[str] = mapped_column(String(32), nullable=False)
     created_at: Mapped[str] = mapped_column(String(64), nullable=False)
     updated_at: Mapped[str] = mapped_column(String(64), nullable=False)
