@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from typing import Any
+import re
+from typing import Any, Literal
 
 from app.domain.language import normalize_author_language
 from app.services.llm_utils import (
@@ -18,6 +19,30 @@ SKILLS_PLACEHOLDER = "{{SKILLS_CONTEXT}}"
 QUERY_PLACEHOLDER = "{{QUERY}}"
 MAIN_SKILLS_MD_KEY = "main_skills_md_json"
 SUB_SKILLS_MD_KEY = "sub_skills_md_json"
+DEFAULT_QUESTION_PROMPT = "answer_with_skills_prompt_question.md"
+DEFAULT_PAPER_PROMPT = "answer_with_skills_prompt_paper.md"
+
+QueryKind = Literal["single_question", "question_list", "paper_text"]
+AnswerSource = Literal["llm", "llm_repaired", "fallback"]
+
+_NUMBERED_ITEM_RE = re.compile(r"(?m)^\s*\d+[\.\)]\s+")
+_PAPER_MARKER_RE = re.compile(
+    r"\b(Abstract|Introduction|Keywords?|JEL|Section|Figure|Table|Related Literature|"
+    r"Research Background|Empirical Strategy|Fact I|Fact II)\b",
+    re.IGNORECASE,
+)
+_SECTION_HEADING_RE = re.compile(
+    r"^(?:\d+(?:\.\d+)*\s+)?"
+    r"(Abstract|Introduction|Related Literature|Research Background|Empirical Strategy|"
+    r"Empirical Investigation|Conclusion)\b",
+    re.IGNORECASE,
+)
+_LATE_SECTION_RE = re.compile(
+    r"^(?:\d+(?:\.\d+)*\s+)?"
+    r"(Related Literature|Research Background|Empirical Strategy|Empirical Investigation|"
+    r"Data|Results|Conclusion)\b",
+    re.IGNORECASE,
+)
 
 
 def _normalize_selected_skill_index(value: Any) -> int | None:
@@ -348,35 +373,281 @@ def _build_context(
     )
 
 
-def _fallback_answer(query: str, context: str, *, language: str) -> dict[str, str]:
-    """Return deterministic JSON answer when LLM is unavailable or invalid."""
-    summary = context.splitlines()[:8]
-    summary_text = " ".join(summary)
+def _classify_query_kind(query: str) -> QueryKind:
+    normalized = query.strip()
+    lower = normalized.lower()
+    paper_markers = len(_PAPER_MARKER_RE.findall(normalized))
+    question_marks = normalized.count("?") + normalized.count("？")
+    numbered_items = len(_NUMBERED_ITEM_RE.findall(normalized))
+    line_count = len([line for line in normalized.splitlines() if line.strip()])
+
+    if numbered_items >= 2 or question_marks >= 2:
+        return "question_list"
+    if "abstract" in lower and paper_markers >= 1:
+        return "paper_text"
+    if (
+        len(normalized) >= 1800
+        or (paper_markers >= 2 and len(normalized) >= 260)
+        or ("abstract" in lower and len(normalized) >= 120)
+        or (line_count >= 12 and paper_markers >= 1)
+    ):
+        return "paper_text"
+    return "single_question"
+
+
+def _normalize_whitespace(text: str) -> str:
+    text = text.replace("\r\n", "\n").replace("\r", "\n")
+    text = re.sub(r"(?<=\w)-\s*\n\s*(?=\w)", "", text)
+    text = re.sub(r"[ \t]+\n", "\n", text)
+    text = re.sub(r"\n{3,}", "\n\n", text)
+    return text.strip()
+
+
+def _collapse_linebreaks(text: str) -> str:
+    collapsed = re.sub(r"(?<!\n)\n(?!\n)", " ", text)
+    collapsed = re.sub(r"[ \t]{2,}", " ", collapsed)
+    collapsed = re.sub(r"\n{3,}", "\n\n", collapsed)
+    return collapsed.strip()
+
+
+def _clean_paper_paragraph(paragraph: str) -> str:
+    text = paragraph.strip()
+    text = re.sub(r"\b\S+@\S+\b", "", text)
+    text = re.sub(r"\s+", " ", text)
+    return text.strip(" -")
+
+
+def _is_skippable_paper_paragraph(paragraph: str) -> bool:
+    if not paragraph:
+        return True
+    lower = paragraph.lower()
+    if re.fullmatch(r"\d+", paragraph):
+        return True
+    if lower.startswith("keywords:") or lower.startswith("jel"):
+        return True
+    if paragraph.startswith("∗") or "email:" in lower:
+        return True
+    if lower.startswith("figure ") or lower.startswith("table ") or lower.startswith("note:"):
+        return True
+    if paragraph.startswith("(") and paragraph.endswith(")"):
+        return True
+    return False
+
+
+def _normalize_paper_query(query: str) -> str:
+    text = _normalize_whitespace(query)
+    paragraphs = [_clean_paper_paragraph(part) for part in re.split(r"\n\s*\n", text)]
+    paragraphs = [part for part in paragraphs if not _is_skippable_paper_paragraph(part)]
+
+    selected: list[str] = []
+    abstract_index: int | None = None
+    for index, paragraph in enumerate(paragraphs):
+        if paragraph.lower().startswith("abstract"):
+            abstract_index = index
+            break
+    if abstract_index is None:
+        abstract_index = 0
+
+    for paragraph in paragraphs[abstract_index:]:
+        if _LATE_SECTION_RE.match(paragraph) and selected:
+            break
+        if _SECTION_HEADING_RE.match(paragraph):
+            if paragraph.lower().startswith("abstract"):
+                paragraph = re.sub(r"^abstract[:\s-]*", "", paragraph, flags=re.IGNORECASE).strip()
+                if paragraph:
+                    selected.append(paragraph)
+            continue
+        selected.append(paragraph)
+        if len(selected) >= 6:
+            break
+
+    if not selected:
+        selected = paragraphs[:4]
+
+    normalized = "\n\n".join(selected).strip()
+    if len(normalized) > 3500:
+        normalized = normalized[:3500].rsplit(" ", 1)[0].strip() + " ..."
+    return normalized
+
+
+def _build_source_preview(text: str, *, limit: int = 260) -> str:
+    preview = re.sub(r"\s+", " ", text).strip()
+    if len(preview) <= limit:
+        return preview
+    return preview[:limit].rsplit(" ", 1)[0].strip() + " ..."
+
+
+def _normalize_query_for_answering(query: str, query_kind: QueryKind) -> tuple[str, str]:
+    if query_kind == "paper_text":
+        normalized = _normalize_paper_query(query)
+    else:
+        normalized = _collapse_linebreaks(_normalize_whitespace(query))
+    return normalized, _build_source_preview(normalized)
+
+
+def _build_prompt_filename(query_kind: QueryKind) -> str:
+    if query_kind == "paper_text":
+        return DEFAULT_PAPER_PROMPT
+    return DEFAULT_QUESTION_PROMPT
+
+
+def _build_repair_prompt(raw_output: str, *, language: str) -> str:
     normalized_language = normalize_author_language(language)
     if normalized_language == "chinese":
+        return (
+            "请把下面的模型输出改写成一个合法 JSON 对象。\n"
+            "必须且只能包含四个字符串字段：title、topic、summary、markdown。\n"
+            "不要输出解释、不要输出代码块、不要增加额外字段。\n"
+            "如果原文包含列表或段落，可保留到 markdown 字段里。\n\n"
+            "原始输出：\n"
+            f"{raw_output}"
+        )
+    return (
+        "Rewrite the following model output as a valid JSON object.\n"
+        "The object must contain exactly four string fields: title, topic, summary, markdown.\n"
+        "Do not include explanations, markdown fences, or extra keys.\n"
+        "Preserve the answer content inside the markdown field when possible.\n\n"
+        "Raw output:\n"
+        f"{raw_output}"
+    )
+
+
+def _try_validate_raw_output(raw_output: str) -> dict[str, str] | None:
+    if not raw_output.strip():
+        return None
+    try:
+        candidate = parse_json_with_recovery(raw_output)
+    except Exception:
+        return None
+    return _validate_answer_schema(candidate)
+
+
+def _repair_answer_payload(raw_output: str, *, language: str) -> dict[str, str] | None:
+    llm = build_optional_llm()
+    if llm is None:
+        return None
+    repair_prompt = _build_repair_prompt(raw_output, language=language)
+    try:
+        response = llm.invoke(repair_prompt)
+    except Exception:
+        return None
+    repaired = normalize_message_content(response.content).strip()
+    return _try_validate_raw_output(repaired)
+
+
+def _invoke_llm_answer(
+    prompt: str,
+    *,
+    language: str,
+) -> tuple[dict[str, str] | None, AnswerSource | None, str | None, str | None]:
+    llm = build_optional_llm()
+    if llm is None:
+        return None, None, "LLM unavailable; returning deterministic fallback.", "llm_unavailable"
+
+    try:
+        response = llm.invoke(prompt)
+    except Exception as exc:
+        return (
+            None,
+            None,
+            f"LLM invocation failed ({exc.__class__.__name__}); returning fallback.",
+            "llm_invoke_failed",
+        )
+
+    normalized = normalize_message_content(response.content).strip()
+    validated = _try_validate_raw_output(normalized)
+    if validated is not None:
+        return validated, "llm", None, None
+
+    repaired = _repair_answer_payload(normalized, language=language)
+    if repaired is not None:
+        return (
+            repaired,
+            "llm_repaired",
+            "Answer JSON was repaired after validation failure.",
+            None,
+        )
+
+    return (
+        None,
+        None,
+        "LLM returned invalid JSON; using structured fallback.",
+        "invalid_answer_json",
+    )
+
+
+def _fallback_answer(
+    query: str,
+    context: str,
+    *,
+    language: str,
+    query_kind: QueryKind,
+    source_preview: str,
+) -> dict[str, str]:
+    """Return deterministic JSON answer when LLM is unavailable or invalid."""
+    summary = context.splitlines()[:6]
+    summary_text = " ".join(summary).strip()
+    if len(summary_text) > 180:
+        summary_text = summary_text[:180].rsplit(" ", 1)[0].strip() + " ..."
+    normalized_language = normalize_author_language(language)
+
+    if normalized_language == "chinese":
+        if query_kind == "paper_text":
+            return {
+                "title": "结构化审稿要点暂不可用",
+                "topic": "论文审稿",
+                "summary": (
+                    "本次生成已降级，未能成功产出结构化审稿要点。"
+                    "下面仅保留简短材料预览与状态说明。"
+                ),
+                "markdown": (
+                    "# 结构化审稿要点暂不可用\n\n"
+                    "本次回答进入降级模式，因此没有返回完整的 referee points。\n\n"
+                    f"材料预览：{source_preview}\n\n"
+                    f"技能上下文摘要：{summary_text or '已加载技能上下文。'}"
+                ),
+            }
         return {
-            "title": "方法论驱动回答",
+            "title": "结构化回应暂不可用",
             "topic": "经济问题分析",
-            "summary": "基于最新作者方法快照进行生成式推演，聚焦机制链条与约束条件。",
+            "summary": "本次生成已降级，未能成功产出标准化回答。下面仅保留简短问题预览与状态说明。",
             "markdown": (
-                "# 分析\n\n"
-                "本回答基于所选方法基线进行确定性综合，重点说明关键假设、机制演化和约束下的结果。"
-                "\n\n"
-                f"问题：{query}\n\n"
-                f"技能上下文摘要：{summary_text}"
+                "# 结构化回应暂不可用\n\n"
+                "本次回答进入降级模式，因此没有返回完整的 rebuttal note。\n\n"
+                f"问题预览：{source_preview}\n\n"
+                f"技能上下文摘要：{summary_text or '已加载技能上下文。'}"
             ),
         }
+
+    if query_kind == "paper_text":
+        return {
+            "title": "Structured referee points unavailable",
+            "topic": "paper review",
+            "summary": (
+                "Generation degraded before structured referee points could be produced. "
+                "This fallback keeps only a short source preview and a brief context note."
+            ),
+            "markdown": (
+                "# Structured Review Unavailable\n\n"
+                "This answer fell back before a full set of numbered referee points "
+                "could be generated.\n\n"
+                f"Source preview: {source_preview}\n\n"
+                f"Skill context note: {summary_text or 'Selected skill context was loaded.'}"
+            ),
+        }
+
     return {
-        "title": "Methodology-driven answer",
-        "topic": query,
-        "summary": "Answer synthesized from latest author skill snapshot.",
+        "title": "Structured rebuttal unavailable",
+        "topic": "economics response",
+        "summary": (
+            "Generation degraded before a full rebuttal response could be produced. "
+            "This fallback keeps only a short question preview and a brief context note."
+        ),
         "markdown": (
-            "# Analysis\n\n"
-            "This response uses the selected methodology baseline and deterministic synthesis. "
-            "It explains assumptions, mechanism transitions, and likely outcomes "
-            "under constraints.\n\n"
-            f"Question: {query}\n\n"
-            f"Skill context summary: {summary_text}"
+            "# Structured Rebuttal Unavailable\n\n"
+            "This answer fell back before a full rebuttal note could be generated.\n\n"
+            f"Question preview: {source_preview}\n\n"
+            f"Skill context note: {summary_text or 'Selected skill context was loaded.'}"
         ),
     }
 
@@ -417,17 +688,29 @@ def run_answer_with_skills(
         snapshot_outputs=snapshot_outputs,
         selected_section_ids=selected_section_ids,
     )
+    query_kind = _classify_query_kind(query)
+    normalized_query, source_preview = _normalize_query_for_answering(query, query_kind)
+
+    answer_warning: str | None = None
+    answer_fallback_reason: str | None = None
+    answer_source: AnswerSource = "fallback"
     try:
         answer_payload = _fallback_answer(
-            query=query,
+            query=normalized_query,
+            context=context,
+            language=normalized_language,
+            query_kind=query_kind,
+            source_preview=source_preview,
+        )
+    except TypeError:
+        answer_payload = _fallback_answer(
+            query=normalized_query,
             context=context,
             language=normalized_language,
         )
-    except TypeError:
-        answer_payload = _fallback_answer(query=query, context=context)
 
     template = load_prompt_by_language(
-        "answer_with_skills_prompt.md",
+        _build_prompt_filename(query_kind),
         language=normalized_language,
         required_placeholders=[AUTHOR_PLACEHOLDER, SKILLS_PLACEHOLDER, QUERY_PLACEHOLDER],
     )
@@ -436,21 +719,21 @@ def run_answer_with_skills(
         {
             AUTHOR_PLACEHOLDER: author_name.strip() or "Unknown Economist",
             SKILLS_PLACEHOLDER: context,
-            QUERY_PLACEHOLDER: query,
+            QUERY_PLACEHOLDER: normalized_query,
         },
     )
 
-    llm = build_optional_llm()
-    if llm is not None:
-        try:
-            response = llm.invoke(prompt)
-            normalized = normalize_message_content(response.content).strip()
-            candidate = parse_json_with_recovery(normalized)
-            validated = _validate_answer_schema(candidate)
-            if validated is not None:
-                answer_payload = validated
-        except Exception:
-            pass
+    llm_payload, llm_source, llm_warning, llm_failure_reason = _invoke_llm_answer(
+        prompt,
+        language=normalized_language,
+    )
+    if llm_payload is not None and llm_source is not None:
+        answer_payload = llm_payload
+        answer_source = llm_source
+        answer_warning = llm_warning
+    else:
+        answer_warning = llm_warning
+        answer_fallback_reason = llm_failure_reason
 
     selected_skill_index = selected_skill_indices[0] if selected_skill_indices else None
     selected_section_id = selected_section_ids[0] if selected_section_ids else None
@@ -460,6 +743,7 @@ def run_answer_with_skills(
 
     return {
         "query": query,
+        "query_kind": query_kind,
         "selected_skill_indices": selected_skill_indices,
         "selected_section_ids": selected_section_ids,
         "selected_skill_index": selected_skill_index,
@@ -469,5 +753,8 @@ def run_answer_with_skills(
         "selected_sub_skill_names": selected_sub_skill_names,
         "selection_mode": selection_mode,
         "selection_warning": selection_warning,
+        "answer_source": answer_source,
+        "answer_warning": answer_warning,
+        "answer_fallback_reason": answer_fallback_reason,
         "answer": answer_payload,
     }

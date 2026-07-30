@@ -9,10 +9,10 @@ from datetime import UTC, datetime
 from typing import Any
 
 from app.domain.enums import OutputType
-from app.domain.models import AuthorSkillSnapshot
+from app.domain.models import Author, AuthorSkillSnapshot
 from app.infra import storage
 from app.infra.db import session_scope
-from app.services import job_service
+from app.services import answer_with_skills, job_service, pipeline_service
 from fastapi.testclient import TestClient
 
 
@@ -41,6 +41,25 @@ def _create_author(client: TestClient, author_name: str) -> str:
         json={"authorName": author_name, "school": "test", "avatarUrl": ""},
     )
     return response.json()["data"]["authorId"]
+
+
+def _insert_author(author_name: str) -> str:
+    """Insert an author directly for service-level integration tests."""
+    author_id = str(uuid.uuid4())
+    now = _now_iso()
+    with session_scope() as session:
+        session.add(
+            Author(
+                author_id=author_id,
+                author_name=author_name,
+                school="test",
+                language="english",
+                avatar_url="",
+                created_at=now,
+                updated_at=now,
+            )
+        )
+    return author_id
 
 
 def _create_document(
@@ -81,6 +100,99 @@ def _insert_empty_snapshot(author_id: str) -> None:
                 created_at=_now_iso(),
             )
         )
+
+
+def _insert_answerable_snapshot(author_id: str) -> None:
+    """Insert a latest snapshot with minimal answerable markdown artifacts."""
+    snapshot_id = str(uuid.uuid4())
+    root = storage.snapshot_root(author_id=author_id, snapshot_id=snapshot_id)
+    main_skill_json = {
+        "main_skills": [
+            {
+                "main_skill_id": "main_skill_001",
+                "section_id": "section-1",
+                "pattern_summary": {
+                    "name": "Robot subsidy mechanism",
+                    "description": "Explain how policy interacts with constraints.",
+                    "applicability": "Policy analysis",
+                    "core_steps": ["identify distortion", "trace firm response"],
+                },
+            }
+        ]
+    }
+    sub_skill_json = {
+        "sub_skills": [
+            {
+                "main_skill_id": "main_skill_001",
+                "section_id": "section-1",
+                "name": "Constraint heterogeneity",
+                "description": "Distinguish large and small firm responses.",
+            }
+        ]
+    }
+    main_md_json = [
+        {
+            "main_skill_id": "main_skill_001",
+            "section_id": "section-1",
+            "name": "Robot subsidy mechanism",
+            "file_name": "main_skill_001.md",
+            "markdown": "Focus on mechanism, distortion, and revision logic.",
+        }
+    ]
+    sub_md_json = [
+        {
+            "main_skill_id": "main_skill_001",
+            "section_id": "section-1",
+            "name": "Constraint heterogeneity",
+            "file_name": "sub_skill_001.md",
+            "markdown": "Separate framing, identification, mechanism, and evidence asks.",
+        }
+    ]
+    outputs = {
+        OutputType.MAIN_SKILL_JSON.value: storage.write_json(
+            root / "main_skill.json", main_skill_json
+        ),
+        OutputType.SUB_SKILL_JSON.value: storage.write_json(
+            root / "sub_skill.json", sub_skill_json
+        ),
+        OutputType.MAIN_SKILLS_MD_JSON.value: storage.write_json(
+            root / "main_skills_md.json", main_md_json
+        ),
+        OutputType.SUB_SKILLS_MD_JSON.value: storage.write_json(
+            root / "sub_skills_md.json", sub_md_json
+        ),
+    }
+
+    with session_scope() as session:
+        session.add(
+            AuthorSkillSnapshot(
+                snapshot_id=snapshot_id,
+                author_id=author_id,
+                is_latest=True,
+                outputs_json=json.dumps(outputs),
+                created_at=_now_iso(),
+            )
+        )
+
+
+class _FakeResponse:
+    def __init__(self, content: str) -> None:
+        self.content = content
+
+
+class _FakeLLM:
+    def __init__(self, responses: list[str]) -> None:
+        self._responses = responses
+
+    def invoke(self, prompt: str) -> _FakeResponse:
+        if not self._responses:
+            raise RuntimeError("no more fake llm responses")
+        return _FakeResponse(self._responses.pop(0))
+
+
+class _ExplodingLLM:
+    def invoke(self, prompt: str) -> _FakeResponse:
+        raise RuntimeError("llm unavailable")
 
 
 def test_soft_delete_consistency_after_reload(
@@ -187,3 +299,111 @@ def test_author_answer_edge_cases(client: TestClient) -> None:
     ).json()["data"]["jobId"]
     failed_empty_skill = _wait_job_status(client, empty_skill_job_id, "failed")
     assert failed_empty_skill["status"] == "failed"
+
+
+def test_author_answer_paper_text_returns_structured_points(monkeypatch: object) -> None:
+    """Long paper input should be classified as paper_text and return numbered points."""
+    fake_llm = _FakeLLM(
+        [
+            (
+                '{"title":"Referee Note","topic":"industrial policy",'
+                '"summary":"The paper is interesting but needs sharper identification '
+                'and framing.",'
+                '"markdown":"# Referee Note\\n\\n'
+                "1. Clarify the paper\\u2019s general contribution beyond the China setting.\\n"
+                "2. Tighten identification around subsidy adoption.\\n"
+                "3. Show more direct evidence for the financial-frictions channel."
+                '"}'
+            )
+        ]
+    )
+    monkeypatch.setattr(answer_with_skills, "build_optional_llm", lambda: fake_llm)
+    monkeypatch.setattr(
+        pipeline_service,
+        "_run_select_skills_with_language",
+        lambda **kwargs: {
+            "selected_skill_indices": [1],
+            "selected_section_ids": ["section-1"],
+            "selection_mode": "fallback_rule",
+            "selection_warning": None,
+        },
+    )
+    monkeypatch.setattr(
+        pipeline_service,
+        "_run_direct_api_article_with_language",
+        lambda **kwargs: {"title": "direct", "summary": "direct", "markdown": "# direct"},
+    )
+
+    author_id = _insert_author("Stage4 Paper Answer")
+    _insert_answerable_snapshot(author_id)
+    query = """
+Abstract
+
+This paper studies robot subsidies, financial frictions, and misallocation in China.
+
+Keywords: industrial policy, robots
+JEL codes: O25
+
+1 Introduction
+
+China provides an ideal setting because robot adoption is large and capital misallocation is severe.
+"""
+
+    job_id = job_service.create_author_answer_job(author_id=author_id, query=query)["jobId"]
+    final_payload = job_service.get_job(job_id)
+    assert final_payload["status"] == "success"
+
+    answer_output = job_service.get_output(job_id, "answer_json")["content"]
+    assert answer_output["query_kind"] == "paper_text"
+    assert answer_output["answer_source"] == "llm"
+    assert answer_output["answer"]["markdown"].count("\n1.") == 1
+    assert "Keywords:" not in answer_output["answer"]["markdown"]
+
+
+def test_author_answer_fallback_exposes_warning_without_raw_dump(monkeypatch: object) -> None:
+    """Fallback path should expose metadata and avoid echoing the raw manuscript."""
+    monkeypatch.setattr(answer_with_skills, "build_optional_llm", lambda: _ExplodingLLM())
+    monkeypatch.setattr(
+        pipeline_service,
+        "_run_select_skills_with_language",
+        lambda **kwargs: {
+            "selected_skill_indices": [1],
+            "selected_section_ids": ["section-1"],
+            "selection_mode": "fallback_rule",
+            "selection_warning": None,
+        },
+    )
+    monkeypatch.setattr(
+        pipeline_service,
+        "_run_direct_api_article_with_language",
+        lambda **kwargs: {"title": "direct", "summary": "direct", "markdown": "# direct"},
+    )
+
+    author_id = _insert_author("Stage4 Fallback Answer")
+    _insert_answerable_snapshot(author_id)
+    query = """
+Abstract
+
+This paper studies robot subsidies in China.
+
+Keywords: robots
+JEL codes: O25
+
+1 Introduction
+
+China provides an ideal setting for studying industrial policy under distortion.
+"""
+
+    job_id = job_service.create_author_answer_job(author_id=author_id, query=query)["jobId"]
+    final_payload = job_service.get_job(job_id)
+    assert final_payload["status"] == "success"
+
+    answer_output = job_service.get_output(job_id, "answer_json")["content"]
+    assert answer_output["query_kind"] == "paper_text"
+    assert answer_output["answer_source"] == "fallback"
+    assert answer_output["answer_warning"]
+    assert answer_output["answer_fallback_reason"] == "llm_invoke_failed"
+    markdown = answer_output["answer"]["markdown"]
+    assert "Keywords:" not in markdown
+    assert "JEL codes" not in markdown
+    assert "1 Introduction" not in markdown

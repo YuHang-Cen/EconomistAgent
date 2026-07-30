@@ -1,20 +1,43 @@
-"""Unit coverage for answer context source selection."""
+"""Coverage for answer context selection, paper normalization, and fallback behavior."""
 
 from __future__ import annotations
 
 from app.services import answer_with_skills
 
 
-def test_answer_prefers_markdown_outputs_when_available(monkeypatch: object) -> None:
-    """When markdown artifacts exist, answer context should use selected markdown content."""
-    monkeypatch.setattr(answer_with_skills, "build_optional_llm", lambda: None)
-    monkeypatch.setattr(
-        answer_with_skills,
-        "_fallback_answer",
-        lambda query, context: {"title": "", "summary": "", "markdown": context},
-    )
+class _FakeResponse:
+    def __init__(self, content: str) -> None:
+        self.content = content
 
-    snapshot_outputs = {
+
+class _FakeLLM:
+    def __init__(self, responses: list[str]) -> None:
+        self._responses = responses
+        self.prompts: list[str] = []
+
+    def invoke(self, prompt: str) -> _FakeResponse:
+        self.prompts.append(prompt)
+        if not self._responses:
+            raise RuntimeError("no fake llm response available")
+        return _FakeResponse(self._responses.pop(0))
+
+
+class _ExplodingLLM:
+    def invoke(self, prompt: str) -> _FakeResponse:
+        raise RuntimeError("boom")
+
+
+def _selected() -> dict[str, object]:
+    return {
+        "selected_skill_indices": [1, 2],
+        "selected_section_ids": ["section-1", "section-2"],
+        "selection_mode": "llm",
+        "selection_warning": None,
+    }
+
+
+def _markdown_snapshot_outputs() -> dict[str, object]:
+    return {
         "main_skill_json": {
             "main_skills": [
                 {
@@ -108,49 +131,10 @@ def test_answer_prefers_markdown_outputs_when_available(monkeypatch: object) -> 
             },
         ],
     }
-    selected = {
-        "selected_skill_indices": [1, 2],
-        "selected_section_ids": ["section-1", "section-2"],
-        "selection_mode": "llm",
-        "selection_warning": None,
-    }
-
-    result = answer_with_skills.run_answer_with_skills(
-        query="explain mechanism",
-        selected=selected,
-        snapshot_outputs=snapshot_outputs,
-    )
-
-    markdown = result["answer"]["markdown"]
-    assert result["selected_skill_indices"] == [1, 2]
-    assert result["selected_section_ids"] == ["section-1", "section-2"]
-    assert result["selected_skill_index"] == 1
-    assert result["selected_section_id"] == "section-1"
-    assert result["selected_main_skill_names"] == ["Main Skill One", "Main Skill Two"]
-    assert result["selected_main_skill_name"] == "Main Skill One"
-    assert result["selected_sub_skill_names"] == [
-        "Chosen Sub",
-        "Shared Sub",
-        "Second Section Sub",
-    ]
-    assert "MAIN_MARKER_ABC" in markdown
-    assert "MAIN_MARKER_DEF" in markdown
-    assert "SUB_MARKER_XYZ" in markdown
-    assert "SUB_MARKER_SECOND" in markdown
-    assert "SHOULD_APPEAR_ONE" in markdown
-    assert "SHOULD_APPEAR_TWO" in markdown
 
 
-def test_answer_falls_back_to_json_when_markdown_outputs_missing(monkeypatch: object) -> None:
-    """If markdown artifacts are absent, answer context should fallback to JSON summaries."""
-    monkeypatch.setattr(answer_with_skills, "build_optional_llm", lambda: None)
-    monkeypatch.setattr(
-        answer_with_skills,
-        "_fallback_answer",
-        lambda query, context: {"title": "", "summary": "", "markdown": context},
-    )
-
-    snapshot_outputs = {
+def _json_only_snapshot_outputs() -> dict[str, object]:
+    return {
         "main_skill_json": {
             "main_skills": [
                 {
@@ -192,6 +176,63 @@ def test_answer_falls_back_to_json_when_markdown_outputs_missing(monkeypatch: ob
             ]
         },
     }
+
+
+def test_answer_prefers_markdown_outputs_when_available(monkeypatch: object) -> None:
+    """When markdown artifacts exist, answer context should use selected markdown content."""
+    monkeypatch.setattr(answer_with_skills, "build_optional_llm", lambda: None)
+    monkeypatch.setattr(
+        answer_with_skills,
+        "_fallback_answer",
+        lambda query, context, **kwargs: {
+            "title": "fallback",
+            "topic": "topic",
+            "summary": "summary",
+            "markdown": context,
+        },
+    )
+
+    result = answer_with_skills.run_answer_with_skills(
+        query="explain mechanism",
+        selected=_selected(),
+        snapshot_outputs=_markdown_snapshot_outputs(),
+    )
+
+    markdown = result["answer"]["markdown"]
+    assert result["selected_skill_indices"] == [1, 2]
+    assert result["selected_section_ids"] == ["section-1", "section-2"]
+    assert result["selected_skill_index"] == 1
+    assert result["selected_section_id"] == "section-1"
+    assert result["selected_main_skill_names"] == ["Main Skill One", "Main Skill Two"]
+    assert result["selected_main_skill_name"] == "Main Skill One"
+    assert result["selected_sub_skill_names"] == [
+        "Chosen Sub",
+        "Shared Sub",
+        "Second Section Sub",
+    ]
+    assert result["answer_source"] == "fallback"
+    assert "MAIN_MARKER_ABC" in markdown
+    assert "MAIN_MARKER_DEF" in markdown
+    assert "SUB_MARKER_XYZ" in markdown
+    assert "SUB_MARKER_SECOND" in markdown
+    assert "SHOULD_APPEAR_ONE" in markdown
+    assert "SHOULD_APPEAR_TWO" in markdown
+
+
+def test_answer_falls_back_to_json_when_markdown_outputs_missing(monkeypatch: object) -> None:
+    """If markdown artifacts are absent, answer context should fallback to JSON summaries."""
+    monkeypatch.setattr(answer_with_skills, "build_optional_llm", lambda: None)
+    monkeypatch.setattr(
+        answer_with_skills,
+        "_fallback_answer",
+        lambda query, context, **kwargs: {
+            "title": "fallback",
+            "topic": "topic",
+            "summary": "summary",
+            "markdown": context,
+        },
+    )
+
     selected = {
         "selected_skill_indices": [1, 2],
         "selected_section_ids": ["section-9", "section-10"],
@@ -202,7 +243,7 @@ def test_answer_falls_back_to_json_when_markdown_outputs_missing(monkeypatch: ob
     result = answer_with_skills.run_answer_with_skills(
         query="what happened",
         selected=selected,
-        snapshot_outputs=snapshot_outputs,
+        snapshot_outputs=_json_only_snapshot_outputs(),
     )
 
     markdown = result["answer"]["markdown"]
@@ -220,3 +261,112 @@ def test_answer_falls_back_to_json_when_markdown_outputs_missing(monkeypatch: ob
     assert "JSON_ONLY_MAIN_NAME_TWO" in markdown
     assert "JSON_ONLY_SUB" in markdown
     assert "JSON_ONLY_SUB_TWO" in markdown
+
+
+def test_answer_classifies_paper_text_and_cleans_prompt_input(monkeypatch: object) -> None:
+    """Paper-like inputs should use the paper mode and omit noisy metadata in prompts."""
+    fake_llm = _FakeLLM(
+        [
+            (
+                '{"title":"Referee Points","topic":"industrial policy",'
+                '"summary":"Core review issues are identified.",'
+                '"markdown":"# Referee Points\\n\\n'
+                "1. Framing is promising but needs a sharper general-equilibrium contribution."
+                '"}'
+            )
+        ]
+    )
+    monkeypatch.setattr(answer_with_skills, "build_optional_llm", lambda: fake_llm)
+
+    paper_query = """
+Abstract
+
+This paper studies robot subsidies and financial frictions in China.
+
+Keywords: industrial policy, robots, China
+JEL codes: O25, O33
+author@email.com
+
+1 Introduction
+
+China provides an ideal setting because robot adoption is large and capital misallocation is severe.
+
+Related Literature
+
+This section should not appear in the normalized paper brief.
+"""
+
+    result = answer_with_skills.run_answer_with_skills(
+        query=paper_query,
+        selected=_selected(),
+        snapshot_outputs=_markdown_snapshot_outputs(),
+    )
+
+    assert result["query_kind"] == "paper_text"
+    assert result["answer_source"] == "llm"
+    used_prompt = fake_llm.prompts[0]
+    assert "Keywords:" not in used_prompt
+    assert "JEL codes" not in used_prompt
+    assert "author@email.com" not in used_prompt
+    assert "Related Literature" not in used_prompt
+    assert "China provides an ideal setting" in used_prompt
+
+
+def test_answer_repairs_invalid_json_and_marks_source(monkeypatch: object) -> None:
+    """When the first LLM output is invalid, the repair round should recover it."""
+    fake_llm = _FakeLLM(
+        [
+            "Here are concise referee points without JSON.",
+            (
+                '{"title":"Repaired Output","topic":"paper review",'
+                '"summary":"The output was repaired into valid JSON.",'
+                '"markdown":"# Repaired\\n\\n1. Clarify the main identification threat."}'
+            ),
+        ]
+    )
+    monkeypatch.setattr(answer_with_skills, "build_optional_llm", lambda: fake_llm)
+
+    result = answer_with_skills.run_answer_with_skills(
+        query="1. Why China?\n2. What is the mechanism?",
+        selected=_selected(),
+        snapshot_outputs=_markdown_snapshot_outputs(),
+    )
+
+    assert result["query_kind"] == "question_list"
+    assert result["answer_source"] == "llm_repaired"
+    assert result["answer_warning"] == "Answer JSON was repaired after validation failure."
+    assert result["answer"]["title"] == "Repaired Output"
+    assert len(fake_llm.prompts) == 2
+
+
+def test_fallback_does_not_echo_raw_paper_text(monkeypatch: object) -> None:
+    """Fallback answers should stay short and avoid dumping the raw manuscript text."""
+    monkeypatch.setattr(answer_with_skills, "build_optional_llm", lambda: _ExplodingLLM())
+
+    query = """
+Abstract
+
+This paper studies robot subsidies in China.
+
+Keywords: robots, subsidies
+JEL codes: O25
+
+1 Introduction
+
+China provides an ideal setting for studying misallocation under industrial policy.
+"""
+
+    result = answer_with_skills.run_answer_with_skills(
+        query=query,
+        selected=_selected(),
+        snapshot_outputs=_markdown_snapshot_outputs(),
+    )
+
+    assert result["query_kind"] == "paper_text"
+    assert result["answer_source"] == "fallback"
+    assert result["answer_fallback_reason"] == "llm_invoke_failed"
+    markdown = result["answer"]["markdown"]
+    assert "Keywords:" not in markdown
+    assert "JEL codes" not in markdown
+    assert "1 Introduction" not in markdown
+    assert "Source preview:" in markdown

@@ -6,8 +6,8 @@ from collections.abc import Callable
 from datetime import datetime
 from typing import Any
 
-from fastapi.testclient import TestClient
 from app.services.llm_utils import get_effective_model_config
+from fastapi.testclient import TestClient
 
 
 def _wait_job_status(
@@ -172,6 +172,14 @@ def test_author_answer_job_generates_answer_json(
     assert "selected_main_skill_name" in answer_output
     assert isinstance(answer_output.get("selected_sub_skill_names"), list)
     assert answer_output.get("selection_mode") in {"llm", "fallback_rule"}
+    assert answer_output.get("query_kind") in {
+        "single_question",
+        "question_list",
+        "paper_text",
+    }
+    assert answer_output.get("answer_source") in {"llm", "llm_repaired", "fallback"}
+    assert "answer_warning" in answer_output
+    assert "answer_fallback_reason" in answer_output
     assert "answer" in answer_output
     generated_at = answer_output.get("generated_at")
     assert isinstance(generated_at, str)
