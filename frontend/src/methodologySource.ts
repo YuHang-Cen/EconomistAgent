@@ -12,6 +12,7 @@ export interface ResolvedMethodologySection {
   documentId: string | null;
   bookTitle: string;
   chapterTitle: string;
+  orderIndex: number | null;
   isResolved: boolean;
   isLegacyFallback: boolean;
 }
@@ -21,7 +22,15 @@ function readOptionalString(value: unknown): string | null {
 }
 
 function sectionTitleKey(value: string | null): string {
-  return (value || "").trim().toLocaleLowerCase();
+  return (value || "").trim().replace(/\s+/g, " ").toLocaleLowerCase();
+}
+
+interface ChapterContext {
+  chapterId: string;
+  documentId: string;
+  bookTitle: string;
+  chapterTitle: string;
+  orderIndex: number;
 }
 
 function readSourceContext(item: Record<string, unknown>): {
@@ -57,13 +66,14 @@ function buildLibraryIndexes(documents: Document[], chaptersByDocument: Record<s
   const documentById = new Map<string, Document>();
   const chapterById = new Map<
     string,
-    { documentId: string; bookTitle: string; chapterTitle: string }
+    ChapterContext
   >();
   const documentsByBookTitle = new Map<string, Document[]>();
   const chapterContextsByTitle = new Map<
     string,
-    Array<{ documentId: string; bookTitle: string; chapterTitle: string }>
+    ChapterContext[]
   >();
+  const chapterContextsByDocumentAndTitle = new Map<string, ChapterContext[]>();
 
   for (const document of documents) {
     documentById.set(document.documentId, document);
@@ -75,9 +85,11 @@ function buildLibraryIndexes(documents: Document[], chaptersByDocument: Record<s
     const chapters = chaptersByDocument[document.documentId] || [];
     for (const chapter of chapters) {
       const context = {
+        chapterId: chapter.chapterId,
         documentId: document.documentId,
         bookTitle: document.bookTitle,
         chapterTitle: chapter.chapterTitle,
+        orderIndex: chapter.orderIndex,
       };
       chapterById.set(chapter.chapterId, context);
       const titleKey = sectionTitleKey(chapter.chapterTitle);
@@ -85,6 +97,10 @@ function buildLibraryIndexes(documents: Document[], chaptersByDocument: Record<s
       const titleContexts = chapterContextsByTitle.get(titleKey) || [];
       titleContexts.push(context);
       chapterContextsByTitle.set(titleKey, titleContexts);
+      const documentTitleKey = `${document.documentId}\u0000${titleKey}`;
+      const documentTitleContexts = chapterContextsByDocumentAndTitle.get(documentTitleKey) || [];
+      documentTitleContexts.push(context);
+      chapterContextsByDocumentAndTitle.set(documentTitleKey, documentTitleContexts);
     }
   }
 
@@ -93,6 +109,7 @@ function buildLibraryIndexes(documents: Document[], chaptersByDocument: Record<s
     chapterById,
     documentsByBookTitle,
     chapterContextsByTitle,
+    chapterContextsByDocumentAndTitle,
   };
 }
 
@@ -126,37 +143,41 @@ function resolveSkillSection(
   const snapshotSource = readSourceContext(skill);
 
   const directChapter = indexes.chapterById.get(sectionId);
-  const titleMatches = sectionTitle
-    ? indexes.chapterContextsByTitle.get(sectionTitleKey(sectionTitle)) || []
-    : [];
-  const uniqueTitleMatch = titleMatches.length === 1 ? titleMatches[0] : null;
-
+  const validSnapshotDocumentId =
+    snapshotSource.documentId && indexes.documentById.has(snapshotSource.documentId)
+      ? snapshotSource.documentId
+      : null;
   const snapshotDocumentId =
-    snapshotSource.documentId ||
-    resolveDocumentIdFromSnapshot(snapshotSource.bookTitle, snapshotSource.chapterTitle || sectionTitle, indexes);
-  const snapshotDocument = snapshotDocumentId ? indexes.documentById.get(snapshotDocumentId) || null : null;
-
-  const resolvedDocumentId =
-    snapshotDocumentId ||
     directChapter?.documentId ||
-    uniqueTitleMatch?.documentId ||
-    null;
+    validSnapshotDocumentId ||
+    resolveDocumentIdFromSnapshot(
+      snapshotSource.bookTitle,
+      snapshotSource.chapterTitle || sectionTitle,
+      indexes
+    );
+  const resolvedDocumentId = snapshotDocumentId || null;
   const resolvedDocument = resolvedDocumentId
     ? indexes.documentById.get(resolvedDocumentId) || null
     : null;
 
+  const titleForMatch = snapshotSource.chapterTitle || sectionTitle;
+  const scopedTitleMatches =
+    resolvedDocumentId && titleForMatch
+      ? indexes.chapterContextsByDocumentAndTitle.get(
+          `${resolvedDocumentId}\u0000${sectionTitleKey(titleForMatch)}`
+        ) || []
+      : [];
+  const scopedChapter = scopedTitleMatches.length === 1 ? scopedTitleMatches[0] : null;
+  const resolvedChapter = directChapter || scopedChapter;
+
   const resolvedBookTitle =
-    snapshotSource.bookTitle ||
-    snapshotDocument?.bookTitle ||
     resolvedDocument?.bookTitle ||
-    directChapter?.bookTitle ||
-    uniqueTitleMatch?.bookTitle ||
+    snapshotSource.bookTitle ||
     "Legacy Snapshot";
   const resolvedChapterTitle =
+    resolvedChapter?.chapterTitle ||
     snapshotSource.chapterTitle ||
     sectionTitle ||
-    directChapter?.chapterTitle ||
-    uniqueTitleMatch?.chapterTitle ||
     sectionId;
 
   return {
@@ -164,9 +185,33 @@ function resolveSkillSection(
     documentId: resolvedDocumentId,
     bookTitle: resolvedBookTitle,
     chapterTitle: resolvedChapterTitle,
-    isResolved: !!resolvedDocumentId,
+    orderIndex: resolvedChapter?.orderIndex ?? null,
+    isResolved: !!resolvedChapter,
     isLegacyFallback: !resolvedDocumentId,
   };
+}
+
+export function sortResolvedMethodologySections(
+  sections: ResolvedMethodologySection[]
+): ResolvedMethodologySection[] {
+  return sections
+    .map((section, originalIndex) => ({ section, originalIndex }))
+    .sort((left, right) => {
+      const leftOrder = left.section.orderIndex;
+      const rightOrder = right.section.orderIndex;
+      if (leftOrder !== null && rightOrder === null) return -1;
+      if (leftOrder === null && rightOrder !== null) return 1;
+      if (leftOrder !== null && rightOrder !== null && leftOrder !== rightOrder) {
+        return leftOrder - rightOrder;
+      }
+      const titleComparison = left.section.chapterTitle.localeCompare(
+        right.section.chapterTitle
+      );
+      if (titleComparison !== 0) return titleComparison;
+      const idComparison = left.section.sectionId.localeCompare(right.section.sectionId);
+      return idComparison !== 0 ? idComparison : left.originalIndex - right.originalIndex;
+    })
+    .map(({ section }) => section);
 }
 
 export function buildResolvedMethodologySections(

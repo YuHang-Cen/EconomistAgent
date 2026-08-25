@@ -9,7 +9,10 @@ import {
 import { motion } from "motion/react";
 import { useEffect, useMemo, useState } from "react";
 import type { Author, Document } from "../types";
-import type { ResolvedMethodologySection } from "../methodologySource";
+import {
+  sortResolvedMethodologySections,
+  type ResolvedMethodologySection,
+} from "../methodologySource";
 
 interface MethodologySidebarProps {
   authors: Author[];
@@ -43,6 +46,9 @@ export default function MethodologySidebar({
       const bucket = grouped[key] || [];
       bucket.push(item);
       grouped[key] = bucket;
+    }
+    for (const key of Object.keys(grouped)) {
+      grouped[key] = sortResolvedMethodologySections(grouped[key]);
     }
     return grouped;
   }, [generatedSections]);
