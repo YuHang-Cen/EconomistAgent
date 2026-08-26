@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import random
 import re
 import uuid
@@ -36,6 +37,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 MAIN_SKILL_ID_PATTERN = re.compile(r"^main_skill_(\d+)$")
+logger = logging.getLogger(__name__)
 
 
 class PipelineCanceledError(RuntimeError):
@@ -129,7 +131,9 @@ def _load_author_segments(session: Session, author_id: str) -> list[dict[str, An
         result.append(
             {
                 "document_id": segment.document_id,
-                "book_title": str(getattr(document_by_id.get(segment.document_id), "book_title", "") or ""),
+                "book_title": str(
+                    getattr(document_by_id.get(segment.document_id), "book_title", "") or ""
+                ),
                 "chapter_id": segment.chapter_id,
                 "chapter_title": chapter.chapter_title,
                 "chunk_id": segment.chunk_id,
@@ -191,6 +195,32 @@ def _load_snapshot_skill_payloads(
     return main_skills, sub_skills
 
 
+def _load_snapshot_method_analysis_and_metadata(
+    snapshot: AuthorSkillSnapshot,
+) -> tuple[dict[str, Any], dict[str, str]]:
+    outputs = _parse_outputs(snapshot.outputs_json)
+    method_analysis_uri = outputs.get(OutputType.METHOD_ANALYSIS_JSON.value)
+    main_skill_uri = outputs.get(OutputType.MAIN_SKILL_JSON.value)
+    method_analysis = (
+        _read_uri_content(method_analysis_uri)
+        if isinstance(method_analysis_uri, str)
+        else None
+    )
+    main_skill_payload = (
+        _read_uri_content(main_skill_uri) if isinstance(main_skill_uri, str) else None
+    )
+    if not isinstance(method_analysis, dict):
+        method_analysis = {"chunks": [], "errors": []}
+    metadata: dict[str, str] = {}
+    for key in ("model_name", "api_base"):
+        value = method_analysis.get(key)
+        if not isinstance(value, str) and isinstance(main_skill_payload, dict):
+            value = main_skill_payload.get(key)
+        if isinstance(value, str):
+            metadata[key] = value
+    return method_analysis, metadata
+
+
 def _load_generated_section_history(session: Session, author_id: str) -> set[str]:
     latest_snapshot = _load_latest_snapshot(session=session, author_id=author_id)
     if latest_snapshot is None:
@@ -237,7 +267,202 @@ def _normalize_section_context(
 
 
 def _section_title_key(value: str | None) -> str:
-    return str(value or "").strip().casefold()
+    return re.sub(r"\s+", " ", str(value or "").strip()).casefold()
+
+
+def _build_section_reconciliation_indexes(
+    section_contexts: dict[str, dict[str, str]],
+) -> tuple[
+    dict[tuple[str, str], list[tuple[str, dict[str, str]]]],
+    dict[tuple[str, str], list[tuple[str, dict[str, str]]]],
+]:
+    by_document_and_title: dict[
+        tuple[str, str], list[tuple[str, dict[str, str]]]
+    ] = {}
+    by_book_and_title: dict[
+        tuple[str, str], list[tuple[str, dict[str, str]]]
+    ] = {}
+    for section_id, context in section_contexts.items():
+        title_key = _section_title_key(context.get("chapter_title"))
+        if not title_key:
+            continue
+        document_id = str(context.get("document_id", "")).strip()
+        book_key = _section_title_key(context.get("book_title"))
+        if document_id:
+            by_document_and_title.setdefault((document_id, title_key), []).append(
+                (section_id, context)
+            )
+        if book_key:
+            by_book_and_title.setdefault((book_key, title_key), []).append(
+                (section_id, context)
+            )
+    return by_document_and_title, by_book_and_title
+
+
+def _resolve_current_section_for_skill(
+    item: dict[str, Any],
+    *,
+    section_contexts: dict[str, dict[str, str]],
+    by_document_and_title: dict[
+        tuple[str, str], list[tuple[str, dict[str, str]]]
+    ],
+    by_book_and_title: dict[
+        tuple[str, str], list[tuple[str, dict[str, str]]]
+    ],
+) -> tuple[str, dict[str, str], bool] | None:
+    section_id = str(item.get("section_id", "")).strip()
+    current_context = section_contexts.get(section_id)
+    if current_context is not None:
+        return section_id, current_context, True
+
+    source_context = _extract_source_context_from_item(item)
+    chapter_title = (
+        source_context.get("chapter_title")
+        or str(item.get("section_title", "")).strip()
+    )
+    title_key = _section_title_key(chapter_title)
+    if not title_key:
+        return None
+
+    document_id = source_context.get("document_id", "")
+    document_matches = by_document_and_title.get((document_id, title_key), [])
+    if len(document_matches) == 1:
+        matched_section_id, matched_context = document_matches[0]
+        return matched_section_id, matched_context, False
+
+    book_key = _section_title_key(source_context.get("book_title"))
+    book_matches = by_book_and_title.get((book_key, title_key), [])
+    if book_key and len(book_matches) == 1:
+        matched_section_id, matched_context = book_matches[0]
+        return matched_section_id, matched_context, False
+    return None
+
+
+def _canonicalize_skill_item(
+    item: dict[str, Any], section_id: str, context: dict[str, str]
+) -> dict[str, Any]:
+    canonical = _merge_source_context_into_item(item, context)
+    canonical["section_id"] = section_id
+    canonical["section_title"] = context.get("chapter_title", "")
+    return canonical
+
+
+def _main_skill_recency(item: dict[str, Any]) -> int:
+    parsed = _parse_main_skill_index(str(item.get("main_skill_id", "")).strip())
+    return parsed if parsed is not None else -1
+
+
+def _reconcile_existing_skills(
+    main_skills: list[dict[str, Any]],
+    sub_skills: list[dict[str, Any]],
+    *,
+    section_contexts: dict[str, dict[str, str]],
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]], dict[str, int], dict[str, str]]:
+    """Map legacy section IDs to current chapters and remove unsafe duplicates."""
+    by_document_and_title, by_book_and_title = _build_section_reconciliation_indexes(
+        section_contexts
+    )
+    candidates_by_section: dict[
+        str, list[tuple[bool, int, dict[str, Any], str]]
+    ] = {}
+    unmatched_count = 0
+    mapped_count = 0
+    section_id_map: dict[str, str] = {}
+
+    for position, item in enumerate(main_skills):
+        old_section_id = str(item.get("section_id", "")).strip()
+        resolved = _resolve_current_section_for_skill(
+            item,
+            section_contexts=section_contexts,
+            by_document_and_title=by_document_and_title,
+            by_book_and_title=by_book_and_title,
+        )
+        if resolved is None:
+            unmatched_count += 1
+            continue
+        section_id, context, was_current_id = resolved
+        if old_section_id:
+            section_id_map[old_section_id] = section_id
+        if not was_current_id:
+            mapped_count += 1
+        canonical = _canonicalize_skill_item(item, section_id, context)
+        candidates_by_section.setdefault(section_id, []).append(
+            (was_current_id, position, canonical, old_section_id)
+        )
+
+    winning_by_main_skill_id: dict[str, tuple[str, dict[str, str]]] = {}
+    winners_by_position: list[tuple[int, dict[str, Any]]] = []
+    duplicate_count = 0
+    for section_id, candidates in candidates_by_section.items():
+        ranked = sorted(
+            candidates,
+            key=lambda entry: (
+                not entry[0],
+                -_confidence_value(entry[2]),
+                -_main_skill_recency(entry[2]),
+                entry[1],
+            ),
+        )
+        winner = ranked[0]
+        duplicate_count += len(ranked) - 1
+        winners_by_position.append((winner[1], winner[2]))
+        main_skill_id = str(winner[2].get("main_skill_id", "")).strip()
+        if main_skill_id:
+            winning_by_main_skill_id[main_skill_id] = (
+                section_id,
+                section_contexts[section_id],
+            )
+
+    reconciled_main_skills = [
+        item for _position, item in sorted(winners_by_position, key=lambda entry: entry[0])
+    ]
+    reconciled_sub_skills: list[dict[str, Any]] = []
+    removed_sub_count = 0
+    for item in sub_skills:
+        main_skill_id = str(item.get("main_skill_id", "")).strip()
+        winning_link = winning_by_main_skill_id.get(main_skill_id)
+        if winning_link is None:
+            removed_sub_count += 1
+            continue
+        section_id, context = winning_link
+        reconciled_sub_skills.append(_canonicalize_skill_item(item, section_id, context))
+
+    stats = {
+        "input": len(main_skills),
+        "retained": len(reconciled_main_skills),
+        "mapped": mapped_count,
+        "deduplicated": duplicate_count,
+        "deleted": unmatched_count,
+        "sub_skills_deleted": removed_sub_count,
+    }
+    return reconciled_main_skills, reconciled_sub_skills, stats, section_id_map
+
+
+def _reconcile_method_analysis(
+    method_analysis: dict[str, Any],
+    *,
+    section_contexts: dict[str, dict[str, str]],
+    section_id_map: dict[str, str],
+) -> tuple[dict[str, Any], bool]:
+    reconciled = dict(method_analysis)
+    raw_chunks = method_analysis.get("chunks", [])
+    if not isinstance(raw_chunks, list):
+        reconciled["chunks"] = []
+        return reconciled, raw_chunks != []
+
+    chunks: list[dict[str, Any]] = []
+    for item in raw_chunks:
+        if not isinstance(item, dict):
+            continue
+        old_section_id = str(item.get("section_id", "")).strip()
+        section_id = section_id_map.get(old_section_id, old_section_id)
+        context = section_contexts.get(section_id)
+        if context is None:
+            continue
+        canonical = _canonicalize_skill_item(item, section_id, context)
+        chunks.append(canonical)
+    reconciled["chunks"] = chunks
+    return reconciled, reconciled != method_analysis
 
 
 def _build_section_title_contexts(
@@ -268,7 +493,11 @@ def _extract_source_context_from_item(item: dict[str, Any]) -> dict[str, str]:
         str(item.get("book_title", "")).strip()
         or str(source_context.get("book_title") or source_context.get("bookTitle") or "").strip(),
         str(item.get("chapter_title", "")).strip()
-        or str(source_context.get("chapter_title") or source_context.get("chapterTitle") or "").strip(),
+        or str(
+            source_context.get("chapter_title")
+            or source_context.get("chapterTitle")
+            or ""
+        ).strip(),
     )
 
 
@@ -291,6 +520,7 @@ def _merge_source_context_into_item(
     merged["document_id"] = normalized.get("document_id", "")
     merged["book_title"] = normalized.get("book_title", "")
     merged["chapter_title"] = normalized.get("chapter_title", "")
+    merged["section_title"] = normalized.get("chapter_title", "")
     merged["source_context"] = normalized
     return merged
 
@@ -431,10 +661,16 @@ def _sample_sections_for_generation(
         selected.append(chosen_section)
 
     if len(selected) < batch_size:
-        leftovers = [section_id for section_id in remaining_section_ids if section_id not in selected]
+        leftovers = [
+            section_id for section_id in remaining_section_ids if section_id not in selected
+        ]
         extra_count = min(batch_size - len(selected), len(leftovers))
         if extra_count > 0:
-            extras = leftovers if extra_count >= len(leftovers) else random.sample(leftovers, extra_count)
+            extras = (
+                leftovers
+                if extra_count >= len(leftovers)
+                else random.sample(leftovers, extra_count)
+            )
             selected.extend(extras)
 
     return set(selected)
@@ -518,12 +754,26 @@ def _merge_and_trim_main_skills(
 
     ranked = sorted(
         annotated,
-        key=lambda pair: (-_confidence_value(pair[2]), pair[0], pair[1]),
+        key=lambda pair: (
+            -_confidence_value(pair[2]),
+            -_main_skill_recency(pair[2]),
+            -pair[0],
+            pair[1],
+        ),
     )
+    deduplicated: list[tuple[int, int, dict[str, Any]]] = []
+    seen_section_ids: set[str] = set()
+    for entry in ranked:
+        section_id = str(entry[2].get("section_id", "")).strip()
+        if section_id and section_id in seen_section_ids:
+            continue
+        if section_id:
+            seen_section_ids.add(section_id)
+        deduplicated.append(entry)
     if max_main_skills is None or max_main_skills <= 0:
-        kept = ranked
+        kept = deduplicated
     else:
-        kept = ranked[:max_main_skills]
+        kept = deduplicated[:max_main_skills]
     return [item for _source_priority, _order_index, item in kept]
 
 
@@ -538,7 +788,9 @@ def _filter_sub_skills_by_main_ids(
     return filtered
 
 
-def _run_main_skill_without_drop(method_analysis: dict[str, Any], *, language: str) -> dict[str, Any]:
+def _run_main_skill_without_drop(
+    method_analysis: dict[str, Any], *, language: str
+) -> dict[str, Any]:
     try:
         return run_main_skill(
             method_analysis=method_analysis,
@@ -824,6 +1076,59 @@ def _store_author_skill_artifacts(
     }
 
 
+def _persist_author_skill_snapshot(
+    session: Session,
+    job: PipelineJob,
+    *,
+    method_analysis: dict[str, Any],
+    main_skill_json: dict[str, Any],
+    sub_skill_json: dict[str, Any],
+    llm_metadata: dict[str, str],
+    rendered: dict[str, Any],
+) -> None:
+    """Write a new snapshot and atomically switch the database latest pointer."""
+    _ensure_not_canceled(session, job)
+    snapshot_id = str(uuid.uuid4())
+    now = _now_iso()
+    outputs = _store_author_skill_artifacts(
+        author_id=job.author_id,
+        snapshot_id=snapshot_id,
+        created_at=now,
+        method_analysis=method_analysis,
+        main_skill_json=main_skill_json,
+        sub_skill_json=sub_skill_json,
+        llm_metadata=llm_metadata,
+        rendered=rendered,
+    )
+
+    latest_snapshots = session.execute(
+        select(AuthorSkillSnapshot).where(
+            AuthorSkillSnapshot.author_id == job.author_id,
+            AuthorSkillSnapshot.is_latest.is_(True),
+        )
+    ).scalars()
+    for snapshot in latest_snapshots:
+        snapshot.is_latest = False
+
+    session.add(
+        AuthorSkillSnapshot(
+            snapshot_id=snapshot_id,
+            author_id=job.author_id,
+            is_latest=True,
+            outputs_json=json.dumps(outputs),
+            created_at=now,
+        )
+    )
+    job.snapshot_id = snapshot_id
+    job.outputs_json = json.dumps(outputs)
+    job.status = JobStatus.SUCCESS.value
+    job.progress = 100
+    job.updated_at = now
+    job.finished_at = now
+    session.flush()
+    session.commit()
+
+
 def _store_answer_artifact(
     author_id: str, job_id: str, answer_json: dict[str, Any]
 ) -> dict[str, str]:
@@ -971,15 +1276,81 @@ def run_author_skills(session: Session, job: PipelineJob) -> None:
     if not section_contexts:
         raise ValueError("no available sections found for author_skills")
     section_title_contexts = _build_section_title_contexts(section_contexts)
-    generated_history = _load_generated_section_history(session=session, author_id=job.author_id)
+    latest_snapshot = _load_latest_snapshot(session=session, author_id=job.author_id)
+    existing_main_skills: list[dict[str, Any]] = []
+    existing_sub_skills: list[dict[str, Any]] = []
+    existing_method_analysis: dict[str, Any] = {"chunks": [], "errors": []}
+    existing_llm_metadata: dict[str, str] = {}
+    if latest_snapshot is not None:
+        existing_main_skills, existing_sub_skills = _load_snapshot_skill_payloads(
+            latest_snapshot
+        )
+        existing_method_analysis, existing_llm_metadata = (
+            _load_snapshot_method_analysis_and_metadata(latest_snapshot)
+        )
+
+    original_main_skills = existing_main_skills
+    original_sub_skills = existing_sub_skills
+    (
+        existing_main_skills,
+        existing_sub_skills,
+        reconciliation_stats,
+        section_id_map,
+    ) = _reconcile_existing_skills(
+        existing_main_skills,
+        existing_sub_skills,
+        section_contexts=section_contexts,
+    )
+    existing_method_analysis, method_analysis_changed = _reconcile_method_analysis(
+        existing_method_analysis,
+        section_contexts=section_contexts,
+        section_id_map=section_id_map,
+    )
+    reconciliation_changed = (
+        existing_main_skills != original_main_skills
+        or existing_sub_skills != original_sub_skills
+        or method_analysis_changed
+    )
+    logger.info(
+        "skills reconciliation author_id=%s stats=%s changed=%s",
+        job.author_id,
+        reconciliation_stats,
+        reconciliation_changed,
+    )
+
+    generated_history = {
+        str(item.get("section_id", "")).strip()
+        for item in existing_main_skills
+        if str(item.get("section_id", "")).strip()
+    }
     remaining_section_ids = [
         section_id for section_id in section_contexts.keys() if section_id not in generated_history
     ]
-    latest_snapshot = _load_latest_snapshot(session=session, author_id=job.author_id)
 
     if not remaining_section_ids:
         if latest_snapshot is None:
             raise ValueError("no latest snapshot found while no remaining sections")
+        if reconciliation_changed:
+            _persist_stage_progress(
+                session=session, job=job, stage=Stage.RENDER, progress=85
+            )
+            reconciled_main_skill_json = {"main_skills": existing_main_skills}
+            reconciled_sub_skill_json = {"sub_skills": existing_sub_skills}
+            rendered = _run_render_with_language(
+                main_skill_json=reconciled_main_skill_json,
+                sub_skill_json=reconciled_sub_skill_json,
+                language=author_language,
+            )
+            _persist_author_skill_snapshot(
+                session,
+                job,
+                method_analysis=existing_method_analysis,
+                main_skill_json=reconciled_main_skill_json,
+                sub_skill_json=reconciled_sub_skill_json,
+                llm_metadata=existing_llm_metadata,
+                rendered=rendered,
+            )
+            return
         now = _now_iso()
         job.snapshot_id = latest_snapshot.snapshot_id
         job.outputs_json = latest_snapshot.outputs_json
@@ -1015,6 +1386,11 @@ def run_author_skills(session: Session, job: PipelineJob) -> None:
             segments=selected_segments,
             language=author_language,
         )
+        method_analysis, _method_analysis_changed = _reconcile_method_analysis(
+            method_analysis,
+            section_contexts=section_contexts,
+            section_id_map={},
+        )
 
         _ensure_not_canceled(session, job)
         _persist_stage_progress(session=session, job=job, stage=Stage.MAIN_SKILL, progress=55)
@@ -1032,26 +1408,6 @@ def run_author_skills(session: Session, job: PipelineJob) -> None:
             language=author_language,
         )
         new_sub_skills = _safe_sub_skills(new_sub_skill_json)
-
-    existing_main_skills: list[dict[str, Any]] = []
-    existing_sub_skills: list[dict[str, Any]] = []
-    if latest_snapshot is not None:
-        existing_main_skills, existing_sub_skills = _load_snapshot_skill_payloads(latest_snapshot)
-    existing_main_skills = _enrich_main_skills_with_source_context(
-        existing_main_skills,
-        section_contexts=section_contexts,
-        section_title_contexts=section_title_contexts,
-    )
-    existing_main_context_by_section_id, existing_main_context_by_main_skill_id = (
-        _build_main_skill_context_indexes(existing_main_skills)
-    )
-    existing_sub_skills = _enrich_linked_skill_items_with_source_context(
-        existing_sub_skills,
-        section_contexts=section_contexts,
-        section_title_contexts=section_title_contexts,
-        main_skill_context_by_section_id=existing_main_context_by_section_id,
-        main_skill_context_by_main_skill_id=existing_main_context_by_main_skill_id,
-    )
 
     remapped_new_main_skills, main_skill_id_mapping = _assign_new_main_skill_ids(
         existing_main_skills=existing_main_skills,
@@ -1102,47 +1458,15 @@ def run_author_skills(session: Session, job: PipelineJob) -> None:
         language=author_language,
     )
 
-    _ensure_not_canceled(session, job)
-    snapshot_id = str(uuid.uuid4())
-    now = _now_iso()
-    outputs = _store_author_skill_artifacts(
-        author_id=job.author_id,
-        snapshot_id=snapshot_id,
-        created_at=now,
+    _persist_author_skill_snapshot(
+        session,
+        job,
         method_analysis=method_analysis,
         main_skill_json=merged_main_skill_json,
         sub_skill_json=merged_sub_skill_json,
         llm_metadata=llm_metadata,
         rendered=rendered,
     )
-
-    latest_snapshots = session.execute(
-        select(AuthorSkillSnapshot).where(
-            AuthorSkillSnapshot.author_id == job.author_id,
-            AuthorSkillSnapshot.is_latest.is_(True),
-        )
-    ).scalars()
-    for snapshot in latest_snapshots:
-        snapshot.is_latest = False
-
-    session.add(
-        AuthorSkillSnapshot(
-            snapshot_id=snapshot_id,
-            author_id=job.author_id,
-            is_latest=True,
-            outputs_json=json.dumps(outputs),
-            created_at=now,
-        )
-    )
-
-    job.snapshot_id = snapshot_id
-    job.outputs_json = json.dumps(outputs)
-    job.status = JobStatus.SUCCESS.value
-    job.progress = 100
-    job.updated_at = now
-    job.finished_at = now
-    session.flush()
-    session.commit()
 
 
 def run_author_answer(session: Session, job: PipelineJob) -> None:
