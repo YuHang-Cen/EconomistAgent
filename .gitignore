@@ -47,3 +47,9 @@ frontend/coverage/
 tmp/
 temp/
 *.tmp
+
+# Local research and paper artifacts
+tools/
+archive/
+paper/
+economist_agent_paper_draft*.md
