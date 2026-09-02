@@ -2,17 +2,48 @@
 
 from __future__ import annotations
 
+import json
+import logging
+
+import pytest
 from app.services import answer_with_skills
 
 
-def test_answer_prefers_markdown_outputs_when_available(monkeypatch: object) -> None:
+class _Response:
+    def __init__(self, content: str) -> None:
+        self.content = content
+
+
+class _EchoPromptLlm:
+    def invoke(self, prompt: str) -> _Response:
+        return _Response(
+            json.dumps(
+                {
+                    "title": "Generated title",
+                    "topic": "Generated topic",
+                    "summary": "Generated summary",
+                    "markdown": prompt,
+                }
+            )
+        )
+
+
+class _SequenceLlm:
+    def __init__(self, responses: list[str | Exception]) -> None:
+        self.responses = responses
+        self.prompts: list[str] = []
+
+    def invoke(self, prompt: str) -> _Response:
+        self.prompts.append(prompt)
+        response = self.responses[len(self.prompts) - 1]
+        if isinstance(response, Exception):
+            raise response
+        return _Response(response)
+
+
+def test_answer_prefers_markdown_outputs_when_available(monkeypatch: pytest.MonkeyPatch) -> None:
     """When markdown artifacts exist, answer context should use selected markdown content."""
-    monkeypatch.setattr(answer_with_skills, "build_optional_llm", lambda: None)
-    monkeypatch.setattr(
-        answer_with_skills,
-        "_fallback_answer",
-        lambda query, context: {"title": "", "summary": "", "markdown": context},
-    )
+    monkeypatch.setattr(answer_with_skills, "build_optional_llm", _EchoPromptLlm)
 
     snapshot_outputs = {
         "main_skill_json": {
@@ -141,14 +172,11 @@ def test_answer_prefers_markdown_outputs_when_available(monkeypatch: object) -> 
     assert "SHOULD_APPEAR_TWO" in markdown
 
 
-def test_answer_falls_back_to_json_when_markdown_outputs_missing(monkeypatch: object) -> None:
+def test_answer_falls_back_to_json_when_markdown_outputs_missing(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     """If markdown artifacts are absent, answer context should fallback to JSON summaries."""
-    monkeypatch.setattr(answer_with_skills, "build_optional_llm", lambda: None)
-    monkeypatch.setattr(
-        answer_with_skills,
-        "_fallback_answer",
-        lambda query, context: {"title": "", "summary": "", "markdown": context},
-    )
+    monkeypatch.setattr(answer_with_skills, "build_optional_llm", _EchoPromptLlm)
 
     snapshot_outputs = {
         "main_skill_json": {
@@ -220,3 +248,94 @@ def test_answer_falls_back_to_json_when_markdown_outputs_missing(monkeypatch: ob
     assert "JSON_ONLY_MAIN_NAME_TWO" in markdown
     assert "JSON_ONLY_SUB" in markdown
     assert "JSON_ONLY_SUB_TWO" in markdown
+
+
+def test_answer_accepts_extra_model_fields(monkeypatch: pytest.MonkeyPatch) -> None:
+    payload = {
+        "title": "Generated title",
+        "topic": "Generated topic",
+        "summary": "Generated summary",
+        "markdown": "Generated markdown",
+        "reasoning_note": "This harmless field must not invalidate the answer.",
+    }
+    llm = _SequenceLlm([json.dumps(payload)])
+    monkeypatch.setattr(answer_with_skills, "build_optional_llm", lambda: llm)
+
+    result = answer_with_skills.run_answer_with_skills(
+        query="test query",
+        selected={},
+        snapshot_outputs={},
+    )
+
+    assert result["answer"] == {
+        "title": "Generated title",
+        "topic": "Generated topic",
+        "summary": "Generated summary",
+        "markdown": "Generated markdown",
+    }
+    assert len(llm.prompts) == 1
+
+
+def test_answer_retries_once_after_invalid_json(monkeypatch: pytest.MonkeyPatch) -> None:
+    valid_payload = json.dumps(
+        {
+            "title": "Recovered title",
+            "topic": "Recovered topic",
+            "summary": "Recovered summary",
+            "markdown": "Recovered markdown",
+        }
+    )
+    llm = _SequenceLlm(["not-json", valid_payload])
+    monkeypatch.setattr(answer_with_skills, "build_optional_llm", lambda: llm)
+
+    result = answer_with_skills.run_answer_with_skills(
+        query="test query",
+        selected={},
+        snapshot_outputs={},
+    )
+
+    assert result["answer"]["title"] == "Recovered title"
+    assert len(llm.prompts) == 2
+    assert "Output Correction" in llm.prompts[1]
+
+
+def test_answer_raises_after_two_invalid_responses(monkeypatch: pytest.MonkeyPatch) -> None:
+    llm = _SequenceLlm(["not-json", '{"title": "still incomplete"}'])
+    monkeypatch.setattr(answer_with_skills, "build_optional_llm", lambda: llm)
+
+    with pytest.raises(
+        answer_with_skills.AnswerGenerationError,
+        match="answer_generation_failed:invalid_answer_schema",
+    ):
+        answer_with_skills.run_answer_with_skills(
+            query="test query",
+            selected={},
+            snapshot_outputs={},
+        )
+
+    assert len(llm.prompts) == 2
+
+
+def test_answer_invoke_failure_is_not_converted_to_fallback(
+    monkeypatch: pytest.MonkeyPatch,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    llm = _SequenceLlm([RuntimeError("private upstream detail")])
+    monkeypatch.setattr(answer_with_skills, "build_optional_llm", lambda: llm)
+
+    with caplog.at_level(logging.ERROR):
+        with pytest.raises(
+            answer_with_skills.AnswerGenerationError,
+            match="answer_generation_failed:llm_invoke_failed",
+        ):
+            answer_with_skills.run_answer_with_skills(
+                query="private query text",
+                selected={},
+                snapshot_outputs={},
+            )
+
+    assert len(llm.prompts) == 1
+    assert "error_code=llm_invoke_failed" in caplog.text
+    assert "query_hash=" in caplog.text
+    assert "private query text" not in caplog.text
+    assert "private upstream detail" not in caplog.text

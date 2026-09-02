@@ -47,6 +47,17 @@ function normalizeProgress(value: number | null | undefined): number {
   return Math.max(0, Math.min(100, Math.round(value)));
 }
 
+function directApiErrorLabel(errorCode: string | null): string {
+  const labels: Record<string, string> = {
+    llm_initialization_failed: "模型客户端初始化失败",
+    llm_unavailable: "模型或 API Key 不可用",
+    llm_invoke_failed: "模型调用失败",
+    invalid_model_json: "模型返回的 JSON 格式无效",
+    missing_markdown: "模型返回结果缺少正文",
+  };
+  return errorCode ? labels[errorCode] || errorCode : "原因未记录";
+}
+
 function renderEssayMarkdown(
   markdown: string,
   options?: { muted?: boolean; headingLevel?: "h2" | "h3" }
@@ -202,11 +213,26 @@ export default function AnalysisView({
                   Direct API Output
                 </span>
                 <h3 className="font-headline text-3xl lg:text-4xl font-bold text-on-surface mb-4 leading-tight">
-                  纯单次 API 生成结果
+                  {selectedAnswer.directApiArticle.status === "fallback"
+                    ? "纯单次 API 降级内容"
+                    : "纯单次 API 生成结果"}
                 </h3>
-                <p className="font-body text-base text-secondary leading-relaxed mb-10">
-                  以下内容展示同一问题下，直接单次调用模型生成的文章结果。
-                </p>
+                {selectedAnswer.directApiArticle.status === "fallback" ? (
+                  <div className="mb-10 border border-amber-300 bg-amber-50 px-5 py-4 text-sm leading-relaxed text-amber-900">
+                    Direct API 本次没有正常生成文章。以下内容是后端降级说明，不是模型本次生成的回答。
+                    <span className="mt-2 block font-mono text-xs">
+                      错误原因：{directApiErrorLabel(selectedAnswer.directApiArticle.errorCode)}
+                    </span>
+                  </div>
+                ) : selectedAnswer.directApiArticle.status === "unknown" ? (
+                  <div className="mb-10 border border-outline-variant/20 bg-surface-container-low px-5 py-4 text-sm leading-relaxed text-secondary">
+                    这是一条历史记录，生成时尚未保存 Direct API 状态，无法确认是否使用了降级内容。
+                  </div>
+                ) : (
+                  <p className="font-body text-base text-secondary leading-relaxed mb-10">
+                    以下内容展示同一问题下，直接单次调用模型生成的文章结果。
+                  </p>
+                )}
 
                 {selectedAnswer.directApiArticle.title && (
                   <h4 className="font-headline text-2xl font-bold text-on-surface mb-6 leading-snug">

@@ -7,6 +7,8 @@ from collections.abc import Callable
 from datetime import datetime
 from typing import Any
 
+from app.services import pipeline_service
+from app.services.answer_with_skills import AnswerGenerationError
 from app.services.llm_utils import get_effective_model_config
 from fastapi.testclient import TestClient
 
@@ -41,7 +43,7 @@ def _create_author_and_document(
         },
     )
     author_id = author_response.json()["data"]["authorId"]
-    pdf_uri = create_test_pdf("general-theory.pdf")
+    pdf_uri = create_test_pdf("general-theory.pdf", None)
     document_response = client.post(
         f"/api/authors/{author_id}/documents",
         json={"bookTitle": "General Theory", "pdfUri": pdf_uri},
@@ -142,8 +144,31 @@ def test_author_skills_job_creates_snapshot_and_outputs(
 def test_author_answer_job_generates_answer_json(
     client: TestClient,
     create_test_pdf: Callable[[str, list[str] | None], str],
+    monkeypatch: Any,
 ) -> None:
     """author_answer should read latest snapshot and write answer_json."""
+    monkeypatch.setattr(
+        pipeline_service,
+        "_run_answer_with_skills_with_language",
+        lambda **kwargs: {
+            "query": kwargs["query"],
+            "selected_skill_indices": [1],
+            "selected_section_ids": ["section-1"],
+            "selected_skill_index": 1,
+            "selected_section_id": "section-1",
+            "selected_main_skill_names": ["Test main skill"],
+            "selected_main_skill_name": "Test main skill",
+            "selected_sub_skill_names": [],
+            "selection_mode": "fallback_rule",
+            "selection_warning": None,
+            "answer": {
+                "title": "Generated title",
+                "topic": "Generated topic",
+                "summary": "Generated summary",
+                "markdown": "Generated markdown",
+            },
+        },
+    )
     author_id, _document_id = _create_author_and_document(client, create_test_pdf)
     skills_job_id = client.post(f"/api/authors/{author_id}/jobs/skills").json()["data"]["jobId"]
     _wait_job_status(client=client, job_id=skills_job_id, expected="success")
@@ -183,6 +208,39 @@ def test_author_answer_job_generates_answer_json(
     datetime.fromisoformat(generated_at)
     assert answer_output.get("model_name") == expected_model_config["model_name"]
     assert answer_output.get("api_base") == expected_model_config["api_base"]
+
+
+def test_author_answer_failure_does_not_publish_fallback_output(
+    client: TestClient,
+    create_test_pdf: Callable[[str, list[str] | None], str],
+    monkeypatch: Any,
+) -> None:
+    """A generation failure must fail the job instead of publishing a fake answer."""
+
+    def fail_answer(**kwargs: Any) -> dict[str, Any]:
+        raise AnswerGenerationError("invalid_model_json")
+
+    monkeypatch.setattr(
+        pipeline_service,
+        "_run_answer_with_skills_with_language",
+        fail_answer,
+    )
+    author_id, _document_id = _create_author_and_document(client, create_test_pdf)
+    skills_job_id = client.post(f"/api/authors/{author_id}/jobs/skills").json()["data"]["jobId"]
+    _wait_job_status(client=client, job_id=skills_job_id, expected="success")
+
+    answer_job_response = client.post(
+        f"/api/authors/{author_id}/jobs/answer",
+        json={"query": "analyze policy mechanism and outcomes"},
+    )
+    job_id = answer_job_response.json()["data"]["jobId"]
+    final_payload = _wait_job_status(client=client, job_id=job_id, expected="failed")
+
+    assert final_payload["status"] == "failed"
+    assert final_payload["outputsReady"] is False
+    assert final_payload["errorMessage"] == ("answer_generation_failed:invalid_model_json")
+    missing_output_response = client.get(f"/api/jobs/{job_id}/outputs/answer_json")
+    assert missing_output_response.status_code == 404
 
 
 def test_outputs_type_validation_and_not_found(

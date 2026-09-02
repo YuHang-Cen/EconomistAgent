@@ -118,6 +118,8 @@ export interface AnswerVM {
     markdown: string;
   };
   directApiArticle: {
+    status: "generated" | "fallback" | "unknown";
+    errorCode: string | null;
     title: string;
     markdown: string;
   } | null;

@@ -24,11 +24,16 @@ function asStringArray(value: unknown): string[] {
   return value.filter((item): item is string => typeof item === "string");
 }
 
-function parseOptionalArticle(value: unknown): { title: string; markdown: string } | null {
+function parseOptionalArticle(value: unknown): AnswerVM["directApiArticle"] {
   if (!isRecord(value)) return null;
   const markdown = asString(value.markdown) || "";
   if (!markdown) return null;
+  const rawStatus = asString(value.status);
+  const status =
+    rawStatus === "generated" || rawStatus === "fallback" ? rawStatus : "unknown";
   return {
+    status,
+    errorCode: asString(value.errorCode ?? value.error_code),
     title: asString(value.title) || "",
     markdown,
   };

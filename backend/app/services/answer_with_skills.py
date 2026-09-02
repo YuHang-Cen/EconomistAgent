@@ -2,11 +2,14 @@
 
 from __future__ import annotations
 
-from typing import Any
+import hashlib
+import logging
+from typing import Any, NoReturn
 
 from app.domain.language import normalize_author_language
 from app.services.llm_utils import (
     build_optional_llm,
+    get_effective_model_config,
     load_prompt_by_language,
     normalize_message_content,
     parse_json_with_recovery,
@@ -18,6 +21,21 @@ SKILLS_PLACEHOLDER = "{{SKILLS_CONTEXT}}"
 QUERY_PLACEHOLDER = "{{QUERY}}"
 MAIN_SKILLS_MD_KEY = "main_skills_md_json"
 SUB_SKILLS_MD_KEY = "sub_skills_md_json"
+ANSWER_FORMAT_RETRY_SUFFIX = """
+
+## Output Correction
+
+Return only one valid JSON object. It must contain non-empty string fields named
+title, topic, summary, and markdown. Escape all newlines inside JSON strings.
+Do not wrap the JSON in commentary.
+"""
+logger = logging.getLogger(__name__)
+
+
+class AnswerGenerationError(RuntimeError):
+    def __init__(self, error_code: str) -> None:
+        self.error_code = error_code
+        super().__init__(f"answer_generation_failed:{error_code}")
 
 
 def _normalize_selected_skill_index(value: Any) -> int | None:
@@ -25,7 +43,7 @@ def _normalize_selected_skill_index(value: Any) -> int | None:
         return None
     if value < 1:
         return None
-    return value
+    return int(value)
 
 
 def _normalize_selected_skill_indices(value: Any) -> list[int]:
@@ -198,7 +216,7 @@ def _validate_answer_schema(value: Any) -> dict[str, str] | None:
 
     expected_keys = {"title", "topic", "summary", "markdown"}
     actual_keys = set(value.keys())
-    if actual_keys != expected_keys:
+    if not expected_keys.issubset(actual_keys):
         return None
 
     normalized: dict[str, str] = {}
@@ -212,6 +230,136 @@ def _validate_answer_schema(value: Any) -> dict[str, str] | None:
         normalized[key] = text
 
     return normalized
+
+
+def _text_fingerprint(value: str) -> str:
+    return hashlib.sha256(value.encode("utf-8")).hexdigest()[:12]
+
+
+def _exception_status_code(exc: Exception) -> int | str | None:
+    status_code = getattr(exc, "status_code", None)
+    if isinstance(status_code, (int, str)):
+        return status_code
+    response = getattr(exc, "response", None)
+    response_status_code = getattr(response, "status_code", None)
+    return response_status_code if isinstance(response_status_code, (int, str)) else None
+
+
+def _log_answer_failure(
+    error_code: str,
+    *,
+    query: str,
+    language: str,
+    model_name: str,
+    api_base: str,
+    response_text: str = "",
+    exc: Exception | None = None,
+    retrying: bool = False,
+) -> None:
+    log = logger.warning if retrying else logger.error
+    log(
+        "answer_with_skills generation_failure error_code=%s retrying=%s "
+        "model_name=%s api_base=%s language=%s query_hash=%s "
+        "response_length=%d response_hash=%s exception_type=%s "
+        "status_code=%s request_id=%s",
+        error_code,
+        retrying,
+        model_name,
+        api_base,
+        language,
+        _text_fingerprint(query),
+        len(response_text),
+        _text_fingerprint(response_text) if response_text else "",
+        type(exc).__name__ if exc is not None else "",
+        _exception_status_code(exc) if exc is not None else None,
+        getattr(exc, "request_id", None) if exc is not None else None,
+    )
+
+
+def _raise_answer_generation_error(
+    error_code: str,
+    *,
+    query: str,
+    language: str,
+    model_name: str,
+    api_base: str,
+    response_text: str = "",
+    exc: Exception | None = None,
+) -> NoReturn:
+    _log_answer_failure(
+        error_code,
+        query=query,
+        language=language,
+        model_name=model_name,
+        api_base=api_base,
+        response_text=response_text,
+        exc=exc,
+    )
+    raise AnswerGenerationError(error_code) from exc
+
+
+def _generate_answer_payload(
+    llm: Any,
+    *,
+    prompt: str,
+    query: str,
+    language: str,
+    model_name: str,
+    api_base: str,
+) -> dict[str, str]:
+    current_prompt = prompt
+    for attempt in range(2):
+        try:
+            response = llm.invoke(current_prompt)
+        except Exception as exc:
+            _raise_answer_generation_error(
+                "llm_invoke_failed",
+                query=query,
+                language=language,
+                model_name=model_name,
+                api_base=api_base,
+                exc=exc,
+            )
+
+        normalized = ""
+        error_code = "invalid_model_json"
+        parse_exception: Exception | None = None
+        try:
+            normalized = normalize_message_content(response.content).strip()
+            candidate = parse_json_with_recovery(normalized)
+        except Exception as exc:
+            parse_exception = exc
+        else:
+            validated = _validate_answer_schema(candidate)
+            if validated is not None:
+                return validated
+            error_code = "invalid_answer_schema"
+
+        if attempt == 0:
+            _log_answer_failure(
+                error_code,
+                query=query,
+                language=language,
+                model_name=model_name,
+                api_base=api_base,
+                response_text=normalized,
+                exc=parse_exception,
+                retrying=True,
+            )
+            current_prompt = f"{prompt}{ANSWER_FORMAT_RETRY_SUFFIX}"
+            continue
+
+        _raise_answer_generation_error(
+            error_code,
+            query=query,
+            language=language,
+            model_name=model_name,
+            api_base=api_base,
+            response_text=normalized,
+            exc=parse_exception,
+        )
+
+    raise AssertionError("answer generation loop exited unexpectedly")
 
 
 def _build_context_from_markdown(
@@ -348,39 +496,6 @@ def _build_context(
     )
 
 
-def _fallback_answer(query: str, context: str, *, language: str) -> dict[str, str]:
-    """Return deterministic JSON answer when LLM is unavailable or invalid."""
-    summary = context.splitlines()[:8]
-    summary_text = " ".join(summary)
-    normalized_language = normalize_author_language(language)
-    if normalized_language == "chinese":
-        return {
-            "title": "方法论驱动回答",
-            "topic": "经济问题分析",
-            "summary": "基于最新作者方法快照进行生成式推演，聚焦机制链条与约束条件。",
-            "markdown": (
-                "# 分析\n\n"
-                "本回答基于所选方法基线进行确定性综合，重点说明关键假设、机制演化和约束下的结果。"
-                "\n\n"
-                f"问题：{query}\n\n"
-                f"技能上下文摘要：{summary_text}"
-            ),
-        }
-    return {
-        "title": "Methodology-driven answer",
-        "topic": query,
-        "summary": "Answer synthesized from latest author skill snapshot.",
-        "markdown": (
-            "# Analysis\n\n"
-            "This response uses the selected methodology baseline and deterministic synthesis. "
-            "It explains assumptions, mechanism transitions, and likely outcomes "
-            "under constraints.\n\n"
-            f"Question: {query}\n\n"
-            f"Skill context summary: {summary_text}"
-        ),
-    }
-
-
 def run_answer_with_skills(
     query: str,
     selected: dict[str, Any],
@@ -417,14 +532,6 @@ def run_answer_with_skills(
         snapshot_outputs=snapshot_outputs,
         selected_section_ids=selected_section_ids,
     )
-    try:
-        answer_payload = _fallback_answer(
-            query=query,
-            context=context,
-            language=normalized_language,
-        )
-    except TypeError:
-        answer_payload = _fallback_answer(query=query, context=context)
 
     template = load_prompt_by_language(
         "answer_with_skills_prompt.md",
@@ -440,23 +547,40 @@ def run_answer_with_skills(
         },
     )
 
-    llm = build_optional_llm()
-    if llm is not None:
-        try:
-            response = llm.invoke(prompt)
-            normalized = normalize_message_content(response.content).strip()
-            candidate = parse_json_with_recovery(normalized)
-            validated = _validate_answer_schema(candidate)
-            if validated is not None:
-                answer_payload = validated
-        except Exception:
-            pass
+    effective_model_config = get_effective_model_config()
+    model_name = effective_model_config["model_name"]
+    api_base = effective_model_config["api_base"]
+    try:
+        llm = build_optional_llm()
+    except Exception as exc:
+        _raise_answer_generation_error(
+            "llm_initialization_failed",
+            query=query,
+            language=normalized_language,
+            model_name=model_name,
+            api_base=api_base,
+            exc=exc,
+        )
+    if llm is None:
+        _raise_answer_generation_error(
+            "llm_unavailable",
+            query=query,
+            language=normalized_language,
+            model_name=model_name,
+            api_base=api_base,
+        )
+    answer_payload = _generate_answer_payload(
+        llm,
+        prompt=prompt,
+        query=query,
+        language=normalized_language,
+        model_name=model_name,
+        api_base=api_base,
+    )
 
     selected_skill_index = selected_skill_indices[0] if selected_skill_indices else None
     selected_section_id = selected_section_ids[0] if selected_section_ids else None
-    selected_main_skill_name = (
-        selected_main_skill_names[0] if selected_main_skill_names else None
-    )
+    selected_main_skill_name = selected_main_skill_names[0] if selected_main_skill_names else None
 
     return {
         "query": query,
