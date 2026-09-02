@@ -139,7 +139,7 @@ export default function AnalysisView({
             </ol>
           </nav>
 
-          <header className="mb-12">
+          <header>
             <h1 className="font-headline text-5xl lg:text-[3.5rem] font-bold text-on-surface mb-12 tracking-tight leading-[1.15]">
               {selectedAnswer.answer.title || "Generated Answer"}
             </h1>
@@ -172,85 +172,7 @@ export default function AnalysisView({
             </div>
           </header>
 
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-12 bg-surface-container-lowest border-l-[3px] border-outline-variant/30 pl-6 py-2"
-          >
-            <span className="block font-label text-[10px] uppercase tracking-widest text-secondary mb-3 font-bold">
-              Research Inquiry
-            </span>
-            <p className="font-headline text-2xl italic text-on-surface/80 leading-relaxed">
-              "{selectedAnswer.query}"
-            </p>
-          </motion.div>
-
-          {selectedAnswer.selectionWarning && (
-            <div className="mb-8 p-4 bg-amber-50 border border-amber-300 rounded-sm text-sm text-amber-800">
-              Fallback Warning: {selectedAnswer.selectionWarning}
-            </div>
-          )}
-
-          {selectedAnswer.answer.summary && (
-            <div className="mb-12 bg-surface-container-low p-8 rounded-sm editorial-shadow">
-              <span className="block font-label text-[10px] uppercase tracking-widest text-primary mb-4 font-bold">
-                Answer Summary
-              </span>
-              <p className="font-body text-lg text-secondary leading-relaxed">
-                {selectedAnswer.answer.summary}
-              </p>
-            </div>
-          )}
-
-          <article className="prose prose-slate max-w-none mb-20">
-            {renderEssayMarkdown(selectedAnswer.answer.markdown)}
-          </article>
-
-          {selectedAnswer.directApiArticle && (
-            <section className="mt-16 pt-10 border-t border-outline-variant/15 mb-20">
-              <div className="max-w-4xl">
-                <span className="block font-label text-[10px] uppercase tracking-[0.2em] text-secondary mb-4 font-bold">
-                  Direct API Output
-                </span>
-                <h3 className="font-headline text-3xl lg:text-4xl font-bold text-on-surface mb-4 leading-tight">
-                  {selectedAnswer.directApiArticle.status === "fallback"
-                    ? "纯单次 API 降级内容"
-                    : "纯单次 API 生成结果"}
-                </h3>
-                {selectedAnswer.directApiArticle.status === "fallback" ? (
-                  <div className="mb-10 border border-amber-300 bg-amber-50 px-5 py-4 text-sm leading-relaxed text-amber-900">
-                    Direct API 本次没有正常生成文章。以下内容是后端降级说明，不是模型本次生成的回答。
-                    <span className="mt-2 block font-mono text-xs">
-                      错误原因：{directApiErrorLabel(selectedAnswer.directApiArticle.errorCode)}
-                    </span>
-                  </div>
-                ) : selectedAnswer.directApiArticle.status === "unknown" ? (
-                  <div className="mb-10 border border-outline-variant/20 bg-surface-container-low px-5 py-4 text-sm leading-relaxed text-secondary">
-                    这是一条历史记录，生成时尚未保存 Direct API 状态，无法确认是否使用了降级内容。
-                  </div>
-                ) : (
-                  <p className="font-body text-base text-secondary leading-relaxed mb-10">
-                    以下内容展示同一问题下，直接单次调用模型生成的文章结果。
-                  </p>
-                )}
-
-                {selectedAnswer.directApiArticle.title && (
-                  <h4 className="font-headline text-2xl font-bold text-on-surface mb-6 leading-snug">
-                    {selectedAnswer.directApiArticle.title}
-                  </h4>
-                )}
-
-                <article className="prose prose-slate max-w-none">
-                  {renderEssayMarkdown(selectedAnswer.directApiArticle.markdown, {
-                    muted: true,
-                    headingLevel: "h3",
-                  })}
-                </article>
-              </div>
-            </section>
-          )}
-
-          <section className="pt-10 border-t border-outline-variant/15">
+          <section className="pt-10">
             <div className="flex items-center gap-2 mb-8">
               <Sparkles className="w-4 h-4 text-secondary" />
               <h3 className="font-label text-xs font-bold uppercase tracking-[0.2em] text-secondary">
@@ -315,17 +237,96 @@ export default function AnalysisView({
               </div>
             </div>
 
-            <div className="pt-8 mt-12 flex items-center justify-between border-t border-outline-variant/15">
-              <div className="flex flex-col gap-1.5">
-                <span className="text-[10px] font-mono text-outline-variant normal-case tracking-widest">
-                  Model Name: {selectedAnswer.modelName || "Unknown"}
-                </span>
-                <span className="text-[10px] font-mono text-outline-variant normal-case tracking-widest">
-                  Api Base: {selectedAnswer.apiBase || "Unknown"}
-                </span>
-              </div>
-            </div>
           </section>
+
+          {selectedAnswer.selectionWarning && (
+            <div className="mb-8 p-4 bg-amber-50 border border-amber-300 rounded-sm text-sm text-amber-800">
+              Fallback Warning: {selectedAnswer.selectionWarning}
+            </div>
+          )}
+
+          <article className="prose prose-slate max-w-none mb-20">
+            {renderEssayMarkdown(selectedAnswer.answer.markdown)}
+          </article>
+
+          {selectedAnswer.directApiArticle && (
+            <section className="mt-16 pt-10 border-t border-outline-variant/15 mb-20">
+              <div className="max-w-4xl">
+                <span className="block font-label text-[10px] uppercase tracking-[0.2em] text-secondary mb-4 font-bold">
+                  Direct API Output
+                </span>
+                <h3 className="font-headline text-3xl lg:text-4xl font-bold text-on-surface mb-4 leading-tight">
+                  {selectedAnswer.directApiArticle.status === "fallback"
+                    ? "纯单次 API 降级内容"
+                    : "纯单次 API 生成结果"}
+                </h3>
+                {selectedAnswer.directApiArticle.status === "fallback" ? (
+                  <div className="mb-10 border border-amber-300 bg-amber-50 px-5 py-4 text-sm leading-relaxed text-amber-900">
+                    Direct API 本次没有正常生成文章。以下内容是后端降级说明，不是模型本次生成的回答。
+                    <span className="mt-2 block font-mono text-xs">
+                      错误原因：{directApiErrorLabel(selectedAnswer.directApiArticle.errorCode)}
+                    </span>
+                  </div>
+                ) : selectedAnswer.directApiArticle.status === "unknown" ? (
+                  <div className="mb-10 border border-outline-variant/20 bg-surface-container-low px-5 py-4 text-sm leading-relaxed text-secondary">
+                    这是一条历史记录，生成时尚未保存 Direct API 状态，无法确认是否使用了降级内容。
+                  </div>
+                ) : (
+                  <p className="font-body text-base text-secondary leading-relaxed mb-10">
+                    以下内容展示同一问题下，直接单次调用模型生成的文章结果。
+                  </p>
+                )}
+
+                {selectedAnswer.directApiArticle.title && (
+                  <h4 className="font-headline text-2xl font-bold text-on-surface mb-6 leading-snug">
+                    {selectedAnswer.directApiArticle.title}
+                  </h4>
+                )}
+
+                <article className="prose prose-slate max-w-none">
+                  {renderEssayMarkdown(selectedAnswer.directApiArticle.markdown, {
+                    muted: true,
+                    headingLevel: "h3",
+                  })}
+                </article>
+              </div>
+            </section>
+          )}
+
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-12 bg-surface-container-lowest border-l-[3px] border-outline-variant/30 pl-6 py-2"
+          >
+            <span className="block font-label text-[10px] uppercase tracking-widest text-secondary mb-3 font-bold">
+              Research Inquiry
+            </span>
+            <p className="font-headline text-2xl italic text-on-surface/80 leading-relaxed">
+              "{selectedAnswer.query}"
+            </p>
+          </motion.div>
+
+          {selectedAnswer.answer.summary && (
+            <div className="mb-12 bg-surface-container-low p-8 rounded-sm editorial-shadow">
+              <span className="block font-label text-[10px] uppercase tracking-widest text-primary mb-4 font-bold">
+                Answer Summary
+              </span>
+              <p className="font-body text-lg text-secondary leading-relaxed">
+                {selectedAnswer.answer.summary}
+              </p>
+            </div>
+          )}
+
+          <div className="pt-8 mt-12 flex items-center justify-between border-t border-outline-variant/15">
+            <div className="flex flex-col gap-1.5">
+              <span className="text-[10px] font-mono text-outline-variant normal-case tracking-widest">
+                Model Name: {selectedAnswer.modelName || "Unknown"}
+              </span>
+              <span className="text-[10px] font-mono text-outline-variant normal-case tracking-widest">
+                Api Base: {selectedAnswer.apiBase || "Unknown"}
+              </span>
+            </div>
+          </div>
         </div>
       </main>
     );
