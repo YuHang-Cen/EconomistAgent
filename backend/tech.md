@@ -24,7 +24,7 @@
 2. 包管理与运行：`uv`
 3. Web/API：`FastAPI + Uvicorn`
 4. ORM 与迁移：`SQLAlchemy 2 + Alembic`
-5. 异步任务：`Celery + Redis`（任务状态通过 `PipelineJob + 轮询` 暴露）
+5. 后台任务：进程内单线程执行器（任务状态通过 `PipelineJob + 轮询` 暴露）
 6. 配置加载：`python-dotenv`（统一加载 `backend/.env`）
 7. LLM 调用：Provider 抽象层，默认 `DeepSeek`
 8. PDF 解析：`PyMuPDF(fitz)`
@@ -40,7 +40,7 @@
 
 1. 使用 `backend/.env` 保存本地环境变量。
 2. 必须提供 `backend/.env.example`（只放占位值，不放真实密钥）。
-3. 服务启动、脚本入口、worker 启动均需统一加载 dotenv。
+3. 服务启动与脚本入口统一加载 dotenv。
 4. 前端不传模型密钥；模型密钥只在后端读取与使用。
 
 建议最小变量集合（与 `backend/references/.env` 对齐）：
@@ -51,7 +51,6 @@ PROVIDER=deepseek
 MODEL_NAME=deepseek-chat
 API_BASE=https://api.deepseek.com
 DATABASE_URL=sqlite:///./storage/app.db
-REDIS_URL=redis://127.0.0.1:6379/0
 API_KEY=replace_with_service_api_key
 ```
 
@@ -76,7 +75,6 @@ backend/
       segment_service.py
       job_service.py
       pipeline_service.py
-      stage_runners.py
       extract_paragraphs.py
       analyze_method_chunks.py
       main_skill.py
@@ -87,7 +85,7 @@ backend/
     infra/
       settings.py
       db.py
-      queue.py
+      job_executor.py
       storage.py
       logging.py
     prompts/
@@ -98,7 +96,6 @@ backend/
       answer_with_skills_prompt.md
   scripts/
     migrate.py
-    worker.py
   tests/
     conftest.py
     unit/
@@ -201,7 +198,7 @@ backend/
 2. API 合约测试：所有路由返回统一 envelope，且对外字段为 camelCase。
 3. 数据一致性测试：软删除章节/段落后不再参与后续流程输入。
 4. 流水线测试：`author_skills`、`document_reload`、`author_answer` 的阶段推进与 progress 正确。
-5. 队列测试：Celery worker 执行、失败重试、取消任务语义正确。
+5. 任务测试：后台顺序执行、失败重试、取消任务语义正确。
 
 ### 7.2 质量门禁（CI 必须通过）
 

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import time
 import uuid
 from collections.abc import Callable
 from datetime import UTC, datetime
@@ -22,15 +23,20 @@ def _now_iso() -> str:
 
 
 def _wait_job_status(
-    client: TestClient, job_id: str, expected: str, max_attempts: int = 12
+    client: TestClient, job_id: str, expected: str, max_attempts: int = 200
 ) -> dict[str, Any]:
     """Poll until job reaches expected status."""
     payload: dict[str, Any] = {}
     for _ in range(max_attempts):
         response = client.get(f"/api/jobs/{job_id}")
         payload = response.json()["data"]
-        if payload.get("status") == expected:
+        if payload.get("status") == expected or payload.get("status") in {
+            "success",
+            "failed",
+            "canceled",
+        }:
             return payload
+        time.sleep(0.05)
     return payload
 
 

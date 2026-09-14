@@ -43,7 +43,7 @@ frontend/.eslintcache
 frontend/coverage/
 
 # Build / temp artifacts
+.run/
 tmp/
 temp/
 *.tmp
-

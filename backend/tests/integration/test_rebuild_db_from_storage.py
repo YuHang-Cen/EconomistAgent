@@ -6,6 +6,7 @@ import base64
 import json
 import os
 import shutil
+import time
 from collections.abc import Callable
 from pathlib import Path
 from typing import Any
@@ -23,7 +24,7 @@ PNG_BYTES = base64.b64decode(
 
 
 def _wait_job_status(
-    client: TestClient, job_id: str, expected: str, max_attempts: int = 12
+    client: TestClient, job_id: str, expected: str, max_attempts: int = 200
 ) -> dict[str, Any]:
     payload: dict[str, Any] = {}
     for _ in range(max_attempts):
@@ -31,6 +32,9 @@ def _wait_job_status(
         payload = response.json()["data"]
         if payload.get("status") == expected:
             return payload
+        if payload.get("status") in {"success", "failed", "canceled"}:
+            raise AssertionError(f"job reached unexpected terminal state: {payload}")
+        time.sleep(0.05)
     return payload
 
 

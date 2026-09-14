@@ -161,7 +161,6 @@ def test_job_create_model_config_passthrough_and_default(
 def test_job_create_requires_api_key_when_missing(client: TestClient, monkeypatch: Any) -> None:
     """skills/answer create APIs should return 422 when no model API key is configured."""
     monkeypatch.setenv("DEEPSEEK_API_KEY", "")
-    monkeypatch.setenv("CELERY_TASK_ALWAYS_EAGER", "false")
     get_settings.cache_clear()
     author_id = _create_author(client, "Author Missing Key")
 
@@ -176,6 +175,7 @@ def test_job_create_requires_api_key_when_missing(client: TestClient, monkeypatc
     assert answer_response.status_code == 422
     assert "missing model api key" in answer_response.json()["error"]["message"]
 
+    monkeypatch.setenv("DEEPSEEK_API_KEY", "test-model-api-key")
     get_settings.cache_clear()
 
 
@@ -184,7 +184,6 @@ def test_job_create_requires_api_key_message_is_localized_for_chinese_author(
 ) -> None:
     """Missing-key errors should be readable in Chinese when author language is chinese."""
     monkeypatch.setenv("DEEPSEEK_API_KEY", "")
-    monkeypatch.setenv("CELERY_TASK_ALWAYS_EAGER", "false")
     get_settings.cache_clear()
     author_id = _create_author(client, "Chinese Author Missing Key", language="chinese")
 
@@ -199,4 +198,29 @@ def test_job_create_requires_api_key_message_is_localized_for_chinese_author(
     assert answer_response.status_code == 422
     assert "缺少模型 API Key" in answer_response.json()["error"]["message"]
 
+    monkeypatch.setenv("DEEPSEEK_API_KEY", "test-model-api-key")
     get_settings.cache_clear()
+
+
+def test_interrupted_jobs_are_failed_and_retryable(
+    client: TestClient,
+    monkeypatch: Any,
+) -> None:
+    monkeypatch.setattr(job_service, "_dispatch_job", lambda *args, **kwargs: None)
+    author_id = _create_author(client, "Interrupted Jobs")
+    queued_job_id = client.post(f"/api/authors/{author_id}/jobs/skills").json()["data"]["jobId"]
+    running_job_id = client.post(
+        f"/api/authors/{author_id}/jobs/answer",
+        json={"query": "interrupted query"},
+    ).json()["data"]["jobId"]
+    _set_job_status(running_job_id, "running")
+
+    assert job_service.fail_interrupted_jobs() == 2
+
+    for job_id in (queued_job_id, running_job_id):
+        response = client.get(f"/api/jobs/{job_id}")
+        assert response.status_code == 200
+        payload = response.json()["data"]
+        assert payload["status"] == "failed"
+        assert payload["retryable"] is True
+        assert "application restart" in payload["errorMessage"]

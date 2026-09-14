@@ -1,4 +1,4 @@
-﻿"""提供任务创建、轮询、取消、重试与产物读取服务。"""
+"""提供任务创建、轮询、取消、重试与产物读取服务。"""
 
 from __future__ import annotations
 
@@ -13,7 +13,7 @@ from app.domain.language import normalize_author_language
 from app.domain.models import Author, AuthorDocument, PipelineJob
 from app.infra import storage
 from app.infra.db import SessionLocal, session_scope
-from app.infra.settings import get_settings
+from app.infra.job_executor import job_executor
 from app.services import llm_utils, pipeline_service
 from fastapi import HTTPException
 from sqlalchemy import and_, desc, or_, select
@@ -102,12 +102,12 @@ def _normalize_model_config(model_config: dict[str, Any] | None) -> dict[str, st
     return normalized
 
 
-def _require_model_api_key(model_config: dict[str, Any] | None, *, language: str = "english") -> None:
+def _require_model_api_key(
+    model_config: dict[str, Any] | None,
+    *,
+    language: Any = "english",
+) -> None:
     """Ensure model API key is available before enqueuing LLM-backed jobs."""
-    settings = get_settings()
-    if settings.celery_task_always_eager:
-        return
-
     with llm_utils.model_config_override_scope(model_config):
         effective = llm_utils.get_effective_model_config()
     if effective.get("api_key", "").strip():
@@ -145,9 +145,7 @@ def _decode_cursor(cursor: str) -> tuple[str, str]:
 
 
 def _dispatch_job(job_id: str, job_type: str) -> None:
-    """Dispatch task to Celery; fallback to inline run when worker is unavailable."""
-    from app.infra.queue import celery_app
-    from app.services import stage_runners
+    """Submit a pipeline job to the process-local single-worker executor."""
 
     def _run_inline() -> None:
         if job_type == JobType.DOCUMENT_RELOAD.value:
@@ -157,35 +155,42 @@ def _dispatch_job(job_id: str, job_type: str) -> None:
         elif job_type == JobType.AUTHOR_ANSWER.value:
             execute_author_answer_job(job_id)
 
-    settings = get_settings()
-    if settings.celery_task_always_eager:
-        if job_type == JobType.DOCUMENT_RELOAD.value:
-            stage_runners.run_document_reload_pipeline.delay(job_id)
-        elif job_type == JobType.AUTHOR_SKILLS.value:
-            stage_runners.run_author_skills_pipeline.delay(job_id)
-        elif job_type == JobType.AUTHOR_ANSWER.value:
-            stage_runners.run_author_answer_pipeline.delay(job_id)
-        return
-
     try:
-        ping_result = celery_app.control.inspect(timeout=0.5).ping()
-        has_worker = bool(ping_result)
-    except Exception:
-        has_worker = False
+        job_executor.submit(job_id, _run_inline)
+    except RuntimeError as exc:
+        mark_jobs_failed([job_id], f"job dispatch failed: {exc}")
 
-    if not has_worker:
-        _run_inline()
-        return
 
-    try:
-        if job_type == JobType.DOCUMENT_RELOAD.value:
-            stage_runners.run_document_reload_pipeline.delay(job_id)
-        elif job_type == JobType.AUTHOR_SKILLS.value:
-            stage_runners.run_author_skills_pipeline.delay(job_id)
-        elif job_type == JobType.AUTHOR_ANSWER.value:
-            stage_runners.run_author_answer_pipeline.delay(job_id)
-    except Exception:
-        _run_inline()
+def mark_jobs_failed(job_ids: list[str], reason: str) -> int:
+    """Mark non-terminal jobs as failed and return the number updated."""
+    if not job_ids:
+        return 0
+    now = _now_iso()
+    updated = 0
+    with session_scope() as session:
+        jobs = session.scalars(select(PipelineJob).where(PipelineJob.job_id.in_(job_ids))).all()
+        for job in jobs:
+            if job.status not in {JobStatus.QUEUED.value, JobStatus.RUNNING.value}:
+                continue
+            job.status = JobStatus.FAILED.value
+            job.error_message = reason
+            job.updated_at = now
+            job.finished_at = now
+            updated += 1
+    return updated
+
+
+def fail_interrupted_jobs() -> int:
+    """Fail jobs left active by a previous process so they remain retryable."""
+    with session_scope() as session:
+        job_ids = list(
+            session.scalars(
+                select(PipelineJob.job_id).where(
+                    PipelineJob.status.in_([JobStatus.QUEUED.value, JobStatus.RUNNING.value])
+                )
+            ).all()
+        )
+    return mark_jobs_failed(job_ids, "job interrupted by application restart; retry the job")
 
 
 def create_document_reload_job(
@@ -523,11 +528,7 @@ def delete_author_answer_job(author_id: str, job_id: str) -> dict[str, Any]:
             raise HTTPException(status_code=404, detail="author not found")
 
         job = session.get(PipelineJob, job_id)
-        if (
-            job is None
-            or job.author_id != author_id
-            or job.job_type != JobType.AUTHOR_ANSWER.value
-        ):
+        if job is None or job.author_id != author_id or job.job_type != JobType.AUTHOR_ANSWER.value:
             raise HTTPException(status_code=404, detail="job not found")
 
         if job.status in {JobStatus.QUEUED.value, JobStatus.RUNNING.value}:

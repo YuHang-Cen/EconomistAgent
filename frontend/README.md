@@ -2,7 +2,7 @@
 
 The frontend is a Vite + React app that talks to the backend API.
 
-## Local development (without Docker)
+## Local development
 
 1. Install dependencies:
    ```bash
@@ -17,4 +17,6 @@ The frontend is a Vite + React app that talks to the backend API.
    npm run dev
    ```
 
-By default the app calls `/api` (same-origin). In Docker, Nginx proxies it to the backend service; in local Vite dev, `vite.config.ts` proxies `/api` to `http://127.0.0.1:8000`.
+By default the app calls `/api` (same-origin). Local Vite development and the static deployment server both proxy `/api` to the backend service.
+
+For one-command personal and deployment startup, see the root project [README](../README.md).

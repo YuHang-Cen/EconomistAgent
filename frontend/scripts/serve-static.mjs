@@ -1,14 +1,18 @@
 import { createReadStream, existsSync, statSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import http from "node:http";
-import { extname, join, normalize } from "node:path";
+import { extname, join, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const __dirname = fileURLToPath(new URL(".", import.meta.url));
-const distRoot = normalize(join(__dirname, "..", "dist"));
-const host = process.env.CAMPUS_HOST || "0.0.0.0";
-const port = Number(process.env.CAMPUS_PORT || "8081");
-const apiOrigin = process.env.CAMPUS_API_ORIGIN || "http://127.0.0.1:8000";
+const scriptDirectory = fileURLToPath(new URL(".", import.meta.url));
+const distRoot = resolve(scriptDirectory, "..", "dist");
+const host = process.env.FRONTEND_HOST || "0.0.0.0";
+const port = Number(process.env.FRONTEND_PORT || "8081");
+const apiOrigin = process.env.API_ORIGIN || "http://127.0.0.1:8000";
+
+if (!Number.isInteger(port) || port < 1 || port > 65535) {
+  throw new Error(`invalid FRONTEND_PORT: ${process.env.FRONTEND_PORT}`);
+}
 
 const mimeTypes = new Map([
   [".html", "text/html; charset=utf-8"],
@@ -29,10 +33,15 @@ const mimeTypes = new Map([
 ]);
 
 function resolveStaticPath(urlPath) {
-  const pathname = decodeURIComponent(urlPath.split("?")[0]);
-  const candidate = pathname === "/" ? "/index.html" : pathname;
-  const filePath = normalize(join(distRoot, candidate));
-  if (!filePath.startsWith(distRoot)) {
+  let pathname;
+  try {
+    pathname = decodeURIComponent(urlPath.split("?")[0]);
+  } catch {
+    return null;
+  }
+  const candidate = pathname === "/" ? "index.html" : `.${pathname}`;
+  const filePath = resolve(distRoot, candidate);
+  if (filePath !== distRoot && !filePath.startsWith(`${distRoot}${sep}`)) {
     return null;
   }
   if (existsSync(filePath) && statSync(filePath).isFile()) {
@@ -44,14 +53,10 @@ function resolveStaticPath(urlPath) {
 function proxyRequest(req, res) {
   const upstream = new URL(req.url, apiOrigin);
   const headers = { ...req.headers, host: upstream.host };
-  delete headers["content-length"];
 
   const proxy = http.request(
     upstream,
-    {
-      method: req.method,
-      headers,
-    },
+    { method: req.method, headers },
     (upstreamRes) => {
       res.writeHead(upstreamRes.statusCode || 502, upstreamRes.headers);
       upstreamRes.pipe(res);
@@ -61,7 +66,7 @@ function proxyRequest(req, res) {
   proxy.on("error", (error) => {
     const body = JSON.stringify({
       success: false,
-      requestId: "campus-proxy",
+      requestId: "static-proxy",
       error: {
         code: "BAD_GATEWAY",
         message: `upstream request failed: ${error.message}`,
@@ -114,7 +119,7 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  if (req.url === "/__campus_health") {
+  if (req.url === "/__health") {
     res.writeHead(200, { "Content-Type": "application/json; charset=utf-8" });
     res.end(JSON.stringify({ ok: true, apiOrigin, distRoot, port }));
     return;
@@ -129,6 +134,6 @@ const server = http.createServer((req, res) => {
 });
 
 server.listen(port, host, () => {
-  console.log(`Campus frontend listening on http://${host}:${port}`);
+  console.log(`Frontend listening on http://${host}:${port}`);
   console.log(`Proxying /api to ${apiOrigin}`);
 });

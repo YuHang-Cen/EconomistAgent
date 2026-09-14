@@ -19,12 +19,7 @@ SQLITE_URL_PREFIX = "sqlite:///"
 
 def _normalize_windows_drive_path(raw_path: str) -> str:
     """Normalize '/C:/...' to 'C:/...' for Windows sqlite URLs."""
-    if (
-        os.name == "nt"
-        and len(raw_path) >= 4
-        and raw_path[0] == "/"
-        and raw_path[2] == ":"
-    ):
+    if os.name == "nt" and len(raw_path) >= 4 and raw_path[0] == "/" and raw_path[2] == ":":
         return raw_path[1:]
     return raw_path
 
@@ -74,7 +69,6 @@ class Settings(BaseSettings):
     api_base: str = Field(default="https://api.deepseek.com")
     deepseek_api_key: str = Field(default="")
     database_url: str = Field(default="sqlite:///./storage/app.db")
-    redis_url: str = Field(default="redis://127.0.0.1:6379/0")
     storage_root: str = Field(default="storage")
     cors_allow_origins: str = Field(
         default=(
@@ -84,11 +78,9 @@ class Settings(BaseSettings):
             "http://127.0.0.1:5173"
         )
     )
-    celery_task_always_eager: bool = Field(default=False)
-    celery_task_eager_propagates: bool = Field(default=True)
     method_chunk_max_words: int = Field(default=1200)
     skills_batch_size: int = Field(default=10)
-    skills_max_main_skills: int = Field(default=0)      # 0表示不设置上限
+    skills_max_main_skills: int = Field(default=0)  # 0表示不设置上限
     skills_select_recall_limit: int = Field(default=10)
     skills_select_count: int = Field(
         default=3,

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import time
 from collections.abc import Callable
 from pathlib import Path
 from typing import Any
@@ -42,15 +43,20 @@ def _create_multi_section_pdf_path() -> str:
 
 
 def _wait_job_status(
-    client: TestClient, job_id: str, expected: str, max_attempts: int = 15
+    client: TestClient, job_id: str, expected: str, max_attempts: int = 200
 ) -> dict[str, Any]:
     """Poll job until it reaches expected terminal status."""
     payload: dict[str, Any] = {}
     for _ in range(max_attempts):
         response = client.get(f"/api/jobs/{job_id}")
         payload = response.json()["data"]
-        if payload.get("status") == expected:
+        if payload.get("status") == expected or payload.get("status") in {
+            "success",
+            "failed",
+            "canceled",
+        }:
             return payload
+        time.sleep(0.05)
     return payload
 
 

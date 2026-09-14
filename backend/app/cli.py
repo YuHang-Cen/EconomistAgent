@@ -5,7 +5,7 @@ from __future__ import annotations
 import os
 import subprocess
 import sys
-from collections.abc import Mapping, Sequence
+from collections.abc import Sequence
 from pathlib import Path
 
 from app.infra.db_recovery import (
@@ -45,58 +45,11 @@ def dev() -> None:
 
 
 def serve() -> None:
-    """Start FastAPI server for stable/non-reload runtime (e.g. Docker)."""
+    """Start the stable FastAPI runtime using configurable bind settings."""
     _bootstrap_or_exit()
-    raise SystemExit(
-        _run(["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"])
-    )
-
-
-def _build_worker_options(
-    platform: str | None = None,
-    env: Mapping[str, str] | None = None,
-) -> list[str]:
-    """Build worker options with a Windows-safe default pool."""
-    runtime_platform = platform or sys.platform
-    environment = env or os.environ
-
-    options: list[str] = ["worker", "--loglevel=info"]
-
-    configured_pool = environment.get("CELERY_WORKER_POOL", "").strip()
-    if configured_pool:
-        pool = configured_pool
-    elif runtime_platform.startswith("win"):
-        pool = "threads"
-    else:
-        pool = ""
-
-    if pool:
-        options.append(f"--pool={pool}")
-
-    configured_concurrency = environment.get("CELERY_WORKER_CONCURRENCY", "").strip()
-    if configured_concurrency:
-        options.append(f"--concurrency={configured_concurrency}")
-    elif pool == "solo":
-        options.append("--concurrency=1")
-    elif runtime_platform.startswith("win") and pool == "threads":
-        # SQLite allows one writer; keep a safe default on Windows threads pool.
-        options.append("--concurrency=1")
-
-    return options
-
-
-def _build_worker_command(
-    platform: str | None = None,
-    env: Mapping[str, str] | None = None,
-) -> list[str]:
-    """Build the full Celery worker command."""
-    return ["celery", "-A", "app.infra.queue:celery_app", *_build_worker_options(platform, env)]
-
-
-def worker() -> None:
-    """Start Celery worker."""
-    _bootstrap_or_exit()
-    raise SystemExit(_run(_build_worker_command()))
+    host = os.environ.get("BACKEND_HOST", "127.0.0.1")
+    port = os.environ.get("BACKEND_PORT", "8000")
+    raise SystemExit(_run(["uvicorn", "app.main:app", "--host", host, "--port", port]))
 
 
 def lint() -> None:

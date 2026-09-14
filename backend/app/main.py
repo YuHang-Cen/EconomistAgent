@@ -3,7 +3,8 @@
 from __future__ import annotations
 
 import uuid
-from collections.abc import Awaitable, Callable
+from collections.abc import AsyncIterator, Awaitable, Callable
+from contextlib import asynccontextmanager
 from typing import Any
 
 from fastapi import FastAPI, HTTPException, Request
@@ -13,8 +14,10 @@ from fastapi.responses import JSONResponse, Response
 
 from app.api.routes import authors, jobs, segments
 from app.domain.schemas import build_error_response, build_success_response
+from app.infra.job_executor import job_executor
 from app.infra.logging import configure_logging
 from app.infra.settings import get_settings
+from app.services import job_service
 
 
 def _error_code_from_status(status_code: int) -> str:
@@ -33,7 +36,25 @@ def _error_code_from_status(status_code: int) -> str:
 def create_app() -> FastAPI:
     """创建并配置 FastAPI 应用实例。"""
     configure_logging()
-    application = FastAPI(title="Economist Agent Backend", version="0.1.0")
+
+    @asynccontextmanager
+    async def lifespan(_: FastAPI) -> AsyncIterator[None]:
+        job_service.fail_interrupted_jobs()
+        job_executor.start()
+        try:
+            yield
+        finally:
+            canceled_job_ids = job_executor.shutdown()
+            job_service.mark_jobs_failed(
+                canceled_job_ids,
+                "job canceled while the application was shutting down; retry the job",
+            )
+
+    application = FastAPI(
+        title="Economist Agent Backend",
+        version="0.1.0",
+        lifespan=lifespan,
+    )
     settings = get_settings()
     application.add_middleware(
         CORSMiddleware,

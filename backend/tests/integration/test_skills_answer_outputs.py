@@ -2,16 +2,17 @@
 
 from __future__ import annotations
 
+import time
 from collections.abc import Callable
 from datetime import datetime
 from typing import Any
 
-from fastapi.testclient import TestClient
 from app.services.llm_utils import get_effective_model_config
+from fastapi.testclient import TestClient
 
 
 def _wait_job_status(
-    client: TestClient, job_id: str, expected: str, max_attempts: int = 12
+    client: TestClient, job_id: str, expected: str, max_attempts: int = 200
 ) -> dict[str, Any]:
     """Poll until the job reaches the expected status."""
     payload: dict[str, Any] = {}
@@ -20,6 +21,9 @@ def _wait_job_status(
         payload = response.json()["data"]
         if payload.get("status") == expected:
             return payload
+        if payload.get("status") in {"success", "failed", "canceled"}:
+            raise AssertionError(f"job reached unexpected terminal state: {payload}")
+        time.sleep(0.05)
     return payload
 
 

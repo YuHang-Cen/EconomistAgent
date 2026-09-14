@@ -2,9 +2,12 @@
 
 from __future__ import annotations
 
+import json
 import os
 from collections.abc import Callable, Generator
 from pathlib import Path
+from types import SimpleNamespace
+from typing import Any
 from uuid import uuid4
 from zipfile import ZIP_DEFLATED, ZIP_STORED, ZipFile
 
@@ -13,13 +16,86 @@ import pytest
 # Force tests to use isolated DB/storage and never touch dev runtime data.
 os.environ["DATABASE_URL"] = "sqlite:///./storage/test_tmp/test_app.db"
 os.environ["STORAGE_ROOT"] = "storage/test_tmp"
-os.environ.setdefault("CELERY_TASK_ALWAYS_EAGER", "true")
-os.environ.setdefault("CELERY_TASK_EAGER_PROPAGATES", "true")
+os.environ["DEEPSEEK_API_KEY"] = "test-model-api-key"
+os.environ["API_BASE"] = "http://127.0.0.1:1"
 os.environ.setdefault("API_KEY", "replace_with_service_api_key")
 
 from app.infra.db import Base, engine
 from app.main import app
+from app.services import (
+    analyze_method_chunks,
+    answer_with_skills,
+    direct_api_article,
+    main_skill,
+    select_skills,
+    sub_skill,
+)
 from fastapi.testclient import TestClient
+
+
+class _StaticLlm:
+    def __init__(self, payload: dict[str, Any]) -> None:
+        self._content = json.dumps(payload)
+
+    def invoke(self, _: str) -> SimpleNamespace:
+        return SimpleNamespace(content=self._content)
+
+
+@pytest.fixture(autouse=True)
+def use_deterministic_models(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Keep tests deterministic and prevent model network calls."""
+    analysis_payload = {
+        "methodPatterns": {
+            "raw_pattern": "Trace a causal mechanism",
+            "normalized_pattern": "Causal Chain Analysis",
+            "actions": ["identify conditions", "trace effects", "compare outcomes"],
+            "method_program": "Identify conditions, trace effects, and compare outcomes.",
+        },
+        "methodSignals": {
+            "perspective": "institutional",
+            "nature": "positive",
+            "time_orientation": "dynamic",
+            "system_scope": "economy",
+            "equilibrium_view": "comparative",
+            "logic": ["causal"],
+        },
+    }
+    main_skill_payload = {
+        "confidence": 0.9,
+        "pattern_summary": {
+            "name": "Causal Mechanism Analysis",
+            "description": "Trace how conditions change incentives and outcomes.",
+            "applicability": "Use for policy and institutional questions.",
+            "core_steps": ["identify conditions", "trace effects"],
+            "pattern_flow": ["conditions", "mechanism", "outcomes"],
+            "chapter_method_summary": "Connect conditions to outcomes through mechanisms.",
+        },
+        "signal_summary": {
+            "perspective": {"value": "institutional", "notes": "test signal"},
+            "nature": {"value": "positive", "notes": "test signal"},
+            "time_orientation": {"value": "dynamic", "notes": "test signal"},
+            "system_scope": {"value": "economy", "notes": "test signal"},
+            "equilibrium_view": {"value": "comparative", "notes": "test signal"},
+            "logic": {"value": ["causal"], "notes": "test signal"},
+        },
+    }
+    sub_skill_payload = {
+        "name": "Trace Causal Effects",
+        "description": "Follow a mechanism from conditions to outcomes.",
+        "abstract_action_chain": ["identify conditions", "trace effects"],
+        "method_program_summary": "Map conditions, incentives, and resulting outcomes.",
+    }
+
+    monkeypatch.setattr(
+        analyze_method_chunks,
+        "_build_llm",
+        lambda _settings: _StaticLlm(analysis_payload),
+    )
+    monkeypatch.setattr(main_skill, "_build_llm", lambda _settings: _StaticLlm(main_skill_payload))
+    monkeypatch.setattr(sub_skill, "_build_llm", lambda _settings: _StaticLlm(sub_skill_payload))
+    monkeypatch.setattr(select_skills, "build_optional_llm", lambda: None)
+    monkeypatch.setattr(answer_with_skills, "build_optional_llm", lambda: None)
+    monkeypatch.setattr(direct_api_article, "build_optional_llm", lambda: None)
 
 
 @pytest.fixture(autouse=True)
