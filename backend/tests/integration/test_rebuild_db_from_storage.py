@@ -9,18 +9,35 @@ import shutil
 import time
 from collections.abc import Callable
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Any
 from uuid import uuid4
 
+import pytest
 from app.infra import storage
 from app.infra.db import Base, engine
 from app.infra.db_recovery import bootstrap_database_on_startup
 from app.scripts.rebuild_db_from_storage import rebuild_from_storage
+from app.services import answer_with_skills
 from fastapi.testclient import TestClient
 
 PNG_BYTES = base64.b64decode(
     "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+kvxkAAAAASUVORK5CYII="
 )
+
+
+class _StaticAnswerLlm:
+    def invoke(self, _: str) -> SimpleNamespace:
+        return SimpleNamespace(
+            content=json.dumps(
+                {
+                    "title": "Recoverable answer",
+                    "topic": "Database recovery",
+                    "summary": "Answer artifact used by the recovery test.",
+                    "markdown": "# Recoverable answer\n\nStored before rebuilding the database.",
+                }
+            )
+        )
 
 
 def _wait_job_status(
@@ -41,7 +58,13 @@ def _wait_job_status(
 def test_rebuild_db_from_storage_recovers_author_document_segments_and_skills(
     client: TestClient,
     create_test_pdf: Callable[[str, list[str] | None], str],
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    monkeypatch.setattr(
+        answer_with_skills,
+        "build_optional_llm",
+        lambda: _StaticAnswerLlm(),
+    )
     author_response = client.post(
         "/api/authors",
         json={
